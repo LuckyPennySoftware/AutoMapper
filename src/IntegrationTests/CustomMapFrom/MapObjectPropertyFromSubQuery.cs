@@ -815,14 +815,14 @@ public class MapObjectPropertyFromSubQueryWithCollectionSameName : NonValidating
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductArticle> ProductArticles { get; set; }
     }
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var initializer = new DatabaseInitializer();
 
         await initializer.Migrate();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }
 
 public class SubQueryWithMapFromNullable : IntegrationTest<SubQueryWithMapFromNullable.DatabaseInitializer>
@@ -2308,14 +2308,14 @@ public class MapObjectPropertyFromSubQueryWithCollectionSameNameWithInheritance 
             modelBuilder.Entity<ProductArticleB>();
         }
     }
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var initializer = new DatabaseInitializer();
 
         await initializer.Migrate();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }
 public class SubQueryWithMapFromNullableWithInheritance : IntegrationTest<SubQueryWithMapFromNullableWithInheritance.DatabaseInitializer>
 {

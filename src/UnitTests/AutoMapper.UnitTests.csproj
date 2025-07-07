@@ -6,16 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AutoMapper\AutoMapper.csproj" />
-    <PackageReference Include="Shouldly" Version="4.2.1" />
-    <PackageReference Include="xunit" Version="2.9.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="Shouldly" Version="4.3.0"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+    <PackageReference Include="xunit.v3" Version="2.0.3"/>
+    <PackageReference Include="xunit.v3.extensibility.core" Version="2.0.3" />
   </ItemGroup>
+
   <ItemGroup>
-    <Using Include="Xunit" />
-    <Using Include="Shouldly" />
-    <Using Include="System.Collections" />
-    <Using Include="System.Collections.ObjectModel" />
+    <ProjectReference Include="..\AutoMapper\AutoMapper.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit"/>
+    <Using Include="Shouldly"/>
+    <Using Include="System.Collections"/>
+    <Using Include="System.Collections.ObjectModel"/>
   </ItemGroup>
 </Project>

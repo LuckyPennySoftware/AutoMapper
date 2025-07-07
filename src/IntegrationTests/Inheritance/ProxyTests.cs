@@ -103,12 +103,12 @@ public class ProxyTests : IAsyncLifetime
         //  public int CourseId { get; set; }
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var initializer = new DatabaseInitializer();
 
         await initializer.Migrate();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

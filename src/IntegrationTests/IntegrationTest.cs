@@ -2,17 +2,22 @@
 
 public abstract class IntegrationTest<TInitializer> : AutoMapperSpecBase, IAsyncLifetime where TInitializer : IInitializer, new()
 {
-    Task IAsyncLifetime.DisposeAsync() => Task.CompletedTask;
-    Task IAsyncLifetime.InitializeAsync() => new TInitializer().Migrate();
+    ValueTask IAsyncLifetime.InitializeAsync() => new TInitializer().Migrate();
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }
+
 public interface IInitializer
 {
-    Task Migrate();
+    ValueTask Migrate();
 }
+
 public class DropCreateDatabaseAlways<TContext> : IInitializer where TContext : DbContext, new()
 {
-    protected virtual void Seed(TContext context){}
-    public async Task Migrate()
+    protected virtual void Seed(TContext context)
+    {
+    }
+
+    public async ValueTask Migrate()
     {
         await using var context = new TContext();
         var database = context.Database;
@@ -25,6 +30,7 @@ public class DropCreateDatabaseAlways<TContext> : IInitializer where TContext : 
         await context.SaveChangesAsync();
     }
 }
+
 public abstract class LocalDbContext : DbContext
 {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlServer(

@@ -14,7 +14,7 @@ public class MembersToExpandExpressions  : AutoMapperSpecBase, IAsyncLifetime
         public SourceDeepInner Deep { get; set; }
     }
     public class Source
-    {   
+    {
         public int Id { get; set; }
         public string Name { get; set; }
         public int Desc { get; set; }
@@ -56,12 +56,12 @@ public class MembersToExpandExpressions  : AutoMapperSpecBase, IAsyncLifetime
             ProjectTo<Dto>(context.Sources, null, _ => _.DeepFlattened).First().DeepFlattened.ShouldBe(_source.Inner.Deep.Desc);
         }
     }
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var initializer = new DatabaseInitializer();
 
         await initializer.Migrate();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

@@ -45,15 +45,14 @@ public class MultiThreadingIssues
 
         for(int i = 0; i < threadCount; i++)
         {
-            Task.Factory.StartNew(doMapping).ContinueWith(
-                a =>
+            Task.Factory.StartNew(doMapping, TestContext.Current.CancellationToken).ContinueWith(a =>
                 {
                     if(Interlocked.Increment(ref _done) == threadCount)
                     {
                         _allDone.Set();
                     }
 
-                });
+                }, TestContext.Current.CancellationToken);
         }
 
         _allDone.WaitOne(TimeSpan.FromSeconds(10));
