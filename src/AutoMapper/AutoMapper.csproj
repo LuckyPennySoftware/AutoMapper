@@ -48,7 +48,6 @@
     <PackageReference Include="PolySharp" Version="1.15.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" PrivateAssets="All" />
     
     <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     <!-- <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="7.0.0-beta.22074.1" PrivateAssets="All" />   -->
   </ItemGroup>
 
