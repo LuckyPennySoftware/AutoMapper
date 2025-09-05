@@ -204,8 +204,15 @@ public sealed class TypeMap
             return;
         }
         _sealed = true;
-        _details?.Seal(configuration, this);
-        MapExpression = Projection ? EmptyLambda : CreateMapperLambda(configuration);
+        try
+        {
+            _details?.Seal(configuration, this);
+            MapExpression = Projection ? EmptyLambda : CreateMapperLambda(configuration);
+        }
+        catch (Exception e)
+        {
+            throw new AutoMapperMappingException("Error creating mapping strategy.", e, this);
+        }
         SourceTypeDetails = null;
         DestinationTypeDetails = null;
     }
