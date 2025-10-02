@@ -119,7 +119,7 @@ public sealed class ProjectionBuilder : IProjectionBuilder
                             propertiesProjections.Add(Bind(propertyMap.DestinationMember, propertyProjection));
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception e) when (e is not AutoMapperConfigurationException)
                     {
                         throw new AutoMapperMappingException("Error building queryable mapping strategy.", e, propertyMap);
                     }
@@ -223,7 +223,7 @@ public sealed class ProjectionBuilder : IProjectionBuilder
                         {
                             return TryProjectMember(map, map.DefaultValue(null)) ?? Default(map.DestinationType);
                         }
-                        catch (Exception e)
+                        catch (Exception e) when (e is not AutoMapperConfigurationException)
                         {
                             throw new AutoMapperMappingException("Error building constructor projection strategy.", e, map);
                         }

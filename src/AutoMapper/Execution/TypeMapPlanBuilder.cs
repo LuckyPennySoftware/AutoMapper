@@ -258,7 +258,7 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
             {
                 actions.Add(TryPathMap(pathMap));
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not AutoMapperConfigurationException)
             {
                 throw new AutoMapperMappingException("Error building path mapping strategy.", e, pathMap);
             }
@@ -305,7 +305,7 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
             
                 actions.Add(property);
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not AutoMapperConfigurationException)
             {
                 throw new AutoMapperMappingException("Error building member mapping strategy.", e, propertyMap);
             }
@@ -386,7 +386,7 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
                 variables.Add(variable);
                 body.Add(Assign(variable, CreateConstructorParameterExpression(parameter)));
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not AutoMapperConfigurationException)
             {
                 throw new AutoMapperMappingException("Error building constructor parameter mapping strategy.", e, parameter);
             }

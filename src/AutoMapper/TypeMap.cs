@@ -209,7 +209,7 @@ public sealed class TypeMap
             _details?.Seal(configuration, this);
             MapExpression = Projection ? EmptyLambda : CreateMapperLambda(configuration);
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not AutoMapperConfigurationException)
         {
             throw new AutoMapperMappingException("Error creating mapping strategy.", e, this);
         }
