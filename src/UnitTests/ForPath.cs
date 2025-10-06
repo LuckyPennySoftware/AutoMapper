@@ -250,11 +250,11 @@ public class ForPathWithNullExpressionShouldFail
     [Fact]
     public void Should_throw_exception()
     {
-        Assert.Throws<NullReferenceException>(() =>
+        Assert.Throws<AutoMapperMappingException>(() =>
         {
             var cfg = new MapperConfiguration(config =>
             {
-                Assert.Throws<System.ArgumentNullException>(() =>
+                Assert.Throws<ArgumentNullException>(() =>
                 {
                     config.CreateMap<SourceModel, DestinationModel>()
                         .ForPath(sourceModel => sourceModel.Name, opts => opts.MapFrom<string>(null));

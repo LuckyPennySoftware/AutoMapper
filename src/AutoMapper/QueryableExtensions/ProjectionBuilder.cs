@@ -110,10 +110,18 @@ public sealed class ProjectionBuilder : IProjectionBuilder
                     {
                         continue;
                     }
-                    var propertyProjection = TryProjectMember(propertyMap);
-                    if(propertyProjection != null)
+
+                    try
                     {
-                        propertiesProjections.Add(Bind(propertyMap.DestinationMember, propertyProjection));
+                        var propertyProjection = TryProjectMember(propertyMap);
+                        if(propertyProjection != null)
+                        {
+                            propertiesProjections.Add(Bind(propertyMap.DestinationMember, propertyProjection));
+                        }
+                    }
+                    catch (Exception e) when (e is not AutoMapperConfigurationException)
+                    {
+                        throw new AutoMapperMappingException("Error building queryable mapping strategy.", e, propertyMap);
                     }
                 }
             }
@@ -209,7 +217,17 @@ public sealed class ProjectionBuilder : IProjectionBuilder
             {
                 { CustomCtorExpression: LambdaExpression ctorExpression } => (NewExpression)ctorExpression.ReplaceParameters(instanceParameter),
                 { ConstructorMap: { CanResolve: true } constructorMap } =>
-                    New(constructorMap.Ctor, constructorMap.CtorParams.Select(map => TryProjectMember(map, map.DefaultValue(null)) ?? Default(map.DestinationType))),
+                    New(constructorMap.Ctor, constructorMap.CtorParams.Select(map =>
+                    {
+                        try
+                        {
+                            return TryProjectMember(map, map.DefaultValue(null)) ?? Default(map.DestinationType);
+                        }
+                        catch (Exception e) when (e is not AutoMapperConfigurationException)
+                        {
+                            throw new AutoMapperMappingException("Error building constructor projection strategy.", e, map);
+                        }
+                    })),
                 _ => New(typeMap.DestinationType)
             };
         }
