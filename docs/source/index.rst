@@ -21,6 +21,7 @@ New to AutoMapper? Check out the :doc:`Getting-started` page first.
    
    Getting-started
    Understanding-your-mapping
+   License-configuration
 
 .. _feature-docs:
 
