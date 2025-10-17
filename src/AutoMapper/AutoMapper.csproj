@@ -46,7 +46,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[8.0.0, )"/>
     <PackageReference Include="Microsoft.Extensions.Options" Version="[8.0.0, )"/>
-    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="[8.2.0, )"/>
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="[8.14.0, )"/>
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="[6.0.0, )" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
     <PackageReference Include="System.Reflection.Emit" Version="[4.7.0, )" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
     <PackageReference Include="PolySharp" Version="1.15.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" PrivateAssets="All" />
