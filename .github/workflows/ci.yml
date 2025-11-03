@@ -15,32 +15,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
-  build-windows:
-    strategy:
-      fail-fast: false
-    runs-on: windows-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4.2.0
-      with:
-        fetch-depth: 0
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          8.0.x
-          9.0.x
-    - name: Build and Test
-      run: |
-        dotnet build --configuration Release
-
-        dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\UnitTests
-
-        dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\AutoMapper.DI.Tests
-
-      shell: pwsh
   build:
-    needs: build-windows  
     strategy:
       fail-fast: false
     runs-on: ubuntu-latest
@@ -58,15 +33,34 @@ jobs:
     - name: Build and Test
       run: ./Build.ps1
       shell: pwsh
-    - name: Push to MyGet
-      if: github.ref == 'refs/heads/master'
-      env:
-        NUGET_URL: https://f.feedz.io/lucky-penny-software/automapper/nuget/index.json
-        NUGET_API_KEY: ${{ secrets.FEEDZIO_ACCESS_TOKEN }}
-      run: ./Push.ps1
-      shell: pwsh
-    - name: Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: artifacts
-        path: artifacts/**/*
+  build-windows:
+    needs: build
+    strategy:
+      fail-fast: false
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.0
+        with:
+          fetch-depth: 0
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+      - name: Build and Test
+        run: ./Build.ps1
+        shell: pwsh
+      - name: Push to MyGet
+        if: github.ref == 'refs/heads/master'
+        env:
+          NUGET_URL: https://f.feedz.io/lucky-penny-software/automapper/nuget/index.json
+          NUGET_API_KEY: ${{ secrets.FEEDZIO_ACCESS_TOKEN }}
+        run: ./Push.ps1
+        shell: pwsh
+      - name: Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: artifacts/**/*

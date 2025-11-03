@@ -42,12 +42,7 @@ jobs:
             8.0.x
             9.0.x
       - name: Build and Test
-        run: >
-          dotnet build --configuration Release
-          
-          dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\UnitTests
-          
-          dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\AutoMapper.DI.Tests
+        run: ./Build.ps1
         shell: pwsh
       - name: Push to MyGet
         env:
