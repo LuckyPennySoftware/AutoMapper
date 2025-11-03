@@ -1,70 +1,68 @@
+---
 name: Release
-
 on:
   push:
     tags:
-    - '*.*.*'
+      - "*.*.*"
 permissions:
   contents: read
-
 jobs:
-  build-windows:
-    strategy:
-      fail-fast: false
-    runs-on: windows-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          8.0.x
-          9.0.x
-    - name: Build and Test
-      run: |
-        dotnet build --configuration Release
-
-        dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\UnitTests
-
-        dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\AutoMapper.DI.Tests
-
-      shell: pwsh
   build:
-    needs: build-windows  
     strategy:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          8.0.x
-          9.0.x
-    - name: Build and Test
-      run: ./Build.ps1
-      shell: pwsh
-    - name: Push to MyGet
-      env:
-        NUGET_URL: https://f.feedz.io/lucky-penny-software/automapper/nuget/index.json
-        NUGET_API_KEY: ${{ secrets.FEEDZIO_ACCESS_TOKEN }}
-      run: ./Push.ps1
-      shell: pwsh
-    - name: Push to NuGet
-      env:
-        NUGET_URL: https://api.nuget.org/v3/index.json
-        NUGET_API_KEY: ${{ secrets.AUTOMAPPER_NUGET_API_KEY }}
-      run: ./Push.ps1
-      shell: pwsh
-    - name: Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: artifacts
-        path: artifacts/**/*
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+      - name: Build and Test
+        run: ./Build.ps1
+        shell: pwsh
+  build-windows:
+    needs: build
+    strategy:
+      fail-fast: false
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+      - name: Build and Test
+        run: >
+          dotnet build --configuration Release
+          
+          dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\UnitTests
+          
+          dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\AutoMapper.DI.Tests
+        shell: pwsh
+      - name: Push to MyGet
+        env:
+          NUGET_URL: https://f.feedz.io/lucky-penny-software/automapper/nuget/index.json
+          NUGET_API_KEY: ${{ secrets.FEEDZIO_ACCESS_TOKEN }}
+        run: ./Push.ps1
+        shell: pwsh
+      - name: Push to NuGet
+        env:
+          NUGET_URL: https://api.nuget.org/v3/index.json
+          NUGET_API_KEY: ${{ secrets.AUTOMAPPER_NUGET_API_KEY }}
+        run: ./Push.ps1
+        shell: pwsh
+      - name: Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: artifacts/**/*

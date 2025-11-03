@@ -98,3 +98,6 @@ indent_size = 2
 
 [*.csproj]
 indent_size = 2
+
+[*.yml]
+indent_size = 2
