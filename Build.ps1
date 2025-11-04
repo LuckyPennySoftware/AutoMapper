@@ -35,6 +35,6 @@ else {
     $solution = "./AutoMapper.sln"
 }
 
-exec { & dotnet test --configuration Release --results-directory $artifacts --logger trx }
+exec { & dotnet test $solution --configuration Release --results-directory $artifacts --logger trx }
 
 exec { & dotnet pack .\src\AutoMapper\AutoMapper.csproj --configuration Release --output $artifacts --no-build }
