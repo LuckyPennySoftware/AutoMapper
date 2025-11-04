@@ -37,4 +37,7 @@ else {
 
 exec { & dotnet test $solution --configuration Release --results-directory $artifacts --logger trx }
 
-exec { & dotnet pack .\src\AutoMapper\AutoMapper.csproj --configuration Release --output $artifacts --no-build }
+# Only pack AutoMapper project on Windows runners in GitHub Actions
+if ($env:GITHUB_ACTIONS -eq 'true' -and $env:RUNNER_OS -eq 'Windows') {
+    exec { & dotnet pack .\src\AutoMapper\AutoMapper.csproj --configuration Release --output $artifacts --no-build }
+}
