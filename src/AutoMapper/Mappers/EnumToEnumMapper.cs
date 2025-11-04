@@ -16,7 +16,7 @@ public sealed class EnumToEnumMapper : IObjectMapper
         statements.Add(Condition(tryParse, result, Convert(sourceExpression, destinationType)));
         return Block(variables, statements);
     }
-#if NETSTANDARD2_0
+#if FULL_OR_STANDARD
     public TypePair? GetAssociatedTypes(TypePair initialTypes) => null;
 #endif
 }

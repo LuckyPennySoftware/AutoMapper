@@ -68,7 +68,7 @@ public abstract class ObjectMapper<TSource, TDestination> : IObjectMapper
             Constant(destExpression.Type),
             ContextParameter);
 
-#if NETSTANDARD2_0
+#if FULL_OR_STANDARD
     public TypePair? GetAssociatedTypes(TypePair initialTypes) => null;
 #endif
 }

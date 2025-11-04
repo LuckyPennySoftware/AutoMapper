@@ -14,6 +14,10 @@
     <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::get_Windows())))</IsWindows>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net471' Or '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>$(DefineConstants);FULL_OR_STANDARD</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Using Include="System.Reflection"/>
     <Using Include="System.Diagnostics"/>

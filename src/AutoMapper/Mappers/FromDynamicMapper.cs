@@ -35,7 +35,7 @@ public sealed class FromDynamicMapper : IObjectMapper
     public Expression MapExpression(IGlobalConfiguration configuration, ProfileMap profileMap,
         MemberMap memberMap, Expression sourceExpression, Expression destExpression) =>
         Call(MapMethodInfo, sourceExpression, destExpression.ToObject(), Constant(destExpression.Type), ContextParameter, Constant(profileMap));
-#if NETSTANDARD2_0
+#if FULL_OR_STANDARD
     public TypePair? GetAssociatedTypes(TypePair initialTypes) => null;
 #endif
 }

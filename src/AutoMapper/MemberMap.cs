@@ -93,7 +93,7 @@ public class MemberMap : IValueResolver
     MemberInfo IValueResolver.GetSourceMember(MemberMap memberMap) => SourceMembers[0];
     Type IValueResolver.ResolvedType => SourceMembers[^1].GetMemberType();
     
-#if NETSTANDARD2_0
+#if FULL_OR_STANDARD
     public string SourceMemberName => null;
     public LambdaExpression ProjectToExpression => null;
     public IValueResolver CloseGenerics(TypeMap typeMap) => this;
