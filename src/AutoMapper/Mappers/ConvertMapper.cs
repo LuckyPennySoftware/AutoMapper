@@ -10,7 +10,7 @@ public sealed class ConvertMapper : IObjectMapper
         var convertMethod = typeof(Convert).GetMethod("To" + destExpression.Type.Name, [sourceExpression.Type]);
         return Call(convertMethod, sourceExpression);
     }
-#if NETSTANDARD2_0
+#if FULL_OR_STANDARD
     public TypePair? GetAssociatedTypes(TypePair initialTypes) => null;
 #endif
 }

@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(IsWindows)' == 'true' ">
-    <TargetFrameworks>$(TargetFrameworks);net462</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworks);net471</TargetFrameworks>
   </PropertyGroup>
   
   <ItemGroup>
@@ -47,9 +47,9 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[8.0.0, )"/>
     <PackageReference Include="Microsoft.Extensions.Options" Version="[8.0.0, )"/>
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="[8.14.0, )"/>
-    <PackageReference Include="Microsoft.Bcl.HashCode" Version="[6.0.0, )" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="[6.0.0, )" Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net471'" />
     <PackageReference Include="System.Reflection.Emit" Version="[4.7.0, )" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="PolySharp" Version="1.15.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" PrivateAssets="All" />
+    <PackageReference Include="PolySharp" Version="1.15.0" Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net471'" PrivateAssets="All" />
     
     <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="All"/>
     <!-- <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="7.0.0-beta.22074.1" PrivateAssets="All" />   -->

@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-#if NETSTANDARD2_0
+#if FULL_OR_STANDARD
 namespace AutoMapper;
 
 internal static class Polyfill

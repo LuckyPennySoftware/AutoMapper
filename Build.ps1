@@ -26,6 +26,18 @@ $artifacts = ".\artifacts"
 
 if(Test-Path $artifacts) { Remove-Item $artifacts -Force -Recurse }
 
-exec { & dotnet test -c Release --results-directory $artifacts -l trx }
+if ($env:GITHUB_ACTIONS -eq 'true' -and $env:RUNNER_OS -eq 'Windows') {
+    Write-Host "✅ Running inside GitHub Actions on a Windows runner"
+    $solution = "./AutoMapper.WindowsCI.slnf"
+}
+else {
+    Write-Host "🖥️ Running locally or on a different platform"
+    $solution = "./AutoMapper.sln"
+}
 
-exec { & dotnet pack .\src\AutoMapper\AutoMapper.csproj -c Release -o $artifacts --no-build }
+exec { & dotnet test $solution --configuration Release --results-directory $artifacts --logger trx }
+
+# Only pack AutoMapper project on Windows runners in GitHub Actions
+if ($env:GITHUB_ACTIONS -eq 'true' -and $env:RUNNER_OS -eq 'Windows') {
+    exec { & dotnet pack .\src\AutoMapper\AutoMapper.csproj --configuration Release --output $artifacts --no-build }
+}

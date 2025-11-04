@@ -254,7 +254,7 @@ public class ForPathWithNullExpressionShouldFail
         {
             var cfg = new MapperConfiguration(config =>
             {
-                Assert.Throws<ArgumentNullException>(() =>
+                Assert.Throws<System.ArgumentNullException>(() =>
                 {
                     config.CreateMap<SourceModel, DestinationModel>()
                         .ForPath(sourceModel => sourceModel.Name, opts => opts.MapFrom<string>(null));

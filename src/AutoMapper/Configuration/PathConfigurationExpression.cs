@@ -66,7 +66,7 @@ public sealed class PathConfigurationExpression<TSource, TDestination, TMember>(
     public LambdaExpression SourceExpression => _sourceExpression;
     public LambdaExpression GetDestinationExpression() => _destinationExpression;
     public IPropertyMapConfiguration Reverse() => Create(_sourceExpression, _destinationExpression);
-#if NETSTANDARD2_0
+#if FULL_OR_STANDARD
     public bool Ignored => false;
  #endif
 
