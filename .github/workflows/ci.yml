@@ -33,11 +33,6 @@ jobs:
     - name: Build and Test
       run: ./Build.ps1
       shell: pwsh
-    - name: Test Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: artifacts
-        path: artifacts/**/*.trx
   build-windows:
     needs: build
     strategy:
