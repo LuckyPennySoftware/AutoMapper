@@ -49,6 +49,10 @@ jobs:
           dotnet-version: |
             8.0.x
             9.0.x
+      - name: Set up WSL 2
+        uses: Vampire/setup-wsl@v6
+        with:
+          distribution: Ubuntu-22.04
       - name: Build and Test
         run: ./Build.ps1
         shell: pwsh
