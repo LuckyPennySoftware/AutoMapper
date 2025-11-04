@@ -21,9 +21,7 @@ public class DatabaseFixture : IAsyncLifetime
 
     async Task IAsyncLifetime.InitializeAsync()
     {
-        _msSqlContainer = new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2019-CU28-ubuntu-20.04")
-            .Build();
+        _msSqlContainer = new MsSqlBuilder().Build();
         
         await _msSqlContainer.StartAsync();
     }
