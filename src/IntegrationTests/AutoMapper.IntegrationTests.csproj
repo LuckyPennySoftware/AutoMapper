@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <NoWarn>$(NoWarn);618</NoWarn>
     <AssemblyOriginatorKeyFile>..\..\AutoMapper.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
@@ -13,7 +13,7 @@
     <PackageReference Include="Testcontainers.MsSql" Version="4.8.1" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="Shouldly" Version="4.2.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
   </ItemGroup>
