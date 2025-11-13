@@ -38,7 +38,7 @@ GitHub supports [markdown](https://github.github.com/github-flavored-markdown/),
 
 Make sure you can build the code. Familiarize yourself with the project workflow and our coding conventions. If you don't know what a pull request is read this article: https://help.github.com/articles/using-pull-requests.
 
-**We only accept PRs to the master branch.**
+**We only accept PRs to the main branch.**
 
 Before submitting a feature or substantial code contribution please discuss it with the team and ensure it follows the product roadmap. Here's a list of blog posts that are worth reading before doing a pull request:
 

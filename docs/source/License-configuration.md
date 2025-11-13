@@ -1,4 +1,4 @@
-AutoMapper is [dual licensed](https://github.com/LuckyPennySoftware/AutoMapper/blob/master/LICENSE.md). To configure the commercial license, either the license key can be set using `Microsoft.Extensions.DependencyInjection` integration:
+AutoMapper is [dual licensed](https://github.com/LuckyPennySoftware/AutoMapper/blob/main/LICENSE.md). To configure the commercial license, either the license key can be set using `Microsoft.Extensions.DependencyInjection` integration:
 
 ```c#
 services.AddAutoMapper(cfg => {

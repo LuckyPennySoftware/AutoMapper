@@ -157,4 +157,4 @@ ForPath(destination => destination.IncludedMember, member => member.MapFrom(sour
 ```
 and the other way around. If that's not what you want, you can avoid `ReverseMap` (explicitly create the reverse map) or you can override the default settings (using `Ignore` or `IncludeMembers` without parameters respectively).
 
-For details, check [the tests](https://github.com/LuckyPennySoftware/AutoMapper/blob/master/src/UnitTests/IMappingExpression/IncludeMembers.cs).
+For details, check [the tests](https://github.com/LuckyPennySoftware/AutoMapper/blob/main/src/UnitTests/IMappingExpression/IncludeMembers.cs).
