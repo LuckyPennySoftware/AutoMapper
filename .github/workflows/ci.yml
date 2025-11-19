@@ -10,6 +10,7 @@ env:
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
     MINVERBUILDMETADATA: build.${{ github.run_id }}.${{ github.run_attempt}}
 permissions:
+  id-token: write
   contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -44,6 +45,12 @@ jobs:
         uses: actions/checkout@v4.2.0
         with:
           fetch-depth: 0
+      - name: Azure Login via OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
@@ -51,9 +58,21 @@ jobs:
             8.0.x
             9.0.x
             10.0.x
+      - name: Install AzureSignTool
+        run: dotnet tool install --global AzureSignTool
       - name: Build and Test
         run: ./Build.ps1
         shell: pwsh
+      - name: Sign package
+        run: |
+          AzureSignTool sign \
+          --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} \
+          --azure-key-vault-client-id ${{ secrets.AZURE_CLIENT_ID }} \
+          --azure-key-vault-tenant-id ${{ secrets.AZURE_TENANT_ID }} \
+          --azure-key-vault-key ${{ secrets.CODESIGN_KEY_NAME }} \
+          --description "AutoMapper" \
+          --timestamp-url http://timestamp.digicert.com \
+          ./artifacts/*.nupkg
       - name: Push to MyGet
         if: github.ref == 'refs/heads/main'
         env:
