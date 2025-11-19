@@ -19,10 +19,6 @@
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-    <PackageReference Include="Microsoft.Bcl.HashCode" Version="[6.0.0, )" Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net471'" />
-    <PackageReference Include="System.ValueTuple" Version="4.6.1" Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net471'" />
-    <PackageReference Include="System.Reflection.Emit" Version="[4.7.0, )" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="PolySharp" Version="1.15.0" Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net471'" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
