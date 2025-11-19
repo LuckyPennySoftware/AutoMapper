@@ -69,7 +69,7 @@ jobs:
           --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} \
           --azure-key-vault-client-id ${{ secrets.AZURE_CLIENT_ID }} \
           --azure-key-vault-tenant-id ${{ secrets.AZURE_TENANT_ID }} \
-          --azure-key-vault-key ${{ secrets.CODESIGN_KEY_NAME }} \
+          --azure-key-vault-certificate ${{ secrets.CODESIGN_CERT_NAME }} \
           --description "AutoMapper" \
           --timestamp-url http://timestamp.digicert.com \
           ./artifacts/*.nupkg
