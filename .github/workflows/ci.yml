@@ -69,15 +69,6 @@ jobs:
           for file in artifacts/*.nupkg; do
             dotnet NuGetKeyVaultSignTool sign "$file" --file-digest sha256 --timestamp-rfc3161 http://timestamp.digicert.com --azure-key-vault-managed-identity --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} --azure-key-vault-certificate ${{ secrets.CODESIGN_CERT_NAME }}
           done
-#      - name: Sign package
-#        run: |
-#          NuGetKeyVaultSignTool sign `
-#          --azure-key-vault-managed-identity `
-#          --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} `
-#          --azure-key-vault-certificate ${{ secrets.CODESIGN_CERT_NAME }} `
-#          --description "AutoMapper" `
-#          --timestamp-url http://timestamp.digicert.com `
-#          ./artifacts/*.nupkg
       - name: Push to MyGet
         if: github.ref == 'refs/heads/main'
         env:
