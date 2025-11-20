@@ -65,13 +65,13 @@ jobs:
         shell: pwsh
       - name: Sign package
         run: |
-          AzureSignTool sign \
-          --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} \
-          --azure-key-vault-client-id ${{ secrets.AZURE_CLIENT_ID }} \
-          --azure-key-vault-tenant-id ${{ secrets.AZURE_TENANT_ID }} \
-          --azure-key-vault-certificate ${{ secrets.CODESIGN_CERT_NAME }} \
-          --description "AutoMapper" \
-          --timestamp-url http://timestamp.digicert.com \
+          AzureSignTool sign `
+          --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} `
+          --azure-key-vault-client-id ${{ secrets.AZURE_CLIENT_ID }} `
+          --azure-key-vault-tenant-id ${{ secrets.AZURE_TENANT_ID }} `
+          --azure-key-vault-certificate ${{ secrets.CODESIGN_CERT_NAME }} `
+          --description "AutoMapper" `
+          --timestamp-url http://timestamp.digicert.com `
           ./artifacts/*.nupkg
       - name: Push to MyGet
         if: github.ref == 'refs/heads/main'
