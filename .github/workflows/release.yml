@@ -56,9 +56,9 @@ jobs:
         shell: pwsh
       - name: Sign packages
         run: |-
-          for file in artifacts/*.nupkg; do
-            NuGetKeyVaultSignTool sign "$file" --file-digest sha256 --timestamp-rfc3161 http://timestamp.digicert.com --azure-key-vault-managed-identity --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} --azure-key-vault-certificate ${{ secrets.CODESIGN_CERT_NAME }}
-          done
+          foreach ($f in Get-ChildItem "./artifacts" -Filter "*.nupkg") {
+            NuGetKeyVaultSignTool sign $f.FullName --file-digest sha256 --timestamp-rfc3161 http://timestamp.digicert.com --azure-key-vault-managed-identity --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} --azure-key-vault-certificate ${{ secrets.CODESIGN_CERT_NAME }}
+          }
       - name: Push to MyGet
         env:
           NUGET_URL: https://f.feedz.io/lucky-penny-software/automapper/nuget/index.json
