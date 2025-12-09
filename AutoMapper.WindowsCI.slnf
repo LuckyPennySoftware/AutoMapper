@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "AutoMapper.sln",
+    "path": "AutoMapper.slnx",
     "projects": [
       "src\\AutoMapper\\AutoMapper.csproj",
       "src\\AutoMapper.DI.Tests\\AutoMapper.DI.Tests.csproj",
