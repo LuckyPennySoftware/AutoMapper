@@ -1,5 +1,7 @@
 <Solution>
   <Configurations>
+    <BuildConfiguration Name="Debug" />
+    <BuildConfiguration Name="Release" />
     <Platform Name="Any CPU" />
     <Platform Name="ARM" />
     <Platform Name="x64" />
