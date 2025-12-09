@@ -32,7 +32,7 @@ if ($env:GITHUB_ACTIONS -eq 'true' -and $env:RUNNER_OS -eq 'Windows') {
 }
 else {
     Write-Host "🖥️ Running locally or on a different platform"
-    $solution = "./AutoMapper.sln"
+    $solution = "./AutoMapper.slnx"
 }
 
 exec { & dotnet test $solution --configuration Release --results-directory $artifacts --logger trx }
