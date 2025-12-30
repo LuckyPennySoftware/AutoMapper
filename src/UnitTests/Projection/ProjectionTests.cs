@@ -47,7 +47,7 @@ public class ProjectionAndMappingCombined : NonValidatingSpecBase
     {
         var mappingConfiguration = new MapperConfiguration(cfg =>
         {
-            cfg.CreateProjection<Source, Destination>().Advanced().;
+            cfg.CreateProjection<Source, Destination>();
             cfg.CreateMap<Source, Destination>();
         });
         
