@@ -156,7 +156,7 @@ public class PolymorphismTptTests(DatabaseFixture databaseFixture) : Integration
         {
             cfg.CreateMap<Vehicle, VehicleModel>()
                 .Include<Car, CarModel>()
-                .Include<Motorcycle, MotorcycleModel>();;
+                .Include<Motorcycle, MotorcycleModel>();
 	
             cfg.CreateMap<Car, CarModel>();
             cfg.CreateMap<Motorcycle, MotorcycleModel>();
