@@ -144,6 +144,14 @@ public interface IProfileExpression
     /// Value transformers. Modify the list directly or use <see cref="ValueTransformerConfigurationExtensions.Add{TValue}"/>
     /// </summary>
     List<ValueTransformerConfiguration> ValueTransformers { get; }
+
+    /// <summary>
+    /// Enables/disables polymorphic projections for LINQ projections (ProjectTo).
+    ///
+    /// Defaults to true
+    /// </summary>
+    bool PolymorphicProjectionsEnabled { get; set; }
+
 }
 /// <summary>
 /// Member list to check for configuration validation

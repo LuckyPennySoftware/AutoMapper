@@ -134,6 +134,7 @@ public interface IGlobalConfiguration : IConfigurationProvider
     /// <remarks>Some providers (such as EntityFrameworkQueryVisitor) do not work with this feature enabled!</remarks>
     /// </summary>
     bool EnableNullPropagationForQueryMapping { get; }
+    bool PolymorphicProjectionsEnabled { get; }
     /// <summary>
     /// Factory method to create formatters, resolvers and type converters
     /// </summary>

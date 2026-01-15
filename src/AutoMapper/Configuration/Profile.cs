@@ -9,6 +9,7 @@ public interface IProfileConfiguration
     bool? AllowNullDestinationValues { get; }
     bool? AllowNullCollections { get; }
     bool? EnableNullPropagationForQueryMapping { get; }
+    bool? PolymorphicProjectionsEnabled { get; }
     IReadOnlyCollection<Action<TypeMap, IMappingExpression>> AllTypeMapActions { get; }
     IReadOnlyCollection<PropertyMapAction> AllPropertyMapActions { get; }
 
@@ -81,6 +82,7 @@ public class Profile : IProfileExpressionInternal, IProfileConfiguration
     bool? IProfileExpressionInternal.FieldMappingEnabled { get; set; }
     bool? IProfileConfiguration.FieldMappingEnabled => this.Internal().FieldMappingEnabled;
     bool? IProfileConfiguration.EnableNullPropagationForQueryMapping => this.Internal().EnableNullPropagationForQueryMapping;
+    bool? IProfileConfiguration.PolymorphicProjectionsEnabled => PolymorphicProjectionsEnabled;
     IReadOnlyCollection<PropertyMapAction> IProfileConfiguration.AllPropertyMapActions
         => _allPropertyMapActions.NullCheck();
     IReadOnlyCollection<Action<TypeMap, IMappingExpression>> IProfileConfiguration.AllTypeMapActions => _allTypeMapActions.NullCheck();
@@ -112,6 +114,7 @@ public class Profile : IProfileExpressionInternal, IProfileConfiguration
     List<string> IProfileExpressionInternal.Prefixes => _prefixes;
     List<string> IProfileExpressionInternal.Postfixes => _postfixes;
     public void DisableConstructorMapping() => _constructorMappingEnabled = false;
+    public bool PolymorphicProjectionsEnabled { get; set; }
 
     void IProfileExpressionInternal.ForAllMaps(Action<TypeMap, IMappingExpression> configuration)
     {
