@@ -175,29 +175,6 @@ public class PolymorphismTptTests(DatabaseFixture databaseFixture) : Integration
     }
     
     [Fact]
-    public void Should_project_base_queryable_to_derived_models_polymorphic_with_raw_LINQ()
-    {
-        using var context = Fixture.CreateContext();
-        var results = context.Vehicles.Select(vehicle => vehicle is Motorcycle
-            ? new MotorcycleModel
-            {
-                HasSidecar = (vehicle as Motorcycle).HasSidecar,
-                Name = (vehicle as Motorcycle).Name
-            }
-            : vehicle is Car
-                ? new CarModel
-                {
-                    AmountDoors = (vehicle as Car).AmountDoors,
-                    Name = (vehicle as Car).Name
-                }
-                : default(VehicleModel));
-        
-        results.Count().ShouldBe(2);
-        results.Count(x => x.Name == "Car").ShouldBe(1);
-        results.Count(x => x.Name == "Motorcycle").ShouldBe(1);
-    }
-    
-    [Fact]
     public void Should_project_derived_queryable_to_derived_models_if_derived_models_exist()
     {
         using var context = Fixture.CreateContext();

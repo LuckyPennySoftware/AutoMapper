@@ -150,7 +150,7 @@ public interface IProfileExpression
     ///
     /// Defaults to true
     /// </summary>
-    bool PolymorphicProjectionsEnabled { get; set; }
+    bool? PolymorphicProjectionsEnabled { get; set; }
 
 }
 /// <summary>

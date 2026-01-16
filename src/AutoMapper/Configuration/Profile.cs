@@ -114,7 +114,7 @@ public class Profile : IProfileExpressionInternal, IProfileConfiguration
     List<string> IProfileExpressionInternal.Prefixes => _prefixes;
     List<string> IProfileExpressionInternal.Postfixes => _postfixes;
     public void DisableConstructorMapping() => _constructorMappingEnabled = false;
-    public bool PolymorphicProjectionsEnabled { get; set; }
+    public bool? PolymorphicProjectionsEnabled { get; set; }
 
     void IProfileExpressionInternal.ForAllMaps(Action<TypeMap, IMappingExpression> configuration)
     {

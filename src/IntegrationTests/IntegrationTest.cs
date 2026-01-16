@@ -6,12 +6,14 @@ using Testcontainers.MsSql;
 namespace AutoMapper.IntegrationTests;
 
 [CollectionDefinition(nameof(DatabaseFixture))]
-public class DatabaseCollection : ICollectionFixture<DatabaseFixture> { }
+public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
+{
+}
 
 public class DatabaseFixture : IAsyncLifetime
 {
     private MsSqlContainer _msSqlContainer;
-    
+
     async Task IAsyncLifetime.DisposeAsync()
     {
         await _msSqlContainer.DisposeAsync();
@@ -22,13 +24,13 @@ public class DatabaseFixture : IAsyncLifetime
     async Task IAsyncLifetime.InitializeAsync()
     {
         _msSqlContainer = new MsSqlBuilder().Build();
-        
+
         await _msSqlContainer.StartAsync();
     }
 }
 
 [Collection(nameof(DatabaseFixture))]
-public abstract class IntegrationTest<TDbContextFixture> : AutoMapperSpecBase, IAsyncLifetime 
+public abstract class IntegrationTest<TDbContextFixture> : AutoMapperSpecBase, IAsyncLifetime
     where TDbContextFixture : IDbContextFixture, new()
 {
     private readonly DatabaseFixture _databaseFixture;
@@ -37,7 +39,7 @@ public abstract class IntegrationTest<TDbContextFixture> : AutoMapperSpecBase, I
     {
         _databaseFixture = databaseFixture;
     }
-    
+
     protected TDbContextFixture Fixture { get; private set; }
 
     Task IAsyncLifetime.DisposeAsync() => Task.CompletedTask;
@@ -45,7 +47,7 @@ public abstract class IntegrationTest<TDbContextFixture> : AutoMapperSpecBase, I
     async Task IAsyncLifetime.InitializeAsync()
     {
         var connectionString = _databaseFixture.GetConnectionString();
-        
+
         var builder = new SqlConnectionStringBuilder(connectionString)
         {
             InitialCatalog = GetType().FullName
@@ -55,7 +57,7 @@ public abstract class IntegrationTest<TDbContextFixture> : AutoMapperSpecBase, I
         {
             ConnectionString = builder.ToString()
         };
-        
+
         await Fixture.Migrate();
     }
 }
@@ -70,15 +72,17 @@ public class DropCreateDatabaseAlways<TContext> : IDbContextFixture where TConte
 {
     public string ConnectionString { get; set; }
 
-    protected virtual void Seed(TContext context){}
-    
+    protected virtual void Seed(TContext context)
+    {
+    }
+
     public async Task Migrate()
     {
         await using var context = new TContext
         {
             ConnectionString = ConnectionString
         };
-        
+
         var database = context.Database;
         await database.EnsureDeletedAsync();
         var strategy = database.CreateExecutionStrategy();
@@ -101,7 +105,7 @@ public class DropCreateDatabaseAlways<TContext> : IDbContextFixture where TConte
 public abstract class LocalDbContext : DbContext
 {
     public string ConnectionString { get; set; }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlServer(
         ConnectionString,
         o => o.EnableRetryOnFailure(maxRetryCount: 10).CommandTimeout(120));
