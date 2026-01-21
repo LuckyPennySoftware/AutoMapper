@@ -239,6 +239,7 @@ public sealed class MapperConfiguration : IGlobalConfiguration
     IProjectionBuilder IGlobalConfiguration.ProjectionBuilder => _projectionBuilder.Value;
     Func<Type, object> IGlobalConfiguration.ServiceCtor => ConfigurationExpression.ServiceCtor;
     bool IGlobalConfiguration.EnableNullPropagationForQueryMapping => ConfigurationExpression.EnableNullPropagationForQueryMapping.GetValueOrDefault();
+    bool IGlobalConfiguration.PolymorphicProjectionsEnabled => ConfigurationExpression.PolymorphicProjectionsEnabled ?? true;
     int IGlobalConfiguration.MaxExecutionPlanDepth => ConfigurationExpression.MaxExecutionPlanDepth + 1;
     private ProfileMap Configuration { get; }
     ProfileMap[] IGlobalConfiguration.Profiles => Profiles;

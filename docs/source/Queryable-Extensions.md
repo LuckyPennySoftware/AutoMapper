@@ -218,6 +218,20 @@ Ideally, you would avoid models that reference themselves (do some research). Bu
 configuration.Internal().RecursiveQueriesMaxDepth = someRandomNumber;
 ```
 
+### Polymorphic Projection
+
+Many ORMs support inheritance and polymorphic models, including custom projection. For example, Entity Framework Core supports [inheritance](https://learn.microsoft.com/en-us/ef/core/modeling/inheritance) using a variety of mapping strategies.
+
+Some LINQ query providers also support polymorphic projections. AutoMapper attempts to use polymorphic projections when building the Select query. If there are problems attempting this and you encounter exceptions from the query provider, it's likely because the query provider cannot support polymorphic projections for your scenario.
+
+If this is the case, you can turn off polymorphic projection:
+
+```c#
+configuration.PolymorphicProjectionsEnabled = false;
+```
+
+AutoMapper will no longer attempt to check the source types to pick a specific destination type for LINQ projections.
+
 ### Supported mapping options
 
 Not all mapping options can be supported, as the expression generated must be interpreted by a LINQ provider. Only what is supported by LINQ providers is supported by AutoMapper:

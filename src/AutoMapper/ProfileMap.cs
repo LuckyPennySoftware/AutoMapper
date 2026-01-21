@@ -17,6 +17,7 @@ public sealed class ProfileMap
         AllowNullCollections = profile.AllowNullCollections ?? configuration?.AllowNullCollections ?? false;
         AllowNullDestinationValues = profile.AllowNullDestinationValues ?? configuration?.AllowNullDestinationValues ?? true;
         EnableNullPropagationForQueryMapping = profile.EnableNullPropagationForQueryMapping ?? configuration?.EnableNullPropagationForQueryMapping ?? false;
+        PolymorphicProjectionsEnabled = profile.PolymorphicProjectionsEnabled ?? configuration?.PolymorphicProjectionsEnabled ?? true;
         ConstructorMappingEnabled = profile.ConstructorMappingEnabled ?? globalProfile?.ConstructorMappingEnabled ?? true;
         MethodMappingEnabled = profile.MethodMappingEnabled ?? globalProfile?.MethodMappingEnabled ?? true;
         FieldMappingEnabled = profile.FieldMappingEnabled ?? globalProfile?.FieldMappingEnabled ?? true;
@@ -89,6 +90,7 @@ public sealed class ProfileMap
     public bool AllowNullDestinationValues { get; }
     public bool ConstructorMappingEnabled { get; }
     public bool EnableNullPropagationForQueryMapping { get; }
+    public bool PolymorphicProjectionsEnabled { get; }
     public bool MethodMappingEnabled { get; }
     public bool FieldMappingEnabled { get; }
     public string Name { get; }

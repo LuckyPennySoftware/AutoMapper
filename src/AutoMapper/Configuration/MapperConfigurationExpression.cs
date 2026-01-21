@@ -104,6 +104,7 @@ public sealed class MapperConfigurationExpression : Profile, IGlobalConfiguratio
     private Func<Type, object> _serviceCtor = Activator.CreateInstance;
     private List<IProjectionMapper> _projectionMappers;
     private List<Assembly> _scannedAssembles = [];
+
     /// <summary>
     /// Add an action to be called when validating the configuration.
     /// </summary>
