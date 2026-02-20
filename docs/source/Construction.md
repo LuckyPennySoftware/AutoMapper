@@ -120,8 +120,6 @@ services.AddAutoMapper(cfg =>
 });
 ```
 
-Constructor instances are resolved at mapper configuration time and cached in the compiled expression, so DI resolution does not occur during individual mapping calls.
-
 For runtime type resolution, use the non-generic overload:
 
 ```csharp

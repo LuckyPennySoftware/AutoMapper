@@ -159,7 +159,7 @@ public interface IMappingExpressionBase<TSource, TDestination, out TMappingExpre
     /// <summary>
     /// Supply a custom object constructor type for instantiating the destination type with dependency injection support
     /// </summary>
-    /// <remarks>Not used for LINQ projection (ProjectTo). Constructor is resolved from the DI container at configuration time.</remarks>
+    /// <remarks>Not used for LINQ projection (ProjectTo).</remarks>
     /// <typeparam name="TConstructor">Constructor type implementing IDestinationFactory&lt;TSource, TDestination&gt;</typeparam>
     /// <returns>Itself</returns>
     TMappingExpression ConstructUsing<TConstructor>() where TConstructor : IDestinationFactory<TSource, TDestination>;
@@ -167,7 +167,7 @@ public interface IMappingExpressionBase<TSource, TDestination, out TMappingExpre
     /// Supply a custom object constructor type for instantiating the destination type with dependency injection support.
     /// Used when the constructor type is not known at compile-time.
     /// </summary>
-    /// <remarks>Not used for LINQ projection (ProjectTo). Constructor is resolved from the DI container at configuration time.</remarks>
+    /// <remarks>Not used for LINQ projection (ProjectTo).</remarks>
     /// <param name="objectConstructorType">Constructor type implementing IDestinationFactory</param>
     void ConstructUsing(Type objectConstructorType);
     /// <summary>
