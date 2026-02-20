@@ -35,13 +35,13 @@ services.AddAutoMapper(cfg =>
     cfg.CreateMap<Bar, BarDto>();
 });
 // AutoMapper will automatically register any implementations of:
-// - IValueResolver<,>
-// - IMemberValueResolver<,,>
-// - ITypeConverter<,>
-// - IValueConverter<,>
-// - ICondition<,,>
-// - IPreCondition<,>
-// - IMappingAction<,>
+// - IValueResolver<TSource, TDestination, TDestMember>
+// - IMemberValueResolver<TSource, TDestination, TSourceMember, TDestMember>
+// - ITypeConverter<TSource, TDestination>
+// - IValueConverter<TSourceMember, TDestinationMember>
+// - ICondition<TSource, TDestination, TDestMember>
+// - IPreCondition<TSource, TDestination>
+// - IMappingAction<TSource, TDestination>
 // from the provided assemblies
 
 // only during development, validate your mappings; remove it before release
