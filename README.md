@@ -28,12 +28,21 @@ var configuration = new MapperConfiguration(cfg =>
     cfg.CreateMap<Bar, BarDto>();
 }, loggerFactory);
 
-// or more typically, using IServiceCollection
+// or more typically, using IServiceCollection with automatic service registration
 services.AddAutoMapper(cfg => 
 {
     cfg.CreateMap<Foo, FooDto>();
     cfg.CreateMap<Bar, BarDto>();
 });
+// AutoMapper will automatically register any implementations of:
+// - IValueResolver<TSource, TDestination, TDestMember>
+// - IMemberValueResolver<TSource, TDestination, TSourceMember, TDestMember>
+// - ITypeConverter<TSource, TDestination>
+// - IValueConverter<TSourceMember, TDestinationMember>
+// - ICondition<TSource, TDestination, TDestMember>
+// - IPreCondition<TSource, TDestination>
+// - IMappingAction<TSource, TDestination>
+// from the provided assemblies
 
 // only during development, validate your mappings; remove it before release
 #if DEBUG

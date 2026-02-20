@@ -1,9 +1,10 @@
 ﻿namespace AutoMapper.Internal;
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly record struct MemberPath(MemberInfo[] Members)
 {
     public static readonly MemberPath Empty = new(Members: []);
-    public MemberPath(Stack<Member> members) : this(members.ToMemberInfos()){}
+    public MemberPath(Stack<Member> members) : this(members.ToMemberInfos()) { }
     public MemberInfo Last => Members[^1];
     public MemberInfo First => Members[0];
     public int Length => Members.Length;
@@ -11,7 +12,7 @@ public readonly record struct MemberPath(MemberInfo[] Members)
     public override int GetHashCode()
     {
         HashCode hashCode = new();
-        foreach(var member in Members)
+        foreach (var member in Members)
         {
             hashCode.Add(member);
         }
@@ -33,5 +34,5 @@ public readonly record struct MemberPath(MemberInfo[] Members)
         }
         return true;
     }
-    public MemberPath Concat(IEnumerable<MemberInfo> memberInfos) => new([..Members.Concat(memberInfos)]);
+    public MemberPath Concat(IEnumerable<MemberInfo> memberInfos) => new([.. Members.Concat(memberInfos)]);
 }

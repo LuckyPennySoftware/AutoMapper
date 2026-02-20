@@ -302,7 +302,7 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
                 {
                     property = _initialDestination.IfNullElse(_configuration.Default(property.Type), property);
                 }
-            
+
                 actions.Add(property);
             }
             catch (Exception e) when (e is not AutoMapperConfigurationException)
@@ -633,7 +633,7 @@ public class ExpressionResolver(LambdaExpression lambda) : LambdaValueResolver(l
 
     public MemberInfo GetSourceMember(MemberMap _) => Lambda.GetMember();
     public LambdaExpression ProjectToExpression => Lambda;
-    
+
 #if FULL_OR_STANDARD
     public string SourceMemberName => null;
     public IValueResolver CloseGenerics(TypeMap typeMap) => this;
@@ -700,7 +700,7 @@ public class ValueConverter : ValueResolverConfig, IValueResolver
         { SourceMemberName: { } } => null,
         _ => memberMap.SourceMembers.Length == 1 ? memberMap.SourceMembers[0] : null
     };
-    
+
 #if FULL_OR_STANDARD
     public LambdaExpression ProjectToExpression => null;
     public IValueResolver CloseGenerics(TypeMap typeMap) => this;
@@ -759,7 +759,7 @@ public class ClassValueResolver : ValueResolverConfig, IValueResolver
     }
 
     public MemberInfo GetSourceMember(MemberMap _) => SourceMemberLambda?.GetMember();
-    
+
 #if FULL_OR_STANDARD
     public LambdaExpression ProjectToExpression => null;
     public IValueResolver CloseGenerics(TypeMap typeMap) => this;
@@ -807,6 +807,6 @@ public class ClassTypeConverter(Type converterType, Type converterInterface) : T
                 ? closedTypes.DestinationType.GenericTypeArguments
                 : []);
         var neededParameters = ConverterType.GenericParametersCount();
-        ConverterType = ConverterType.MakeGenericType([..typeParams.Take(neededParameters)]);
+        ConverterType = ConverterType.MakeGenericType([.. typeParams.Take(neededParameters)]);
     }
 }

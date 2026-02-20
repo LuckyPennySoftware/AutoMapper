@@ -84,7 +84,7 @@ public static class ProxyGenerator
         List<PropertyDescription> PropertiesToImplement()
         {
             List<PropertyDescription> propertiesToImplement = [];
-            List<Type> allInterfaces = [..interfaceType.GetInterfaces(), interfaceType];
+            List<Type> allInterfaces = [.. interfaceType.GetInterfaces(), interfaceType];
             // first we collect all properties, those with setters before getters in order to enable less specific redundant getters
             foreach (var property in
                 allInterfaces.Where(intf => intf != typeof(INotifyPropertyChanged))
@@ -114,7 +114,7 @@ public static class ProxyGenerator
     }
     public static Type GetProxyType(Type interfaceType) => ProxyTypes.GetOrAdd(new(interfaceType, []));
     public static Type GetSimilarType(Type sourceType, IEnumerable<PropertyDescription> additionalProperties) =>
-        ProxyTypes.GetOrAdd(new(sourceType, [..additionalProperties.OrderBy(p => p.Name)]));
+        ProxyTypes.GetOrAdd(new(sourceType, [.. additionalProperties.OrderBy(p => p.Name)]));
     class PropertyEmitter
     {
         private static readonly MethodInfo ProxyBaseNotifyPropertyChanged = typeof(ProxyBase).GetInstanceMethod("NotifyPropertyChanged");

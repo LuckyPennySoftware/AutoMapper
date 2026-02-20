@@ -1,5 +1,6 @@
 ﻿using StringDictionary = System.Collections.Generic.IDictionary<string, object>;
 namespace AutoMapper.Internal.Mappers;
+
 public sealed class FromStringDictionaryMapper : IObjectMapper
 {
     private static readonly MethodInfo MapDynamicMethod = typeof(FromStringDictionaryMapper).GetStaticMethod(nameof(MapDynamic));
@@ -37,7 +38,7 @@ public sealed class FromStringDictionaryMapper : IObjectMapper
             {
                 return (value, 1);
             }
-            var matches = source.Where(s => s.Key.Trim() == name).Select(s=>s.Value).ToArray();
+            var matches = source.Where(s => s.Key.Trim() == name).Select(s => s.Value).ToArray();
             if (matches.Length == 1)
             {
                 return (matches[0], 1);

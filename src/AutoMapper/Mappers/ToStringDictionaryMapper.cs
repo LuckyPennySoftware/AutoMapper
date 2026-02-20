@@ -1,4 +1,5 @@
 ﻿namespace AutoMapper.Internal.Mappers;
+
 public sealed class ToStringDictionaryMapper : IObjectMapper
 {
     private static readonly MethodInfo MembersDictionaryMethodInfo = typeof(ToStringDictionaryMapper).GetStaticMethod(nameof(MembersDictionary));

@@ -1,4 +1,5 @@
 namespace AutoMapper;
+
 using Features;
 using System.Runtime.CompilerServices;
 
@@ -77,7 +78,7 @@ public sealed class TypeMap
     public MemberList ConfiguredMemberList
     {
         get => (_details?.ConfiguredMemberList).GetValueOrDefault();
-        set 
+        set
         {
             if (_details == null && value == default)
             {
@@ -135,7 +136,7 @@ public sealed class TypeMap
     private void AddPropertyMap(MemberInfo destProperty, Type destinationPropertyType, List<MemberInfo> sourceMembers)
     {
         PropertyMap propertyMap = new(destProperty, destinationPropertyType, this);
-        propertyMap.MapByConvention([..sourceMembers]);
+        propertyMap.MapByConvention([.. sourceMembers]);
         AddPropertyMap(propertyMap);
     }
     private void AddPropertyMap(PropertyMap propertyMap)

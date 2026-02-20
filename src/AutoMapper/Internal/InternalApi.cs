@@ -155,7 +155,7 @@ public interface IGlobalConfiguration : IConfigurationProvider
     DefaultExpression GetDefault(Type type);
     ParameterReplaceVisitor ParameterReplaceVisitor();
     ConvertParameterReplaceVisitor ConvertParameterReplaceVisitor();
-    
+
     string LicenseKey { get; }
 }
 [EditorBrowsable(EditorBrowsableState.Never)]

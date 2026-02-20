@@ -1,4 +1,5 @@
 namespace AutoMapper.QueryableExtensions.Impl;
+
 using static ReflectionHelper;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class EnumerableProjectionMapper : IProjectionMapper
@@ -17,7 +18,7 @@ public sealed class EnumerableProjectionMapper : IProjectionMapper
         {
             var itemRequest = request.InnerRequest(sourceListType, destinationListType);
             var transformedExpressions = configuration.ProjectionBuilder.CreateProjection(itemRequest, letPropertyMaps.New());
-            if(transformedExpressions.Empty)
+            if (transformedExpressions.Empty)
             {
                 return null;
             }

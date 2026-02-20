@@ -1,4 +1,5 @@
 namespace AutoMapper.Configuration.Conventions;
+
 public interface ISourceToDestinationNameMapper
 {
     MemberInfo GetSourceMember(TypeDetails sourceTypeDetails, Type destType, Type destMemberType, string nameToSearch);
@@ -97,7 +98,7 @@ public sealed class ReplaceName : ISourceToDestinationNameMapper
         {
             return null;
         }
-        var possibleDestNames = Array.ConvertAll(sourceTypeDetails.ReadAccessors, mi => (mi, possibles : PossibleNames(mi.Name)));
+        var possibleDestNames = Array.ConvertAll(sourceTypeDetails.ReadAccessors, mi => (mi, possibles: PossibleNames(mi.Name)));
         foreach (var sourceName in possibleSourceNames)
         {
             foreach (var (mi, possibles) in possibleDestNames)
@@ -111,7 +112,7 @@ public sealed class ReplaceName : ISourceToDestinationNameMapper
         return null;
     }
     public void Merge(ISourceToDestinationNameMapper other) => MemberNameReplacers.TryAdd(((ReplaceName)other).MemberNameReplacers);
-    private List<string> PossibleNames(string nameToSearch) => [..MemberNameReplacers.Select(r => nameToSearch.Replace(r.OriginalValue, r.NewValue)), 
+    private List<string> PossibleNames(string nameToSearch) => [..MemberNameReplacers.Select(r => nameToSearch.Replace(r.OriginalValue, r.NewValue)),
         MemberNameReplacers.Aggregate(nameToSearch, (s, r) => s.Replace(r.OriginalValue, r.NewValue)), nameToSearch];
 }
 [EditorBrowsable(EditorBrowsableState.Never)]

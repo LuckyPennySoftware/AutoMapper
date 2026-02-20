@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Dynamic;
 namespace AutoMapper.Internal;
+
 public static class TypeExtensions
 {
     public const BindingFlags InstanceFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
@@ -47,7 +48,7 @@ public static class TypeExtensions
     public static FieldInfo GetInheritedField(this Type type, string name) => type.GetField(name, InstanceFlags) ?? type.GetBaseField(name);
     static FieldInfo GetBaseField(this Type type, string name) =>
         type.BaseClassesAndInterfaces().Select(t => t.GetField(name, InstanceFlags)).FirstOrDefault(f => f != null);
-    public static MethodInfo GetInheritedMethod(this Type type, string name) => type.GetInstanceMethod(name) ?? type.GetBaseMethod(name) ?? 
+    public static MethodInfo GetInheritedMethod(this Type type, string name) => type.GetInstanceMethod(name) ?? type.GetBaseMethod(name) ??
         throw new ArgumentOutOfRangeException(nameof(name), $"Cannot find member {name} of type {type}.");
     static MethodInfo GetBaseMethod(this Type type, string name) =>
         type.BaseClassesAndInterfaces().Select(t => t.GetInstanceMethod(name)).FirstOrDefault(m => m != null);

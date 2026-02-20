@@ -1,4 +1,5 @@
 ﻿namespace AutoMapper.QueryableExtensions.Impl;
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class EnumProjectionMapper : IProjectionMapper
 {

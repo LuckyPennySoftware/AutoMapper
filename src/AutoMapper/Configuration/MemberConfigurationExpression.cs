@@ -1,4 +1,8 @@
 namespace AutoMapper.Configuration;
+
+using static System.Linq.Expressions.Expression;
+using static AutoMapper.Execution.ExpressionBuilder;
+
 public interface IPropertyMapConfiguration
 {
     void Configure(TypeMap typeMap);
@@ -50,7 +54,7 @@ public class MemberConfigurationExpression<TSource, TDestination, TMember>(Membe
         MapFromFunc((src, dest, destMember, ctxt) => mappingFunction(src, dest, destMember));
     public void MapFrom<TResult>(Func<TSource, TDestination, TMember, ResolutionContext, TResult> mappingFunction) =>
         MapFromFunc((src, dest, destMember, ctxt) => mappingFunction(src, dest, destMember, ctxt));
-    private void MapFromFunc<TResult>(Expression<Func<TSource, TDestination, TMember, ResolutionContext, TResult>> expr) => 
+    private void MapFromFunc<TResult>(Expression<Func<TSource, TDestination, TMember, ResolutionContext, TResult>> expr) =>
         SetResolver(new FuncResolver(expr));
     public void MapFrom<TSourceMember>(Expression<Func<TSource, TSourceMember>> mapExpression) => MapFromExpression(mapExpression);
     internal void MapFromExpression(LambdaExpression sourceExpression)
@@ -63,21 +67,98 @@ public class MemberConfigurationExpression<TSource, TDestination, TMember>(Membe
         _sourceMembers = ReflectionHelper.GetMemberPath(_sourceType, sourceMembersPath);
         PropertyMapActions.Add(pm => pm.MapFrom(sourceMembersPath, _sourceMembers));
     }
+    public void Condition<TCondition>() where TCondition : ICondition<TSource, TDestination, TMember>
+    {
+        var expr = CreateConditionExpression(typeof(TCondition));
+        ConditionCore(expr);
+    }
+    protected virtual Expression<Func<TSource, TDestination, TMember, TMember, ResolutionContext, bool>> CreateConditionExpression(Type conditionType)
+    {
+        var srcParam = Parameter(typeof(TSource));
+        var destParam = Parameter(typeof(TDestination));
+        var srcMemberParam = Parameter(typeof(TMember));
+        var destMemberParam = Parameter(typeof(TMember));
+        var ctxParam = Parameter(typeof(ResolutionContext));
+
+        var conditionInstance = ServiceLocator(conditionType);
+        var interfaceType = conditionType.GetGenericInterface(typeof(ICondition<,,>)) ??
+            throw new InvalidOperationException($"Type '{conditionType.Name}' does not implement ICondition<TSource, TDestination, TMember>");
+        var evaluateMethod = interfaceType.GetMethod("Evaluate");
+
+        // Get the actual types from the interface
+        var interfaceArgs = interfaceType.GenericTypeArguments;
+        var expectedSourceType = interfaceArgs[0];
+        var expectedDestType = interfaceArgs[1];
+        var expectedMemberType = interfaceArgs[2];
+
+        // Cast parameters to the expected types if needed
+        var srcArg = typeof(TSource) == expectedSourceType ? srcParam : (Expression)Convert(srcParam, expectedSourceType);
+        var destArg = typeof(TDestination) == expectedDestType ? destParam : (Expression)Convert(destParam, expectedDestType);
+        var srcMemberArg = typeof(TMember) == expectedMemberType ? srcMemberParam : (Expression)Convert(srcMemberParam, expectedMemberType);
+        var destMemberArg = typeof(TMember) == expectedMemberType ? destMemberParam : (Expression)Convert(destMemberParam, expectedMemberType);
+
+        var callExpression = Call(
+            Convert(conditionInstance, interfaceType),
+            evaluateMethod,
+            srcArg, destArg, srcMemberArg, destMemberArg, ctxParam
+        );
+
+        return Lambda<Func<TSource, TDestination, TMember, TMember, ResolutionContext, bool>>(
+            callExpression,
+            srcParam, destParam, srcMemberParam, destMemberParam, ctxParam
+        );
+    }
     public void Condition(Func<TSource, TDestination, TMember, TMember, ResolutionContext, bool> condition) =>
         ConditionCore((src, dest, srcMember, destMember, ctxt) => condition(src, dest, srcMember, destMember, ctxt));
     public void Condition(Func<TSource, TDestination, TMember, TMember, bool> condition) =>
         ConditionCore((src, dest, srcMember, destMember, ctxt) => condition(src, dest, srcMember, destMember));
-    public void Condition(Func<TSource, TDestination, TMember, bool> condition) => 
+    public void Condition(Func<TSource, TDestination, TMember, bool> condition) =>
         ConditionCore((src, dest, srcMember, destMember, ctxt) => condition(src, dest, srcMember));
     public void Condition(Func<TSource, TDestination, bool> condition) => ConditionCore((src, dest, srcMember, destMember, ctxt) => condition(src, dest));
     public void Condition(Func<TSource, bool> condition) => ConditionCore((src, dest, srcMember, destMember, ctxt) => condition(src));
-    private void ConditionCore(Expression<Func<TSource, TDestination, TMember, TMember, ResolutionContext, bool>> expr) =>
+    protected void ConditionCore(Expression<Func<TSource, TDestination, TMember, TMember, ResolutionContext, bool>> expr) =>
         PropertyMapActions.Add(pm => pm.Condition = expr);
+    public void PreCondition<TCondition>() where TCondition : IPreCondition<TSource, TDestination>
+    {
+        var expr = CreatePreConditionExpression(typeof(TCondition));
+        PreConditionCore(expr);
+    }
+    protected Expression<Func<TSource, TDestination, ResolutionContext, bool>> CreatePreConditionExpression(Type conditionType)
+    {
+        var srcParam = Parameter(typeof(TSource));
+        var destParam = Parameter(typeof(TDestination));
+        var ctxParam = Parameter(typeof(ResolutionContext));
+
+        var conditionInstance = ServiceLocator(conditionType);
+        var interfaceType = conditionType.GetGenericInterface(typeof(IPreCondition<,>)) ??
+            throw new InvalidOperationException($"Type '{conditionType.Name}' does not implement IPreCondition<TSource, TDestination>");
+        var evaluateMethod = interfaceType.GetMethod("Evaluate");
+
+        // Get the actual types from the interface
+        var interfaceArgs = interfaceType.GenericTypeArguments;
+        var expectedSourceType = interfaceArgs[0];
+        var expectedDestType = interfaceArgs[1];
+
+        // Cast parameters to the expected types if needed
+        var srcArg = typeof(TSource) == expectedSourceType ? srcParam : (Expression)Convert(srcParam, expectedSourceType);
+        var destArg = typeof(TDestination) == expectedDestType ? destParam : (Expression)Convert(destParam, expectedDestType);
+
+        var callExpression = Call(
+            Convert(conditionInstance, interfaceType),
+            evaluateMethod,
+            srcArg, destArg, ctxParam
+        );
+
+        return Lambda<Func<TSource, TDestination, ResolutionContext, bool>>(
+            callExpression,
+            srcParam, destParam, ctxParam
+        );
+    }
     public void PreCondition(Func<TSource, bool> condition) => PreConditionCore((src, dest, ctxt) => condition(src));
     public void PreCondition(Func<ResolutionContext, bool> condition) => PreConditionCore((src, dest, ctxt) => condition(ctxt));
     public void PreCondition(Func<TSource, ResolutionContext, bool> condition) => PreConditionCore((src, dest, ctxt) => condition(src, ctxt));
     public void PreCondition(Func<TSource, TDestination, ResolutionContext, bool> condition) => PreConditionCore((src, dest, ctxt) => condition(src, dest, ctxt));
-    private void PreConditionCore(Expression<Func<TSource, TDestination, ResolutionContext, bool>> expr) =>
+    protected void PreConditionCore(Expression<Func<TSource, TDestination, ResolutionContext, bool>> expr) =>
         PropertyMapActions.Add(pm => pm.PreCondition = expr);
     public void AddTransform(Expression<Func<TMember, TMember>> transformer) =>
         PropertyMapActions.Add(pm => pm.AddValueTransformation(new ValueTransformerConfiguration(pm.DestinationType, transformer)));
@@ -101,16 +182,16 @@ public class MemberConfigurationExpression<TSource, TDestination, TMember>(Membe
     public void UseDestinationValue() => SetUseDestinationValue(true);
     private void SetUseDestinationValue(bool value) => PropertyMapActions.Add(pm => pm.UseDestinationValue = value);
     public void SetMappingOrder(int mappingOrder) => PropertyMapActions.Add(pm => pm.MappingOrder = mappingOrder);
-    public void ConvertUsing<TValueConverter, TSourceMember>() where TValueConverter : IValueConverter<TSourceMember, TMember> => 
+    public void ConvertUsing<TValueConverter, TSourceMember>() where TValueConverter : IValueConverter<TSourceMember, TMember> =>
         ConvertUsingCore<TValueConverter, TSourceMember>();
-    public void ConvertUsing<TValueConverter, TSourceMember>(Expression<Func<TSource, TSourceMember>> sourceMember) where TValueConverter : IValueConverter<TSourceMember, TMember> => 
+    public void ConvertUsing<TValueConverter, TSourceMember>(Expression<Func<TSource, TSourceMember>> sourceMember) where TValueConverter : IValueConverter<TSourceMember, TMember> =>
         ConvertUsingCore<TValueConverter, TSourceMember>(sourceMember);
-    public void ConvertUsing<TValueConverter, TSourceMember>(string sourceMemberName) where TValueConverter : IValueConverter<TSourceMember, TMember> => 
+    public void ConvertUsing<TValueConverter, TSourceMember>(string sourceMemberName) where TValueConverter : IValueConverter<TSourceMember, TMember> =>
         ConvertUsingCore<TValueConverter, TSourceMember>(null, sourceMemberName);
     public void ConvertUsing<TSourceMember>(IValueConverter<TSourceMember, TMember> valueConverter) => ConvertUsingCore(valueConverter);
     public void ConvertUsing<TSourceMember>(IValueConverter<TSourceMember, TMember> valueConverter, Expression<Func<TSource, TSourceMember>> sourceMember) =>
         ConvertUsingCore(valueConverter, sourceMember);
-    public void ConvertUsing<TSourceMember>(IValueConverter<TSourceMember, TMember> valueConverter, string sourceMemberName)  =>
+    public void ConvertUsing<TSourceMember>(IValueConverter<TSourceMember, TMember> valueConverter, string sourceMemberName) =>
         ConvertUsingCore(valueConverter, null, sourceMemberName);
     private void ConvertUsingCore<TValueConverter, TSourceMember>(Expression<Func<TSource, TSourceMember>> sourceMember = null, string sourceMemberName = null) =>
         ConvertUsingCore(new(typeof(TValueConverter), typeof(IValueConverter<TSourceMember, TMember>), sourceMemberName)
@@ -127,7 +208,7 @@ public class MemberConfigurationExpression<TSource, TDestination, TMember>(Membe
     public void Configure(TypeMap typeMap)
     {
         var destMember = DestinationMember;
-        if(destMember.DeclaringType.ContainsGenericParameters)
+        if (destMember.DeclaringType.ContainsGenericParameters)
         {
             destMember = Array.Find(typeMap.DestinationTypeDetails.ReadAccessors, m => m.MetadataToken == destMember.MetadataToken);
         }
@@ -136,7 +217,7 @@ public class MemberConfigurationExpression<TSource, TDestination, TMember>(Membe
     }
     private void Apply(PropertyMap propertyMap)
     {
-        foreach(var action in PropertyMapActions)
+        foreach (var action in PropertyMapActions)
         {
             action(propertyMap);
         }
@@ -176,6 +257,16 @@ public sealed class MemberConfigurationExpression(MemberInfo destinationMember, 
     public void ConvertUsing(Type valueConverterType, string sourceMemberName) => ConvertUsingCore(valueConverterType, sourceMemberName);
     public void ConvertUsing<TSourceMember, TDestinationMember>(IValueConverter<TSourceMember, TDestinationMember> valueConverter, string sourceMemberName) =>
         base.ConvertUsingCore(new(valueConverter, typeof(IValueConverter<TSourceMember, TDestinationMember>), sourceMemberName));
+    public void Condition(Type conditionType)
+    {
+        var expr = CreateConditionExpression(conditionType);
+        ConditionCore(expr);
+    }
+    public void PreCondition(Type preConditionType)
+    {
+        var expr = CreatePreConditionExpression(preConditionType);
+        PreConditionCore(expr);
+    }
     private void ConvertUsingCore(Type valueConverterType, string sourceMemberName = null) =>
         base.ConvertUsingCore(new(valueConverterType, valueConverterType.GetGenericInterface(typeof(IValueConverter<,>)), sourceMemberName));
 }

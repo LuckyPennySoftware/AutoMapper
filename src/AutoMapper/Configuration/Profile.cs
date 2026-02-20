@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using AutoMapper.Configuration.Conventions;
 namespace AutoMapper;
+
 public interface IProfileConfiguration
 {
     bool? FieldMappingEnabled { get; }
@@ -72,9 +73,9 @@ public class Profile : IProfileExpressionInternal, IProfileConfiguration
     protected Profile()
     {
         ProfileName = GetType().FullName;
-        _memberConfiguration = new(){ NameToMemberMappers = { _prePostfixName } };
+        _memberConfiguration = new() { NameToMemberMappers = { _prePostfixName } };
     }
-    protected internal Profile(string profileName, Action<IProfileExpression> configurationAction) : this(profileName)  => configurationAction(this);
+    protected internal Profile(string profileName, Action<IProfileExpression> configurationAction) : this(profileName) => configurationAction(this);
     MemberConfiguration IProfileExpressionInternal.MemberConfiguration => _memberConfiguration;
     bool? IProfileConfiguration.ConstructorMappingEnabled => _constructorMappingEnabled;
     bool? IProfileExpressionInternal.MethodMappingEnabled { get; set; }
@@ -142,7 +143,7 @@ public class Profile : IProfileExpressionInternal, IProfileConfiguration
         return mappingExp;
     }
 
-    public IMappingExpression CreateMap(Type sourceType, Type destinationType) => 
+    public IMappingExpression CreateMap(Type sourceType, Type destinationType) =>
         CreateMap(sourceType, destinationType, MemberList.Destination);
 
     public IMappingExpression CreateMap(Type sourceType, Type destinationType, MemberList memberList)

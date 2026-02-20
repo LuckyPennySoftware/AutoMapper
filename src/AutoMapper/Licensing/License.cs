@@ -6,9 +6,9 @@ internal class License
 {
     internal License(params Claim[] claims) : this(new ClaimsPrincipal(new ClaimsIdentity(claims)))
     {
-        
+
     }
-    
+
     public License(ClaimsPrincipal claims)
     {
         if (Guid.TryParse(claims.FindFirst("account_id")?.Value, out var accountId))
@@ -24,7 +24,7 @@ internal class License
             var startedAt = DateTimeOffset.FromUnixTimeSeconds(iat);
             StartDate = startedAt;
         }
-        
+
         if (long.TryParse(claims.FindFirst("exp")?.Value, out var exp))
         {
             var expiredAt = DateTimeOffset.FromUnixTimeSeconds(exp);
@@ -32,12 +32,12 @@ internal class License
         }
 
         if (Enum.TryParse<Edition>(claims.FindFirst("edition")?.Value, out var edition))
-        { 
+        {
             Edition = edition;
         }
 
         if (Enum.TryParse<ProductType>(claims.FindFirst("type")?.Value, out var productType))
-        { 
+        {
             ProductType = productType;
         }
 
@@ -57,6 +57,6 @@ internal class License
     public DateTimeOffset? ExpirationDate { get; }
     public Edition? Edition { get; }
     public ProductType? ProductType { get; }
-    
+
     public bool IsConfigured { get; }
 }

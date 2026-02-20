@@ -1,4 +1,5 @@
 ﻿namespace AutoMapper;
+
 using StringDictionary = Dictionary<string, object>;
 /// <summary>
 /// Options for a single map operation
@@ -48,7 +49,7 @@ public interface IMappingOperationOptions<TSource, TDestination> : IMappingOpera
 public sealed class MappingOperationOptions<TSource, TDestination>(Func<Type, object> serviceCtor) : IMappingOperationOptions<TSource, TDestination>
 {
     public Func<Type, object> ServiceCtor { get; private set; } = serviceCtor;
-    public StringDictionary Items => (StringDictionary) (State ??= new StringDictionary());
+    public StringDictionary Items => (StringDictionary)(State ??= new StringDictionary());
     public object State { get; set; }
     public Action<TSource, TDestination> BeforeMapAction { get; private set; }
     public Action<TSource, TDestination> AfterMapAction { get; private set; }
