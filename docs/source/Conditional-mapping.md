@@ -137,4 +137,4 @@ services.AddAutoMapper(cfg =>
 });
 ```
 
-Condition instances are resolved at mapper configuration time and cached in the compiled expression, so DI resolution does not occur during individual mapping calls.
+Condition instances are resolved when the map executes, via `ResolutionContext.CreateInstance` (using your configured `ServiceCtor`/DI container). This means DI resolution can occur per mapping operation (and potentially per condition evaluation), rather than only once at configuration time. For per-map scoping or nested containers, you can supply a per-map `ServiceCtor` through `IMappingOperationOptions` when invoking the map.
