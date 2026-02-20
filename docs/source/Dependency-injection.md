@@ -78,15 +78,22 @@ public class MyCondition : ICondition<Source, Destination, int>
     }
 }
 
-var configuration = new MapperConfiguration(cfg =>
+public class ConditionProfile : Profile
 {
-    cfg.CreateMap<Source, Destination>()
-        .ForMember(d => d.Value, o =>
-        {
-            o.Condition<MyCondition>();
-            o.MapFrom(s => s.Value);
-        });
-}, loggerFactory);
+    public ConditionProfile()
+    {
+        CreateMap<Source, Destination>()
+            .ForMember(d => d.Value, o =>
+            {
+                o.Condition<MyCondition>();
+                o.MapFrom(s => s.Value);
+            });
+    }
+}
+
+// In Startup.cs / Program.cs:
+services.AddTransient<IMyService, MyService>();
+services.AddAutoMapper(typeof(ConditionProfile).Assembly);
 ```
 
 Or dynamic service location, to be used in the case of instance-based containers (including child/nested containers):
