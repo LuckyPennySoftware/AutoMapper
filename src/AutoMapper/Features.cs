@@ -1,4 +1,5 @@
 ﻿namespace AutoMapper.Features;
+
 public interface IGlobalFeature
 {
     void Configure(IGlobalConfiguration configuration);
@@ -46,7 +47,7 @@ public class Features<TFeature>
     private int IndexOf(Type featureType)
     {
         int index = 0;
-        for (; index < Count && _features[index].GetType() != featureType; index++);
+        for (; index < Count && _features[index].GetType() != featureType; index++) ;
         return index;
     }
     public List<TFeature>.Enumerator GetEnumerator() => _features.GetEnumerator();

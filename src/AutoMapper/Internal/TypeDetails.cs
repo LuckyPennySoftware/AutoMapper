@@ -12,8 +12,8 @@ public sealed class TypeDetails(Type type, ProfileMap config)
     private ConstructorParameters[] _constructors;
     private MemberInfo[] _readAccessors;
     private MemberInfo[] _writeAccessors;
-    private ConstructorParameters[] GetConstructors() => 
-        GetConstructors(Type, Config).Where(c=>c.ParametersCount > 0).OrderByDescending(c => c.ParametersCount).ToArray();
+    private ConstructorParameters[] GetConstructors() =>
+        GetConstructors(Type, Config).Where(c => c.ParametersCount > 0).OrderByDescending(c => c.ParametersCount).ToArray();
     public static IEnumerable<ConstructorParameters> GetConstructors(Type type, ProfileMap profileMap) =>
         type.GetDeclaredConstructors().Where(profileMap.ShouldUseConstructor).Select(c => new ConstructorParameters(c));
     public MemberInfo GetMember(string name)
@@ -48,7 +48,7 @@ public sealed class TypeDetails(Type type, ProfileMap config)
         IEnumerable<MemberInfo> AddMethods(IEnumerable<MemberInfo> accessors)
         {
             var publicNoArgMethods = GetPublicNoArgMethods();
-            var noArgExtensionMethods = GetNoArgExtensionMethods(Config.SourceExtensionMethods.Where(m => 
+            var noArgExtensionMethods = GetNoArgExtensionMethods(Config.SourceExtensionMethods.Where(m =>
                 !_nameToMember.ContainsKey(m.Name) && Config.ShouldMapMethod(m)));
             return accessors.Concat(publicNoArgMethods).Concat(noArgExtensionMethods);
         }
@@ -132,7 +132,7 @@ public sealed class TypeDetails(Type type, ProfileMap config)
             PostFixes(ref result, postfixes, withoutPrefix);
         }
         PostFixes(ref result, postfixes, memberName);
-        return result == null ? [] : [..result];
+        return result == null ? [] : [.. result];
         static void PostFixes(ref List<string> result, List<string> postfixes, string name)
         {
             foreach (var postfix in postfixes)
@@ -159,7 +159,7 @@ public sealed class TypeDetails(Type type, ProfileMap config)
         {
             members = members.Concat(GetFields(FieldReadable));
         }
-        return [..members];
+        return [.. members];
     }
     private MemberInfo[] BuildWriteAccessors()
     {
@@ -171,7 +171,7 @@ public sealed class TypeDetails(Type type, ProfileMap config)
         {
             members = members.Concat(GetFields(FieldWritable));
         }
-        return [..members];
+        return [.. members];
     }
     private static bool PropertyReadable(PropertyInfo propertyInfo) => propertyInfo.CanRead;
     private static bool FieldReadable(FieldInfo fieldInfo) => true;
@@ -185,7 +185,7 @@ public sealed class TypeDetails(Type type, ProfileMap config)
 }
 public readonly record struct ConstructorParameters(ConstructorInfo Constructor, ParameterInfo[] Parameters)
 {
-    public ConstructorParameters(ConstructorInfo constructor) : this(constructor, constructor.GetParameters()){}
+    public ConstructorParameters(ConstructorInfo constructor) : this(constructor, constructor.GetParameters()) { }
     public int ParametersCount => Parameters.Length;
     public bool AllParametersOptional() => Parameters.All(p => p.IsOptional);
 }

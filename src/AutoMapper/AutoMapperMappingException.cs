@@ -81,7 +81,7 @@ public class DuplicateTypeMapConfigurationException(DuplicateTypeMapConfiguratio
     {
         StringBuilder builder = new();
         builder.AppendLine("Duplicate CreateMap calls:");
-        foreach(var error in errors)
+        foreach (var error in errors)
         {
             builder.AppendLine($"{error.Types.SourceType.FullName} to {error.Types.DestinationType.FullName} defined in profiles:");
             builder.AppendLine(string.Join(Environment.NewLine, error.ProfileNames));

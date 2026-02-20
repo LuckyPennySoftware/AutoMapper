@@ -1,4 +1,5 @@
 ﻿namespace AutoMapper;
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class ConstructorMap
 {
@@ -46,15 +47,15 @@ public sealed class ConstructorMap
     public bool ApplyMap(TypeMap typeMap, IncludedMember includedMember = null)
     {
         var constructorMap = typeMap.ConstructorMap;
-        if(constructorMap == null)
+        if (constructorMap == null)
         {
             return false;
         }
         bool applied = false;
-        foreach(var parameterMap in _ctorParams)
+        foreach (var parameterMap in _ctorParams)
         {
             var inheritedParameterMap = constructorMap[parameterMap.DestinationName];
-            if(inheritedParameterMap is not { IsMapped: true, DestinationType: var type } || type != parameterMap.DestinationType || !parameterMap.ApplyMap(inheritedParameterMap, includedMember))
+            if (inheritedParameterMap is not { IsMapped: true, DestinationType: var type } || type != parameterMap.DestinationType || !parameterMap.ApplyMap(inheritedParameterMap, includedMember))
             {
                 continue;
             }
@@ -70,7 +71,7 @@ public class ConstructorParameterMap : MemberMap
     public ConstructorParameterMap(TypeMap typeMap, ParameterInfo parameter, MemberInfo[] sourceMembers) : base(typeMap, parameter.ParameterType)
     {
         Parameter = parameter;
-        if(DestinationType.IsByRef)
+        if (DestinationType.IsByRef)
         {
             DestinationType = DestinationType.GetElementType();
         }
@@ -91,12 +92,12 @@ public class ConstructorParameterMap : MemberMap
     public override string ToString() => $"{Parameter.Member}, parameter {DestinationName}";
     public bool ApplyMap(ConstructorParameterMap inheritedParameterMap, IncludedMember includedMember)
     {
-        if(includedMember != null && IsMapped)
+        if (includedMember != null && IsMapped)
         {
             return false;
         }
         ExplicitExpansion ??= inheritedParameterMap.ExplicitExpansion;
-        if(ApplyInheritedMap(inheritedParameterMap))
+        if (ApplyInheritedMap(inheritedParameterMap))
         {
             IncludedMember = includedMember?.Chain(inheritedParameterMap.IncludedMember);
             return true;

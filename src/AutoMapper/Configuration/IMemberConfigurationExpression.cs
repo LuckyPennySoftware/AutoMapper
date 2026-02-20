@@ -25,7 +25,7 @@ public interface IMemberConfigurationExpression<TSource, TDestination, TMember> 
     /// <remarks>Not used for LINQ projection (ProjectTo)</remarks>
     /// <typeparam name="TValueResolver">Value resolver type</typeparam>
     /// <typeparam name="TSourceMember">Source member to supply</typeparam>
-    void MapFrom<TValueResolver, TSourceMember>(Expression<Func<TSource, TSourceMember>> sourceMember) 
+    void MapFrom<TValueResolver, TSourceMember>(Expression<Func<TSource, TSourceMember>> sourceMember)
         where TValueResolver : IMemberValueResolver<TSource, TDestination, TSourceMember, TMember>;
     /// <summary>
     /// Map destination member using a custom member value resolver supplied from a source member name
@@ -34,7 +34,7 @@ public interface IMemberConfigurationExpression<TSource, TDestination, TMember> 
     /// <typeparam name="TValueResolver">Value resolver type</typeparam>
     /// <typeparam name="TSourceMember">Source member to supply</typeparam>
     /// <param name="sourceMemberName">Source member name</param>
-    void MapFrom<TValueResolver, TSourceMember>(string sourceMemberName) 
+    void MapFrom<TValueResolver, TSourceMember>(string sourceMemberName)
         where TValueResolver : IMemberValueResolver<TSource, TDestination, TSourceMember, TMember>;
     /// <summary>
     /// Map destination member using a custom value resolver instance
@@ -86,6 +86,12 @@ public interface IMemberConfigurationExpression<TSource, TDestination, TMember> 
     /// </summary>
     void UseDestinationValue();
     /// <summary>
+    /// Map destination member using a custom condition type. Resolved from the service locator/DI container.
+    /// </summary>
+    /// <remarks>Not used for LINQ projection (ProjectTo)</remarks>
+    /// <typeparam name="TCondition">Condition type implementing ICondition&lt;TSource, TDestination, TMember&gt;</typeparam>
+    void Condition<TCondition>() where TCondition : ICondition<TSource, TDestination, TMember>;
+    /// <summary>
     /// Conditionally map this member against the source, destination, source and destination members
     /// </summary>
     /// <param name="condition">Condition to evaluate using the source object</param>
@@ -110,6 +116,13 @@ public interface IMemberConfigurationExpression<TSource, TDestination, TMember> 
     /// </summary>
     /// <param name="condition">Condition to evaluate using the source object</param>
     void Condition(Func<TSource, bool> condition);
+    /// <summary>
+    /// Conditionally map this member using a custom pre-condition type, evaluated before accessing the source value.
+    /// Resolved from the service locator/DI container.
+    /// </summary>
+    /// <remarks>Not used for LINQ projection (ProjectTo)</remarks>
+    /// <typeparam name="TCondition">Pre-condition type implementing IPreCondition&lt;TSource, TDestination&gt;</typeparam>
+    void PreCondition<TCondition>() where TCondition : IPreCondition<TSource, TDestination>;
     /// <summary>
     /// Conditionally map this member, evaluated before accessing the source value
     /// </summary>
@@ -255,6 +268,19 @@ public interface IMemberConfigurationExpression : IMemberConfigurationExpression
     /// <param name="valueConverter">Value converter instance</param>
     /// <param name="sourceMemberName">Source member name to supply to the value converter</param>
     void ConvertUsing<TSourceMember, TDestinationMember>(IValueConverter<TSourceMember, TDestinationMember> valueConverter, string sourceMemberName);
+    /// <summary>
+    /// Map destination member using a custom condition type. Used when the condition type is not known at compile-time.
+    /// </summary>
+    /// <remarks>Not used for LINQ projection (ProjectTo)</remarks>
+    /// <param name="conditionType">Condition type</param>
+    void Condition(Type conditionType);
+    /// <summary>
+    /// Conditionally map this member using a custom pre-condition type, evaluated before accessing the source value. 
+    /// Used when the condition type is not known at compile-time.
+    /// </summary>
+    /// <remarks>Not used for LINQ projection (ProjectTo)</remarks>
+    /// <param name="preConditionType">Pre-condition type</param>
+    void PreCondition(Type preConditionType);
 }
 /// <summary>
 /// Member configuration options
@@ -344,4 +370,43 @@ public interface IMemberValueResolver<in TSource, in TDestination, in TSourceMem
     /// <param name="context">The context of the mapping</param>
     /// <returns>Result, typically build from the source resolution result</returns>
     TDestMember Resolve(TSource source, TDestination destination, TSourceMember sourceMember, TDestMember destMember, ResolutionContext context);
+}
+
+/// <summary>
+/// Condition to determine if a destination member should be mapped.
+/// Resolved from the service locator/DI container.
+/// </summary>
+/// <typeparam name="TSource">Source type</typeparam>
+/// <typeparam name="TDestination">Destination type</typeparam>
+/// <typeparam name="TMember">Member type</typeparam>
+public interface ICondition<in TSource, in TDestination, in TMember>
+{
+    /// <summary>
+    /// Determine whether to map this member
+    /// </summary>
+    /// <param name="source">Source object</param>
+    /// <param name="destination">Destination object</param>
+    /// <param name="sourceMember">Source member value</param>
+    /// <param name="destMember">Destination member value</param>
+    /// <param name="context">Resolution context</param>
+    /// <returns>True if member should be mapped, false otherwise</returns>
+    bool Evaluate(TSource source, TDestination destination, TMember sourceMember, TMember destMember, ResolutionContext context);
+}
+
+/// <summary>
+/// Pre-condition evaluated before source member resolution.
+/// Resolved from the service locator/DI container.
+/// </summary>
+/// <typeparam name="TSource">Source type</typeparam>
+/// <typeparam name="TDestination">Destination type</typeparam>
+public interface IPreCondition<in TSource, in TDestination>
+{
+    /// <summary>
+    /// Determine whether to resolve and map this member (runs before resolution)
+    /// </summary>
+    /// <param name="source">Source object</param>
+    /// <param name="destination">Destination object</param>
+    /// <param name="context">Resolution context</param>
+    /// <returns>True if member should be resolved and mapped, false otherwise</returns>
+    bool Evaluate(TSource source, TDestination destination, ResolutionContext context);
 }

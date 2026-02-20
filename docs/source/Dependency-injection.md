@@ -36,7 +36,7 @@ Also, check [this blog](https://dotnetfalcon.com/autofac-support-for-automapper/
 
 ## Low level API-s
 
-AutoMapper supports the ability to construct [Custom Value Resolvers](Custom-value-resolvers.html), [Custom Type Converters](Custom-type-converters.html), and [Value Converters](Value-converters.html) using static service location:
+AutoMapper supports the ability to construct [Custom Value Resolvers](Custom-value-resolvers.html), [Custom Type Converters](Custom-type-converters.html), [Value Converters](Value-converters.html), and [Class-based Conditions](Conditional-mapping.html#class-based-conditions) using static service location:
 
 ```c#
 var configuration = new MapperConfiguration(cfg =>
@@ -44,6 +44,48 @@ var configuration = new MapperConfiguration(cfg =>
     cfg.ConstructServicesUsing(ObjectFactory.GetInstance);
 
     cfg.CreateMap<Source, Destination>();
+}, loggerFactory);
+```
+
+### Automatic Class Registration
+
+When using `AddAutoMapper`, AutoMapper will automatically register implementations of the following types as `ServiceLifetime.Transient` from the specified assemblies:
+
+- `IValueResolver<TSource, TDestination, TDestMember>`
+- `IMemberValueResolver<TSource, TDestination, TSourceMember, TDestMember>`
+- `ITypeConverter<TSource, TDestination>`
+- `IValueConverter<TSourceMember, TDestinationMember>`
+- `ICondition<TSource, TDestination, TMember>`
+- `IPreCondition<TSource, TDestination>`
+- `IMappingAction<TSource, TDestination>`
+
+This allows you to use class-based conditions with dependency injection:
+
+```c#
+public class MyCondition : ICondition<Source, Destination, int>
+{
+    private readonly IMyService _myService;
+    
+    public MyCondition(IMyService myService)
+    {
+        _myService = myService;
+    }
+    
+    public bool Evaluate(Source source, Destination destination, int sourceMember, 
+                        int destMember, ResolutionContext context)
+    {
+        return _myService.ShouldMap(sourceMember);
+    }
+}
+
+var configuration = new MapperConfiguration(cfg =>
+{
+    cfg.CreateMap<Source, Destination>()
+        .ForMember(d => d.Value, o =>
+        {
+            o.Condition<MyCondition>();
+            o.MapFrom(s => s.Value);
+        });
 }, loggerFactory);
 ```
 

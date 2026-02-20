@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.CSharp.RuntimeBinder;
 using Binder = Microsoft.CSharp.RuntimeBinder.Binder;
 namespace AutoMapper.Internal.Mappers;
+
 public sealed class ToDynamicMapper : IObjectMapper
 {
     private static readonly MethodInfo MapMethodInfo = typeof(ToDynamicMapper).GetStaticMethod(nameof(Map));

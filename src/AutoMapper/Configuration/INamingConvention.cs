@@ -22,7 +22,7 @@ public sealed class PascalCaseNamingConvention : INamingConvention
     {
         List<string> result = null;
         int lower = 0;
-        for(int index = 1; index < input.Length; index++)
+        for (int index = 1; index < input.Length; index++)
         {
             if (char.IsUpper(input[index]))
             {
@@ -36,7 +36,7 @@ public sealed class PascalCaseNamingConvention : INamingConvention
             return [];
         }
         result.Add(input[lower..]);
-        return [..result];
+        return [.. result];
     }
 }
 public sealed class LowerUnderscoreNamingConvention : INamingConvention

@@ -1,4 +1,5 @@
 namespace AutoMapper.Configuration;
+
 public sealed class MappingExpression(MemberList memberList, TypePair types) : MappingExpressionBase<object, object, IMappingExpression>(memberList, types), IMappingExpression
 {
     public MappingExpression(TypeMap typeMap) : this(typeMap.ConfiguredMemberList, typeMap.Types) => Projection = typeMap.Projection;
@@ -17,7 +18,7 @@ public sealed class MappingExpression(MemberList memberList, TypePair types) : M
     public IMappingExpression IncludeMembers(params string[] memberNames)
     {
         IncludedMembersNames = memberNames;
-        foreach(var memberName in memberNames)
+        foreach (var memberName in memberNames)
         {
             SourceType.GetFieldOrProperty(memberName);
         }
@@ -40,7 +41,7 @@ public sealed class MappingExpression(MemberList memberList, TypePair types) : M
         ForMember(member, memberOptions);
         return this;
     }
-    protected override void IgnoreDestinationMember(MemberInfo property, bool ignorePaths = true) => ForMember(property, o=>o.Ignore());
+    protected override void IgnoreDestinationMember(MemberInfo property, bool ignorePaths = true) => ForMember(property, o => o.Ignore());
     internal MemberConfigurationExpression ForMember(MemberInfo destinationProperty, Action<IMemberConfigurationExpression> memberOptions)
     {
         MemberConfigurationExpression expression = new(destinationProperty, SourceType);
@@ -64,7 +65,7 @@ public class MappingExpression<TSource, TDestination> : MappingExpressionBase<TS
         PathConfigurationExpression<TSource, TDestination, TMember> expression = new(destinationMember, chain);
         var firstMember = expression.MemberPath.First;
         var firstMemberConfig = GetDestinationMemberConfiguration(firstMember);
-        if(firstMemberConfig == null)
+        if (firstMemberConfig == null)
         {
             IgnoreDestinationMember(firstMember, ignorePaths: false);
         }
@@ -128,7 +129,7 @@ public class MappingExpression<TSource, TDestination> : MappingExpressionBase<TS
     }
     public IMappingExpression<TDestination, TSource> ReverseMap()
     {
-        MappingExpression<TDestination, TSource> reverseMap = new(MemberList.None, Types.Reverse()){ IsReverseMap = true };
+        MappingExpression<TDestination, TSource> reverseMap = new(MemberList.None, Types.Reverse()) { IsReverseMap = true };
         ReverseMapCore(reverseMap);
         reverseMap.IncludeMembersCore(MapToSourceMembers().Select(m => m.GetDestinationExpression()).ToArray());
         return reverseMap;
@@ -140,10 +141,10 @@ public class MappingExpression<TSource, TDestination> : MappingExpressionBase<TS
         memberOptions(expression);
         return this;
     }
-    protected override void IgnoreDestinationMember(MemberInfo property, bool ignorePaths = true) => 
+    protected override void IgnoreDestinationMember(MemberInfo property, bool ignorePaths = true) =>
         ForDestinationMember<object>(property, options => options.Ignore(ignorePaths));
     IProjectionExpression<TSource, TDestination> IProjectionExpression<TSource, TDestination>.ForMember<TMember>(Expression<Func<TDestination, TMember>> destinationMember,
-        Action<IProjectionMemberConfiguration<TSource, TDestination, TMember>> memberOptions) => 
+        Action<IProjectionMemberConfiguration<TSource, TDestination, TMember>> memberOptions) =>
         (IProjectionExpression<TSource, TDestination>)ForMember(destinationMember, memberOptions);
     IProjectionExpression<TSource, TDestination> IProjectionExpression<TSource, TDestination, IProjectionExpression<TSource, TDestination>>.AddTransform<TValue>(
         Expression<Func<TValue, TValue>> transformer) => (IProjectionExpression<TSource, TDestination>)AddTransform(transformer);

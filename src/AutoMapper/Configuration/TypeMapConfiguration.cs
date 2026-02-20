@@ -1,5 +1,6 @@
 using AutoMapper.Features;
 namespace AutoMapper.Configuration;
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class TypeMapConfiguration(MemberList memberList, TypePair types)
 {
@@ -166,7 +167,7 @@ public abstract class TypeMapConfiguration(MemberList memberList, TypePair types
         foreach (var propertyMap in typeMap.PropertyMaps)
         {
             var sourceMembers = propertyMap.SourceMembers;
-            if(sourceMembers.Length <= 1 || Array.Exists(sourceMembers, m => m is MethodInfo))
+            if (sourceMembers.Length <= 1 || Array.Exists(sourceMembers, m => m is MethodInfo))
             {
                 continue;
             }
@@ -228,7 +229,7 @@ public abstract class TypeMapConfiguration(MemberList memberList, TypePair types
 public abstract class MappingExpressionBase<TSource, TDestination, TMappingExpression>(MemberList memberList, TypePair types) : TypeMapConfiguration(memberList, types), IMappingExpressionBase<TSource, TDestination, TMappingExpression>
     where TMappingExpression : class, IMappingExpressionBase<TSource, TDestination, TMappingExpression>
 {
-    protected MappingExpressionBase(MemberList memberList) : this(memberList, new(typeof(TSource), typeof(TDestination))){ }
+    protected MappingExpressionBase(MemberList memberList) : this(memberList, new(typeof(TSource), typeof(TDestination))) { }
     public void As(Type typeOverride)
     {
         if (typeOverride == DestinationType)
@@ -256,7 +257,7 @@ public abstract class MappingExpressionBase<TSource, TDestination, TMappingExpre
         TypeMapActions.Add(tm => tm.AddBeforeMapAction(expr));
         return this as TMappingExpression;
     }
-    public TMappingExpression BeforeMap(Action<TSource, TDestination, ResolutionContext> beforeFunction) => 
+    public TMappingExpression BeforeMap(Action<TSource, TDestination, ResolutionContext> beforeFunction) =>
         BeforeMapCore((src, dest, ctxt) => beforeFunction(src, dest, ctxt));
     public TMappingExpression BeforeMap<TMappingAction>() where TMappingAction : IMappingAction<TSource, TDestination> =>
         BeforeMap(CallMapAction<TMappingAction>);
@@ -270,7 +271,7 @@ public abstract class MappingExpressionBase<TSource, TDestination, TMappingExpre
         TypeMapActions.Add(tm => tm.AddAfterMapAction(expr));
         return this as TMappingExpression;
     }
-    public TMappingExpression AfterMap(Action<TSource, TDestination, ResolutionContext> afterFunction) => 
+    public TMappingExpression AfterMap(Action<TSource, TDestination, ResolutionContext> afterFunction) =>
         AfterMapCore((src, dest, ctxt) => afterFunction(src, dest, ctxt));
     public TMappingExpression PreserveReferences()
     {
@@ -338,7 +339,7 @@ public abstract class MappingExpressionBase<TSource, TDestination, TMappingExpre
     }
     public void ConvertUsing(Func<TSource, TDestination, ResolutionContext, TDestination> mappingFunction) => ConvertUsingCore((src, dest, ctxt) => mappingFunction(src, dest, ctxt));
     public void ConvertUsing(ITypeConverter<TSource, TDestination> converter) => ConvertUsing(converter.Convert);
-    public void ConvertUsing<TTypeConverter>() where TTypeConverter : ITypeConverter<TSource, TDestination> => 
+    public void ConvertUsing<TTypeConverter>() where TTypeConverter : ITypeConverter<TSource, TDestination> =>
         SetTypeConverter(new ClassTypeConverter(typeof(TTypeConverter), typeof(ITypeConverter<TSource, TDestination>)));
     public TMappingExpression ForCtorParam(string ctorParamName, Action<ICtorParamConfigurationExpression<TSource>> paramOptions)
     {
@@ -349,7 +350,7 @@ public abstract class MappingExpressionBase<TSource, TDestination, TMappingExpre
     }
     public TMappingExpression IgnoreAllPropertiesWithAnInaccessibleSetter()
     {
-        foreach(var property in PropertiesWithAnInaccessibleSetter(DestinationType))
+        foreach (var property in PropertiesWithAnInaccessibleSetter(DestinationType))
         {
             IgnoreDestinationMember(property);
         }
@@ -364,7 +365,7 @@ public abstract class MappingExpressionBase<TSource, TDestination, TMappingExpre
         return this as TMappingExpression;
     }
     private static IEnumerable<PropertyInfo> PropertiesWithAnInaccessibleSetter(Type type) => type.GetRuntimeProperties().Where(p => p.GetSetMethod() == null);
-    public void ConvertUsing(Expression<Func<TSource, TDestination>> mappingFunction) =>  SetTypeConverter(new ExpressionTypeConverter(mappingFunction));
+    public void ConvertUsing(Expression<Func<TSource, TDestination>> mappingFunction) => SetTypeConverter(new ExpressionTypeConverter(mappingFunction));
     public TMappingExpression AsProxy()
     {
         if (!DestinationType.IsInterface)

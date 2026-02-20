@@ -1,4 +1,5 @@
 namespace AutoMapper.Internal.Mappers;
+
 public sealed class ConversionOperatorMapper : IObjectMapper
 {
     private readonly string _operatorName;

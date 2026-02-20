@@ -24,7 +24,7 @@ internal static class Polyfill
     {
         // No-op on .NET Standard 2.0
     }
-    
+
     public static TValue GetOrAdd<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> dict, TKey key, Func<TKey, TArg, TValue> valueFactory, TArg factoryArgument)
     {
         if (key is null)
@@ -46,8 +46,8 @@ internal static class Polyfill
         return value;
     }
 
-    
-    public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) 
+
+    public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         => DistinctBy(source, keySelector, null);
 
     public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
@@ -68,11 +68,11 @@ internal static class Polyfill
 
         return DistinctByIterator(source, keySelector, comparer);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsEmptyArray<TSource>(IEnumerable<TSource> source) =>
         source is TSource[] { Length: 0 };
-    
+
     private static IEnumerable<TSource> DistinctByIterator<TSource, TKey>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
     {
         using IEnumerator<TSource> enumerator = source.GetEnumerator();

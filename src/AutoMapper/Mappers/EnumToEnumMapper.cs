@@ -1,4 +1,5 @@
 namespace AutoMapper.Internal.Mappers;
+
 public sealed class EnumToEnumMapper : IObjectMapper
 {
     private static readonly MethodInfo TryParseMethod = typeof(Enum).StaticGenericMethod("TryParse", parametersCount: 3);

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 namespace AutoMapper.Internal;
+
 public readonly struct LockingConcurrentDictionary<TKey, TValue>(Func<TKey, TValue> valueFactory, int capacity = 31)
 {
     private readonly Func<TKey, Lazy<TValue>> _valueFactory = key => new(() => valueFactory(key));

@@ -68,7 +68,7 @@ public sealed class PathConfigurationExpression<TSource, TDestination, TMember>(
     public IPropertyMapConfiguration Reverse() => Create(_sourceExpression, _destinationExpression);
 #if FULL_OR_STANDARD
     public bool Ignored => false;
- #endif
+#endif
 
     public void Condition(Func<ConditionParameters<TSource, TDestination, TMember>, bool> condition) =>
         PathMapActions.Add(pm =>

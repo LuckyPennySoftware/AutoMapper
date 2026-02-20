@@ -1,5 +1,6 @@
 using AutoMapper.Internal.Mappers;
 namespace AutoMapper.Configuration;
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public class ConfigurationValidator(IGlobalConfiguration config)
 {

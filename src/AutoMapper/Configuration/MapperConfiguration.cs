@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AutoMapper;
+
 using Features;
 using Internal.Mappers;
 using QueryableExtensions.Impl;
@@ -72,7 +73,7 @@ public sealed class MapperConfiguration : IGlobalConfiguration
         {
             configuration.IncludeSourceExtensionMethods(typeof(Enumerable));
         }
-        _mappers = [..configuration.Mappers];
+        _mappers = [.. configuration.Mappers];
         _executionPlans = new(CompileExecutionPlan);
         _projectionBuilder = new(CreateProjectionBuilder);
         Configuration = new((IProfileConfiguration)configuration);
@@ -117,7 +118,7 @@ public sealed class MapperConfiguration : IGlobalConfiguration
 
         var validator = new LicenseValidator(loggerFactory);
         validator.Validate(_licenseAccessor.Current);
-        
+
         return;
         void Seal()
         {
@@ -162,15 +163,15 @@ public sealed class MapperConfiguration : IGlobalConfiguration
         }
     }
     // For unit testing purposes only
-    internal MapperConfiguration(Action<IMapperConfigurationExpression> configure) : this(configure, new NullLoggerFactory()){}
-    public MapperConfiguration(Action<IMapperConfigurationExpression> configure, ILoggerFactory loggerFactory) : this(Build(configure), loggerFactory){}
+    internal MapperConfiguration(Action<IMapperConfigurationExpression> configure) : this(configure, new NullLoggerFactory()) { }
+    public MapperConfiguration(Action<IMapperConfigurationExpression> configure, ILoggerFactory loggerFactory) : this(Build(configure), loggerFactory) { }
     static MapperConfigurationExpression Build(Action<IMapperConfigurationExpression> configure)
     {
         MapperConfigurationExpression expr = new();
         configure(expr);
         return expr;
     }
-    public void AssertConfigurationIsValid() => Validator().AssertConfigurationExpressionIsValid([.._configuredMaps.Values]);
+    public void AssertConfigurationIsValid() => Validator().AssertConfigurationExpressionIsValid([.. _configuredMaps.Values]);
     ConfigurationValidator Validator() => new(this);
     public IMapper CreateMapper() => new Mapper(this);
     public IMapper CreateMapper(Func<Type, object> serviceCtor) => new Mapper(this, serviceCtor);
@@ -235,7 +236,7 @@ public sealed class MapperConfiguration : IGlobalConfiguration
         }
     }
     internal IGlobalConfigurationExpression ConfigurationExpression => _configurationExpression;
-    ProjectionBuilder CreateProjectionBuilder() => new(this, [..ConfigurationExpression.ProjectionMappers]);
+    ProjectionBuilder CreateProjectionBuilder() => new(this, [.. ConfigurationExpression.ProjectionMappers]);
     IProjectionBuilder IGlobalConfiguration.ProjectionBuilder => _projectionBuilder.Value;
     Func<Type, object> IGlobalConfiguration.ServiceCtor => ConfigurationExpression.ServiceCtor;
     bool IGlobalConfiguration.EnableNullPropagationForQueryMapping => ConfigurationExpression.EnableNullPropagationForQueryMapping.GetValueOrDefault();
@@ -342,10 +343,10 @@ public sealed class MapperConfiguration : IGlobalConfiguration
         GetTypeInheritance(typesInheritance, initialTypes.SourceType);
         var sourceTypesLength = typesInheritance.Count;
         GetTypeInheritance(typesInheritance, initialTypes.DestinationType);
-        for(int destinationIndex = sourceTypesLength; destinationIndex < typesInheritance.Count; destinationIndex++)
+        for (int destinationIndex = sourceTypesLength; destinationIndex < typesInheritance.Count; destinationIndex++)
         {
             var destinationType = typesInheritance[destinationIndex];
-            for(int sourceIndex = 0; sourceIndex < sourceTypesLength; sourceIndex++)
+            for (int sourceIndex = 0; sourceIndex < sourceTypesLength; sourceIndex++)
             {
                 var sourceType = typesInheritance[sourceIndex];
                 if (sourceType == initialTypes.SourceType && destinationType == initialTypes.DestinationType)
@@ -355,7 +356,7 @@ public sealed class MapperConfiguration : IGlobalConfiguration
                 TypePair types = new(sourceType, destinationType);
                 if (_resolvedMaps.TryGetValue(types, out typeMap))
                 {
-                    if(typeMap == null)
+                    if (typeMap == null)
                     {
                         continue;
                     }

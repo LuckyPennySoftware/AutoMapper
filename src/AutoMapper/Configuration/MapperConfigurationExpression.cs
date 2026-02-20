@@ -89,7 +89,7 @@ public interface IMapperConfigurationExpression : IProfileExpression
     /// <param name="profileName">Profile name, must be unique</param>
     /// <param name="config">Profile configuration</param>
     void CreateProfile(string profileName, Action<IProfileExpression> config);
-    
+
     /// <summary>
     /// Gets or sets the license key. You can find your license key in your <a href="https://luckypennysoftware.com/account">account</a>.
     /// </summary>
@@ -98,7 +98,7 @@ public interface IMapperConfigurationExpression : IProfileExpression
 public sealed class MapperConfigurationExpression : Profile, IGlobalConfigurationExpression
 {
     static readonly Type[] AmTypes = [typeof(IValueResolver<,,>), typeof(IMemberValueResolver<,,,>), typeof(ITypeConverter<,>), typeof(IValueConverter<,>), typeof(IMappingAction<,>)];
-    
+
     private readonly List<Profile> _profiles = [];
     private readonly List<Validator> _validators = [];
     private Func<Type, object> _serviceCtor = Activator.CreateInstance;
@@ -109,7 +109,7 @@ public sealed class MapperConfigurationExpression : Profile, IGlobalConfiguratio
     /// Add an action to be called when validating the configuration.
     /// </summary>
     /// <param name="validator">the validation callback</param>
-    void IGlobalConfigurationExpression.Validator(Validator validator) => 
+    void IGlobalConfigurationExpression.Validator(Validator validator) =>
         _validators.Add(validator ?? throw new System.ArgumentNullException(nameof(validator)));
     /// <summary>
     /// How many levels deep should AutoMapper try to inline the execution plan for child classes.
@@ -126,7 +126,7 @@ public sealed class MapperConfigurationExpression : Profile, IGlobalConfiguratio
     /// Must be zero for EF6. Can be greater than zero for EF Core.
     /// </summary>
     int IGlobalConfigurationExpression.RecursiveQueriesMaxDepth { get; set; }
-        
+
     public string LicenseKey { get; set; }
 
     public ServiceLifetime ServiceLifetime { get; set; } = ServiceLifetime.Transient;
@@ -176,9 +176,9 @@ public sealed class MapperConfigurationExpression : Profile, IGlobalConfiguratio
     private void AddMapsCore(IEnumerable<Assembly> assembliesToScan)
     {
         assembliesToScan = assembliesToScan.ToList();
-        
+
         _scannedAssembles.AddRange(assembliesToScan);
-        
+
         Profile autoMapAttributeProfile = new(nameof(AutoMapAttribute));
         foreach (var type in assembliesToScan.Where(a => !a.IsDynamic && a != typeof(Profile).Assembly).SelectMany(a => a.GetTypes()))
         {
@@ -189,8 +189,8 @@ public sealed class MapperConfigurationExpression : Profile, IGlobalConfiguratio
 
             foreach (var autoMapAttribute in type.GetCustomAttributes<AutoMapAttribute>())
             {
-                var mappingExpression = (MappingExpression) autoMapAttributeProfile.CreateMap(autoMapAttribute.SourceType, type);
-            
+                var mappingExpression = (MappingExpression)autoMapAttributeProfile.CreateMap(autoMapAttribute.SourceType, type);
+
                 foreach (var memberInfo in type.GetMembers(BindingFlags.Public | BindingFlags.Instance))
                 {
                     foreach (var memberConfigurationProvider in memberInfo.GetCustomAttributes().OfType<IMemberConfigurationProvider>())

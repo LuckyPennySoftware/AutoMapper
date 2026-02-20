@@ -1,4 +1,5 @@
 namespace AutoMapper.Internal;
+
 [DebuggerDisplay("{RequestedTypes.SourceType.Name}, {RequestedTypes.DestinationType.Name} : {RuntimeTypes.SourceType.Name}, {RuntimeTypes.DestinationType.Name}")]
 public readonly record struct MapRequest(TypePair RequestedTypes, TypePair RuntimeTypes, MemberMap MemberMap)
 {
@@ -15,11 +16,11 @@ public readonly record struct TypePair(Type SourceType, Type DestinationType)
     {
         var sourceArguments = closedTypes.SourceType.GenericTypeArguments;
         var destinationArguments = closedTypes.DestinationType.GenericTypeArguments;
-        if(sourceArguments.Length == 0)
+        if (sourceArguments.Length == 0)
         {
             sourceArguments = destinationArguments;
         }
-        else if(destinationArguments.Length == 0)
+        else if (destinationArguments.Length == 0)
         {
             destinationArguments = sourceArguments;
         }

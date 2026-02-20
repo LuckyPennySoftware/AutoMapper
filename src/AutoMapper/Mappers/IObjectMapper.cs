@@ -43,7 +43,7 @@ public abstract class ObjectMapper<TSource, TDestination> : IObjectMapper
     /// </summary>
     /// <param name="context">Resolution context</param>
     /// <returns>Is match</returns>
-    public virtual bool IsMatch(TypePair context) => 
+    public virtual bool IsMatch(TypePair context) =>
         typeof(TSource).IsAssignableFrom(context.SourceType) && typeof(TDestination).IsAssignableFrom(context.DestinationType);
 
     /// <summary>
