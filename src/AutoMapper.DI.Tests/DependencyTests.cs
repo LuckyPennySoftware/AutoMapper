@@ -77,4 +77,42 @@ namespace AutoMapper.Extensions.Microsoft.DependencyInjection.Tests
             dest.Value.ShouldBe(0);
         }
     }
+
+    public class DestinationFactoryDependencyTests
+    {
+        private readonly IServiceProvider _provider;
+
+        public DestinationFactoryDependencyTests()
+        {
+            IServiceCollection services = new ServiceCollection();
+            services.AddTransient<ISomeService>(sp => new FooService(5));
+            services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+            services.AddAutoMapper(_ => { }, typeof(FactorySource));
+            _provider = services.BuildServiceProvider();
+
+            _provider.GetService<IConfigurationProvider>().AssertConfigurationIsValid();
+        }
+
+        [Fact]
+        public void ShouldConstructWithDependency()
+        {
+            var mapper = _provider.GetService<IMapper>();
+            var dest = mapper.Map<FactorySource, FactoryDest>(new FactorySource { Value = 10 });
+
+            // FooService.Modify(10) = 10 + 5 = 15
+            dest.InitialValue.ShouldBe(15);
+            dest.Value.ShouldBe(10);
+        }
+
+        [Fact]
+        public void ShouldConstructWithDependency_DifferentValue()
+        {
+            var mapper = _provider.GetService<IMapper>();
+            var dest = mapper.Map<FactorySource, FactoryDest>(new FactorySource { Value = 20 });
+
+            // FooService.Modify(20) = 20 + 5 = 25
+            dest.InitialValue.ShouldBe(25);
+            dest.Value.ShouldBe(20);
+        }
+    }
 }

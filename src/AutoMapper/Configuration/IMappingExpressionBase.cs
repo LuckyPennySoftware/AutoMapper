@@ -157,6 +157,20 @@ public interface IMappingExpressionBase<TSource, TDestination, out TMappingExpre
     /// <returns>Itself</returns>
     TMappingExpression ConstructUsing(Func<TSource, ResolutionContext, TDestination> ctor);
     /// <summary>
+    /// Supply a custom object constructor type for instantiating the destination type with dependency injection support
+    /// </summary>
+    /// <remarks>Not used for LINQ projection (ProjectTo). Constructor is resolved from the DI container at configuration time.</remarks>
+    /// <typeparam name="TConstructor">Constructor type implementing IDestinationFactory&lt;TSource, TDestination&gt;</typeparam>
+    /// <returns>Itself</returns>
+    TMappingExpression ConstructUsing<TConstructor>() where TConstructor : IDestinationFactory<TSource, TDestination>;
+    /// <summary>
+    /// Supply a custom object constructor type for instantiating the destination type with dependency injection support.
+    /// Used when the constructor type is not known at compile-time.
+    /// </summary>
+    /// <remarks>Not used for LINQ projection (ProjectTo). Constructor is resolved from the DI container at configuration time.</remarks>
+    /// <param name="objectConstructorType">Constructor type implementing IDestinationFactory</param>
+    void ConstructUsing(Type objectConstructorType);
+    /// <summary>
     /// Override the destination type mapping for looking up configuration and instantiation
     /// </summary>
     /// <param name="typeOverride"></param>
@@ -196,6 +210,22 @@ public interface IMappingExpressionBase<TSource, TDestination, out TMappingExpre
     /// <remarks>Not used for LINQ projection (ProjectTo)</remarks>
     /// <typeparam name="TTypeConverter">Type converter type</typeparam>
     void ConvertUsing<TTypeConverter>() where TTypeConverter : ITypeConverter<TSource, TDestination>;
+}
+
+/// <summary>
+/// Custom destination factory for instantiating destination objects with dependency injection support.
+/// </summary>
+/// <typeparam name="TSource">Source type</typeparam>
+/// <typeparam name="TDestination">Destination type</typeparam>
+public interface IDestinationFactory<in TSource, out TDestination>
+{
+    /// <summary>
+    /// Construct the destination object from the source object
+    /// </summary>
+    /// <param name="source">Source object</param>
+    /// <param name="context">Resolution context</param>
+    /// <returns>New destination instance</returns>
+    TDestination Construct(TSource source, ResolutionContext context);
 }
 /// <summary>
 /// Custom mapping action

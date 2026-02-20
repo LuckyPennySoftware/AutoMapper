@@ -325,6 +325,16 @@ public abstract class MappingExpressionBase<TSource, TDestination, TMappingExpre
         Expression<Func<TSource, ResolutionContext, TDestination>> expr = (src, ctxt) => ctor(src, ctxt);
         return ConstructUsingCore(expr);
     }
+    public TMappingExpression ConstructUsing<TConstructor>() where TConstructor : IDestinationFactory<TSource, TDestination>
+    {
+        TypeMapActions.Add(tm => tm.ConstructUsingObjectConstructor(typeof(TConstructor)));
+        return this as TMappingExpression;
+    }
+
+    public void ConstructUsing(Type objectConstructorType)
+    {
+        TypeMapActions.Add(tm => tm.ConstructUsingObjectConstructor(objectConstructorType));
+    }
     public void ConvertUsing(Type typeConverterType)
     {
         HasTypeConverter = true;

@@ -183,4 +183,35 @@ namespace AutoMapper.Extensions.Microsoft.DependencyInjection.Tests
                 });
         }
     }
+
+    public class FactorySource
+    {
+        public int Value { get; set; }
+    }
+
+    public class FactoryDest
+    {
+        public int Value { get; set; }
+        public int InitialValue { get; set; }
+    }
+
+    public class DependencyFactory : IDestinationFactory<FactorySource, FactoryDest>
+    {
+        private readonly ISomeService _service;
+
+        public DependencyFactory(ISomeService service) => _service = service;
+
+        public FactoryDest Construct(FactorySource source, ResolutionContext context)
+            => new FactoryDest { InitialValue = _service.Modify(source.Value) };
+    }
+
+    internal class FactoryProfile : Profile
+    {
+        public FactoryProfile()
+        {
+            CreateMap<FactorySource, FactoryDest>()
+                .ConstructUsing<DependencyFactory>()
+                .ForMember(dest => dest.InitialValue, opt => opt.Ignore());
+        }
+    }
 }
