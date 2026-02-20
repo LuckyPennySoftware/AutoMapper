@@ -93,7 +93,7 @@ public class ConditionProfile : Profile
 
 // In Startup.cs / Program.cs:
 services.AddTransient<IMyService, MyService>();
-services.AddAutoMapper(typeof(ConditionProfile).Assembly);
+services.AddAutoMapper(cfg => { }, typeof(ConditionProfile).Assembly);
 ```
 
 Or dynamic service location, to be used in the case of instance-based containers (including child/nested containers):
