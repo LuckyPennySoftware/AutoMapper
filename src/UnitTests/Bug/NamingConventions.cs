@@ -104,6 +104,22 @@ public class When_mapping_with_lowercase_naming_conventions_two_ways_in_profiles
         _dario.JaSeZovemImenom.ShouldBe("foo");
     }
 }
+public class PascalCaseAcronymInPropertyName : AutoMapperSpecBase
+{
+    class Source { public Inner Form { get; set; } }
+    class Inner { public int XML { get; set; } }
+    class Dest { public int FormXML { get; set; } }
+
+    protected override MapperConfiguration CreateConfiguration() => new(cfg =>
+        cfg.CreateMap<Source, Dest>());
+
+    [Fact]
+    public void Should_flatten_acronym_property()
+    {
+        var result = Mapper.Map<Dest>(new Source { Form = new Inner { XML = 42 } });
+        result.FormXML.ShouldBe(42);
+    }
+}
 
 public class When_mapping_with_lowercase_naming_conventions_two_ways : AutoMapperSpecBase
 {
