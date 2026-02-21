@@ -47,35 +47,46 @@ internal class LicenseAccessor
 
     private Claim[] ValidateKey(string licenseKey)
     {
-        var handler = new JsonWebTokenHandler();
-
-        var rsa = new RSAParameters
+        try
         {
-            Exponent = Convert.FromBase64String("AQAB"),
-            Modulus = Convert.FromBase64String(
-                "2LTtdJV2b0mYoRqChRCfcqnbpKvsiCcDYwJ+qPtvQXWXozOhGo02/V0SWMFBdbZHUzpEytIiEcojo7Vbq5mQmt4lg92auyPKsWq6qSmCVZCUuL/kpYqLCit4yUC0YqZfw4H9zLf1yAIOgyXQf1x6g+kscDo1pWAniSl9a9l/LXRVEnGz+OfeUrN/5gzpracGUY6phx6T09UCRuzi4YqqO4VJzL877W0jCW2Q7jMzHxOK04VSjNc22CADuCd34mrFs23R0vVm1DVLYtPGD76/rGOcxO6vmRc7ydBAvt1IoUsrY0vQ2rahp51YPxqqhKPd8nNOomHWblCCA7YUeV3C1Q==")
-        };
+            var handler = new JsonWebTokenHandler();
 
-        var key = new RsaSecurityKey(rsa)
-        {
-            KeyId = "LuckyPennySoftwareLicenseKey/bbb13acb59904d89b4cb1c85f088ccf9"
-        };
+            var rsa = new RSAParameters
+            {
+                Exponent = Convert.FromBase64String("AQAB"),
+                Modulus = Convert.FromBase64String(
+                    "2LTtdJV2b0mYoRqChRCfcqnbpKvsiCcDYwJ+qPtvQXWXozOhGo02/V0SWMFBdbZHUzpEytIiEcojo7Vbq5mQmt4lg92auyPKsWq6qSmCVZCUuL/kpYqLCit4yUC0YqZfw4H9zLf1yAIOgyXQf1x6g+kscDo1pWAniSl9a9l/LXRVEnGz+OfeUrN/5gzpracGUY6phx6T09UCRuzi4YqqO4VJzL877W0jCW2Q7jMzHxOK04VSjNc22CADuCd34mrFs23R0vVm1DVLYtPGD76/rGOcxO6vmRc7ydBAvt1IoUsrY0vQ2rahp51YPxqqhKPd8nNOomHWblCCA7YUeV3C1Q==")
+            };
 
-        var parms = new TokenValidationParameters
-        {
-            ValidIssuer = "https://luckypennysoftware.com",
-            ValidAudience = "LuckyPennySoftware",
-            IssuerSigningKey = key,
-            ValidateLifetime = false
-        };
+            var key = new RsaSecurityKey(rsa)
+            {
+                KeyId = "LuckyPennySoftwareLicenseKey/bbb13acb59904d89b4cb1c85f088ccf9"
+            };
 
-        var validateResult = handler.ValidateTokenAsync(licenseKey, parms).Result;
-        if (!validateResult.IsValid)
-        {
-            _logger.LogCritical(validateResult.Exception, "Error validating the Lucky Penny software license key");
+            var parms = new TokenValidationParameters
+            {
+                ValidIssuer = "https://luckypennysoftware.com",
+                ValidAudience = "LuckyPennySoftware",
+                IssuerSigningKey = key,
+                ValidateLifetime = false
+            };
+
+            var validateResult = handler.ValidateTokenAsync(licenseKey, parms).Result;
+            if (!validateResult.IsValid)
+            {
+                _logger.LogCritical(validateResult.Exception, "Error validating the Lucky Penny software license key");
+            }
+
+            return validateResult.ClaimsIdentity?.Claims.ToArray() ?? [];
         }
-
-        return validateResult.ClaimsIdentity?.Claims.ToArray() ?? [];
+        catch (PlatformNotSupportedException)
+        {
+            _logger.LogInformation(
+                "RSA cryptography is not supported on this platform. " +
+                "For client redistribution scenarios such as Blazor WASM, see: " +
+                "https://docs.automapper.io/en/latest/License-configuration.html#client-redistribution-scenarios");
+            return [];
+        }
     }
 
 }
