@@ -117,7 +117,7 @@ services.AddAutoMapper(cfg =>
 {
     cfg.CreateMap<Source, Destination>()
         .ConstructUsing<DIAwareConstructor>();
-});
+}, typeof(IMyService).Assembly);
 ```
 
 For runtime type resolution, use the non-generic overload:
