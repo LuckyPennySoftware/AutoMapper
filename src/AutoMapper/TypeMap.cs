@@ -2,6 +2,8 @@ namespace AutoMapper;
 
 using Features;
 using System.Runtime.CompilerServices;
+using static Expression;
+using static ExpressionBuilder;
 
 /// <summary>
 /// Main configuration object holding all mapping configuration for a source and destination type
@@ -254,6 +256,28 @@ public sealed class TypeMap
     public void AddAfterMapAction(LambdaExpression afterMap) => Details.AddAfterMapAction(afterMap);
     public void AddValueTransformation(ValueTransformerConfiguration config) => Details.AddValueTransformation(config);
     public void ConstructUsingServiceLocator() => CustomCtorFunction = Lambda(ServiceLocator(DestinationType));
+    public void ConstructUsingObjectConstructor(Type objectConstructorType)
+    {
+        var srcParam = Parameter(SourceType);
+        var ctxParam = Parameter(typeof(ResolutionContext));
+
+        var constructorInstance = ServiceLocator(objectConstructorType);
+        var expectedInterface = typeof(IDestinationFactory<,>).MakeGenericType(SourceType, DestinationType);
+        if (!expectedInterface.IsAssignableFrom(objectConstructorType))
+        {
+            throw new InvalidOperationException($"Type '{objectConstructorType.Name}' does not implement IDestinationFactory<{SourceType.Name}, {DestinationType.Name}>");
+        }
+        var constructMethod = expectedInterface.GetMethod("Construct") ??
+            throw new InvalidOperationException($"IDestinationFactory<{SourceType.Name}, {DestinationType.Name}> does not define a 'Construct' method.");
+
+        var callExpression = Call(
+            Convert(constructorInstance, expectedInterface),
+            constructMethod,
+            srcParam, ctxParam
+        );
+
+        CustomCtorFunction = Lambda(callExpression, srcParam, ctxParam);
+    }
     internal LambdaExpression CreateMapperLambda(IGlobalConfiguration configuration) =>
         Types.ContainsGenericParameters ? null : new TypeMapPlanBuilder(configuration, this).CreateMapperLambda();
     private PropertyMap GetPropertyMap(string name)
