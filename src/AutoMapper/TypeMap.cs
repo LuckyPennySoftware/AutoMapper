@@ -262,12 +262,16 @@ public sealed class TypeMap
         var ctxParam = Parameter(typeof(ResolutionContext));
 
         var constructorInstance = ServiceLocator(objectConstructorType);
-        var interfaceType = objectConstructorType.GetGenericInterface(typeof(IDestinationFactory<,>)) ??
+        var expectedInterface = typeof(IDestinationFactory<,>).MakeGenericType(SourceType, DestinationType);
+        if (!expectedInterface.IsAssignableFrom(objectConstructorType))
+        {
             throw new InvalidOperationException($"Type '{objectConstructorType.Name}' does not implement IDestinationFactory<{SourceType.Name}, {DestinationType.Name}>");
-        var constructMethod = interfaceType.GetMethod("Construct");
+        }
+        var constructMethod = expectedInterface.GetMethod("Construct") ??
+            throw new InvalidOperationException($"IDestinationFactory<{SourceType.Name}, {DestinationType.Name}> does not define a 'Construct' method.");
 
         var callExpression = Call(
-            Convert(constructorInstance, interfaceType),
+            Convert(constructorInstance, expectedInterface),
             constructMethod,
             srcParam, ctxParam
         );
