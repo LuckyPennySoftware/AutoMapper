@@ -24,7 +24,9 @@ public sealed class PascalCaseNamingConvention : INamingConvention
         int lower = 0;
         for (int index = 1; index < input.Length; index++)
         {
-            if (char.IsUpper(input[index]))
+            if (char.IsUpper(input[index]) &&
+                (!char.IsUpper(input[index - 1]) ||
+                 (index + 1 < input.Length && !char.IsUpper(input[index + 1]))))
             {
                 result ??= [];
                 result.Add(input[lower..index]);
