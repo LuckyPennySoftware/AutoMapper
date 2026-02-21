@@ -169,7 +169,8 @@ public static class ExpressionBuilder
     public static Expression ContextMap(TypePair typePair, Expression sourceParameter, Expression destinationParameter, MemberMap memberMap)
     {
         var mapMethod = ContextMapMethod.MakeGenericMethod(typePair.SourceType, typePair.DestinationType);
-        return Expression.Call(ContextParameter, mapMethod, sourceParameter, destinationParameter, Constant(memberMap, typeof(MemberMap)));
+        var source = ToType(sourceParameter, typePair.SourceType);
+        return Expression.Call(ContextParameter, mapMethod, source, destinationParameter, Constant(memberMap, typeof(MemberMap)));
     }
     public static Expression CheckContext(TypeMap typeMap) => typeMap.PreserveReferences || typeMap.MaxDepth > 0 ? CheckContextCall : null;
     public static Expression OverMaxDepth(TypeMap typeMap) => typeMap?.MaxDepth > 0 ?
