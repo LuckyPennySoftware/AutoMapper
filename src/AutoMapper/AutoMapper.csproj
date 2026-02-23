@@ -60,6 +60,17 @@
     <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="powershell -ExecutionPolicy Unrestricted -File &quot;$(ProjectDir)ApiCompat\PreBuild.ps1&quot; -version $(Version)" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="bash &quot;$(ProjectDir)ApiCompat/PreBuild.sh&quot; $(Version)" />
   </Target> -->
+
+  <Target Name="EmbedBuildDate" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <BuildDateUtc>$([System.DateTime]::UtcNow.ToString("O"))</BuildDateUtc>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(IntermediateOutputPath)BuildDateGenerated.cs" Lines="[assembly: System.Reflection.AssemblyMetadata(&quot;BuildDateUtc&quot;, &quot;$(BuildDateUtc)&quot;)]" Overwrite="true" />
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)BuildDateGenerated.cs" />
+    </ItemGroup>
+  </Target>
+
   <ItemGroup>
     <Using Include="System.Linq.Expressions.Expression" Static="true"/>
     <Using Include="AutoMapper.Execution.ExpressionBuilder" Static="true"/>
