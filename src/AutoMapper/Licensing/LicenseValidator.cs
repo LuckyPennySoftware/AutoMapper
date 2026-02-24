@@ -51,6 +51,11 @@ internal class LicenseValidator
             }
             else
             {
+                if (license.IsPerpetual)
+                {
+                    _logger.LogWarning(
+                        "Your license for the Lucky Penny software AutoMapper has the perpetual flag set, but the build date could not be determined. Perpetual licensing is unavailable.");
+                }
                 errors.Add($"Your license for the Lucky Penny software AutoMapper expired {diff} days ago.");
             }
         }

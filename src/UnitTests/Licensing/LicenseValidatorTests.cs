@@ -171,6 +171,34 @@ public class LicenseValidatorTests
     }
 
     [Fact]
+    public void Should_warn_and_error_when_perpetual_but_build_date_is_null()
+    {
+        var factory = new LoggerFactory();
+        var provider = new FakeLoggerProvider();
+        factory.AddProvider(provider);
+
+        var licenseValidator = new LicenseValidator(factory, buildDate: null);
+        var license = new License(
+            new Claim("account_id", Guid.NewGuid().ToString()),
+            new Claim("customer_id", Guid.NewGuid().ToString()),
+            new Claim("sub_id", Guid.NewGuid().ToString()),
+            new Claim("iat", DateTimeOffset.UtcNow.AddYears(-1).ToUnixTimeSeconds().ToString()),
+            new Claim("exp", DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds().ToString()),
+            new Claim("edition", nameof(Edition.Professional)),
+            new Claim("type", nameof(AutoMapper.Licensing.ProductType.AutoMapper)),
+            new Claim("perpetual", "true"));
+
+        license.IsConfigured.ShouldBeTrue();
+        license.IsPerpetual.ShouldBeTrue();
+
+        licenseValidator.Validate(license);
+
+        var logMessages = provider.Collector.GetSnapshot();
+        logMessages.ShouldContain(log => log.Level == LogLevel.Warning && log.Message.Contains("perpetual"));
+        logMessages.ShouldContain(log => log.Level == LogLevel.Error && log.Message.Contains("expired"));
+    }
+
+    [Fact]
     public void Should_handle_missing_perpetual_claim()
     {
         var factory = new LoggerFactory();
