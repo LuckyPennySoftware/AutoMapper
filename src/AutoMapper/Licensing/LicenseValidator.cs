@@ -7,10 +7,15 @@ internal class LicenseValidator
     private readonly ILogger _logger;
     private readonly DateTimeOffset? _buildDate;
 
-    public LicenseValidator(ILoggerFactory loggerFactory, DateTimeOffset? buildDate = null)
+    public LicenseValidator(ILoggerFactory loggerFactory)
+        : this(loggerFactory, BuildInfo.BuildDate)
+    {
+    }
+
+    public LicenseValidator(ILoggerFactory loggerFactory, DateTimeOffset? buildDate)
     {
         _logger = loggerFactory.CreateLogger("LuckyPennySoftware.AutoMapper.License");
-        _buildDate = buildDate ?? BuildInfo.BuildDate;
+        _buildDate = buildDate;
     }
 
     public void Validate(License license)
