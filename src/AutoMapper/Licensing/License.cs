@@ -41,6 +41,9 @@ internal class License
             ProductType = productType;
         }
 
+        var perpetualValue = claims.FindFirst("perpetual")?.Value;
+        IsPerpetual = perpetualValue?.ToLowerInvariant() is "true" or "1";
+
         IsConfigured = AccountId != null
                        && CustomerId != null
                        && SubscriptionId != null
@@ -57,6 +60,7 @@ internal class License
     public DateTimeOffset? ExpirationDate { get; }
     public Edition? Edition { get; }
     public ProductType? ProductType { get; }
+    public bool IsPerpetual { get; }
 
     public bool IsConfigured { get; }
 }
