@@ -71,7 +71,7 @@ jobs:
           reporter: dotnet-trx
       - name: Generate SBOM
         run: |
-          dotnet tool install --global Microsoft.Sbom.DotNetTool
+          dotnet tool install --global Microsoft.Sbom.DotNetTool --version 1.2.0
           sbom-tool generate -b artifacts -bc src/AutoMapper -pn AutoMapper -pv ${{ github.ref_name }} -ps LuckyPennySoftware -nsb https://automapper.io/sbom
         shell: pwsh
       - name: Sign packages

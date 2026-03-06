@@ -74,7 +74,7 @@ jobs:
         shell: pwsh
       - name: Report Test Results
         uses: dorny/test-reporter@v1
-        if: always()
+        if: success() || failure()
         with:
           name: Test Results (Windows)
           path: artifacts/**/*.trx
