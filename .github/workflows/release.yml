@@ -6,6 +6,7 @@ on:
 permissions:
   id-token: write
   contents: read
+  checks: write
 jobs:
   build:
     strategy:
@@ -26,6 +27,13 @@ jobs:
       - name: Build and Test
         run: ./Build.ps1
         shell: pwsh
+      - name: Report Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (Linux)
+          path: artifacts/**/*.trx
+          reporter: dotnet-trx
   build-windows:
     needs: build
     strategy:
@@ -53,6 +61,18 @@ jobs:
         run: dotnet tool install --global NuGetKeyVaultSignTool
       - name: Build and Test
         run: ./Build.ps1
+        shell: pwsh
+      - name: Report Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (Windows)
+          path: artifacts/**/*.trx
+          reporter: dotnet-trx
+      - name: Generate SBOM
+        run: |
+          dotnet tool install --global Microsoft.Sbom.DotNetTool --version 1.2.0
+          sbom-tool generate -b artifacts -bc src/AutoMapper -pn AutoMapper -pv ${{ github.ref_name }} -ps LuckyPennySoftware -nsb https://automapper.io/sbom
         shell: pwsh
       - name: Sign packages
         run: |-
