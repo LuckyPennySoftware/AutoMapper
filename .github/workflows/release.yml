@@ -6,6 +6,7 @@ on:
 permissions:
   id-token: write
   contents: read
+  checks: write
 jobs:
   build:
     strategy:
@@ -26,6 +27,13 @@ jobs:
       - name: Build and Test
         run: ./Build.ps1
         shell: pwsh
+      - name: Report Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (Linux)
+          path: artifacts/**/*.trx
+          reporter: dotnet-trx
   build-windows:
     needs: build
     strategy:
@@ -54,6 +62,13 @@ jobs:
       - name: Build and Test
         run: ./Build.ps1
         shell: pwsh
+      - name: Report Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (Windows)
+          path: artifacts/**/*.trx
+          reporter: dotnet-trx
       - name: Sign packages
         run: |-
           foreach ($f in Get-ChildItem "./artifacts" -Filter "*.nupkg") {
