@@ -69,6 +69,11 @@ jobs:
           name: Test Results (Windows)
           path: artifacts/**/*.trx
           reporter: dotnet-trx
+      - name: Generate SBOM
+        run: |
+          dotnet tool install --global Microsoft.Sbom.DotNetTool
+          sbom-tool generate -b artifacts -bc src/AutoMapper -pn AutoMapper -pv ${{ github.ref_name }} -ps LuckyPennySoftware -nsb https://automapper.io/sbom
+        shell: pwsh
       - name: Sign packages
         run: |-
           foreach ($f in Get-ChildItem "./artifacts" -Filter "*.nupkg") {
