@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-    - master
+    - main
     - release/**
   pull_request:
 env:
@@ -32,7 +32,13 @@ jobs:
           8.0.x
           9.0.x
     - name: Build and Test
-      run: ./Build.ps1
+      run: |
+        dotnet build --configuration Release
+
+        dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\UnitTests
+
+        dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\AutoMapper.DI.Tests
+
       shell: pwsh
   build:
     needs: build-windows  
