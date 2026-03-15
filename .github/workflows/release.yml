@@ -34,13 +34,7 @@ jobs:
     - name: Install NuGetKeyVaultSignTool
       run: dotnet tool install --global NuGetKeyVaultSignTool
     - name: Build and Test
-      run: |
-        dotnet build --configuration Release
-
-        dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\UnitTests
-
-        dotnet test --configuration Release --no-build --results-directory ".\artifacts" -l trx .\src\AutoMapper.DI.Tests
-
+      run: ./Build.ps1
       shell: pwsh
     - name: Generate SBOM
       run: |
