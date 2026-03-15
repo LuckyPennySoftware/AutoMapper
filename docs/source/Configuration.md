@@ -225,3 +225,19 @@ You can set `MapAtRuntime` per member or `MaxExecutionPlanDepth` globally (the d
 
 These will reduce the size of the execution plan by replacing the execution plan for a child object with a method call. The compilation will be faster, but the mapping itself might be slower. Search the repo for more details and use a profiler to better understand the effect.
 Avoiding `PreserveReferences` and `MaxDepth` also helps.
+
+## Circular and Self-Referential Types
+
+When AutoMapper detects a self-referential type mapping (e.g., `CreateMap<Node, Node>()` where `Node` has a `Node` property), it automatically enables `PreserveReferences` to avoid re-mapping the same object instance. It also applies a default `MaxDepth` of **64** — matching System.Text.Json and Newtonsoft.Json — to prevent a Denial-of-Service condition from deeply nested object graphs (see GHSA-rvv3-g6hj-g44x).
+
+If your object graphs legitimately exceed 64 levels, increase the limit explicitly:
+
+```c#
+cfg.CreateMap<Node, Node>().MaxDepth(128);
+```
+
+To disable the depth limit entirely and rely solely on object-identity caching, call `.PreserveReferences()` explicitly:
+
+```c#
+cfg.CreateMap<Node, Node>().PreserveReferences();
+```

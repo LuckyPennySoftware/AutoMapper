@@ -641,7 +641,7 @@ public class ResolveWithGenericMap
         };
         var tasks =
             types
-            .Concat(types.Select(t => t.Reverse().ToArray()))
+            .Concat(types.Select(t => t.AsEnumerable().Reverse().ToArray()))
             .Select(t=>(SourceType: sourceType.MakeGenericType(t[0]), DestinationType: destinationType.MakeGenericType(t[1])))
             .ToArray()
             .Select(s => Task.Factory.StartNew(() => c.ResolveTypeMap(s.SourceType, s.DestinationType)))
@@ -1173,7 +1173,7 @@ public class ResolveGenericTypeMapThreadingIssues
         };
         var tasks =
             types
-            .Concat(types.Select(t => t.Reverse().ToArray()))
+            .Concat(types.Select(t => t.AsEnumerable().Reverse().ToArray()))
             .Select(t=>(SourceType: sourceType.MakeGenericType(t[0]), DestinationType: destinationType.MakeGenericType(t[1])))
             .ToArray()
             .Select(s => Task.Factory.StartNew(() => mapper.Map(null, s.SourceType, s.DestinationType)))
