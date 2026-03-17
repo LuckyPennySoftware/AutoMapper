@@ -1,6 +1,7 @@
 namespace AutoMapper.Execution;
 public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap typeMap)
 {
+    const int DefaultMaxDepth = 64;
     static readonly MethodInfo MappingError = typeof(TypeMapPlanBuilder).GetStaticMethod(nameof(MemberMappingError));
     static readonly MethodInfo IncTypeDepthInfo = typeof(ResolutionContext).GetInstanceMethod(nameof(ResolutionContext.IncrementTypeDepth));
     static readonly MethodInfo DecTypeDepthInfo = typeof(ResolutionContext).GetInstanceMethod(nameof(ResolutionContext.DecrementTypeDepth));
@@ -106,6 +107,10 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
                     continue;
                 }
                 memberTypeMap.PreserveReferences = true;
+                if (memberTypeMap.MaxDepth == 0)
+                {
+                    memberTypeMap.MaxDepth = DefaultMaxDepth;
+                }
                 Trace(typeMap, memberTypeMap, memberMap);
                 if (memberMap.Inline)
                 {
