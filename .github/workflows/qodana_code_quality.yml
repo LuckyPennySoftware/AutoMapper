@@ -24,7 +24,7 @@ jobs:
         with:
           pr-mode: false
           args: >
-            --solution AutoMapper.slnx
+            -Dqodana.net.solution=AutoMapper.slnx
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1270825913 }}
           QODANA_ENDPOINT: 'https://qodana.cloud'
