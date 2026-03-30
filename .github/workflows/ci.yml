@@ -18,6 +18,23 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
+    upload-qodana-config:
+        runs-on: ubuntu-latest
+        steps:    
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Run Qodana Configuration Uploader
+          env:
+              QODANA_CONFIGURATIONS_TOKEN: ${{ secrets.QODANA_CONFIGURATIONS_TOKEN }}
+              QODANA_ENDPOINT: 'https://qodana.cloud'
+          run: |
+              docker run --rm \
+                -v $(pwd):/workspace \
+                -w /workspace \
+                -e QODANA_CONFIGURATIONS_TOKEN=$QODANA_CONFIGURATIONS_TOKEN \
+                jetbrains/qodana-configuration-uploader:latest \
+                --global-configs-file qodana-global-configurations.yaml
   build:
     strategy:
       fail-fast: false
