@@ -1,0 +1,5 @@
+configurations:
+  - id: team_a
+    name: Team A
+    description: Configurations used for Team A projects
+    qodanaYaml: teamA/qodana.yaml
