@@ -1,0 +1,12 @@
+version: 1.0
+
+imports:
+  - ../base/qodana.yaml
+
+profile:
+  inspections:
+    - inspection: CheckDependencyLicenses
+      enabled: false
+
+    - inspection: HardcodedPasswords
+      enabled: false

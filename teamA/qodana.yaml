@@ -1,0 +1,13 @@
+version: 1.0
+
+imports:
+  - ../base/qodana.yaml
+
+failureConditions:
+  severityThresholds:
+    any: 0
+
+profile:
+  inspections:
+    - group: "category:Java/Lombok"
+      enabled: true

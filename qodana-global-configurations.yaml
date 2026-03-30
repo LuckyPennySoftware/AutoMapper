@@ -3,3 +3,9 @@ configurations:
     name: Team A
     description: Configurations used for Team A projects
     qodanaYaml: teamA/qodana.yaml
+
+  - id: team_b
+    name: Team B
+    description: Configurations used for Team B projects
+    qodanaYaml: teamB/qodana.yaml
+        

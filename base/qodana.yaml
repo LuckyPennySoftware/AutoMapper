@@ -1,0 +1,26 @@
+version: 1.0
+
+failureConditions:
+  severityThresholds:
+    critical: 0
+
+profile:
+  groups:
+    - groupId: Security
+      groups:
+        - "category:Java/Security"
+        - "category:Security"
+
+  inspections:
+    - group: Security
+      enabled: true
+
+    - inspection: CheckDependencyLicenses
+      enabled: true
+      options:
+        usePackageSearch: true
+
+    - inspection: HardcodedPasswords
+      enabled: true
+      options:
+        reportDefaultSuspiciousVariableNames: true
