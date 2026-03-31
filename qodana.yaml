@@ -10,7 +10,7 @@ include:
   - name: CheckDependencyLicenses
 licenseRules:
   - keys:
-      - "RPL-1.5"
+      - "Apache-2.0"
     allowed:
       - "MIT"
       - "Apache-2.0"
