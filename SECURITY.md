@@ -44,6 +44,19 @@ We aim to address critical vulnerabilities as quickly as practicable.
 
 ---
 
+## Code Signing
+
+Lucky Penny Software LLC signs distributed packages using a trusted code signing certificate.
+
+This ensures:
+- Authenticity of published packages
+- Integrity of package contents
+- Protection against tampering during distribution
+
+Signed packages can be verified by consumers using standard tooling.
+
+---
+
 ## Security Practices
 
 Lucky Penny Software LLC develops distributed software libraries and does not operate a hosted service or process customer or financial data.
