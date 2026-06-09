@@ -127,13 +127,7 @@ public sealed class MapperConfigurationExpression : Profile, IGlobalConfiguratio
     /// </summary>
     int IGlobalConfigurationExpression.RecursiveQueriesMaxDepth { get; set; }
 
-    private string _licenseKey;
-
-    public string LicenseKey
-    {
-        get => _licenseKey ?? Environment.GetEnvironmentVariable("AUTOMAPPER_LICENSE_KEY");
-        set => _licenseKey = value;
-    }
+    public string LicenseKey { get; set; }
 
     public ServiceLifetime ServiceLifetime { get; set; } = ServiceLifetime.Transient;
 

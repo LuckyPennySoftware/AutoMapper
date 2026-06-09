@@ -1,208 +1,69 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AutoMapper.Licensing;
 
 namespace AutoMapper.UnitTests.Licensing;
 
+// Mutates process-global environment variables, so it must not run alongside
+// other tests that read them. Disable parallelization for this class.
+[Collection(nameof(LicenseKeyEnvironmentVariableTests))]
+[CollectionDefinition(nameof(LicenseKeyEnvironmentVariableTests), DisableParallelization = true)]
 public class LicenseKeyEnvironmentVariableTests
 {
-    private const string EnvVarName = "AUTOMAPPER_LICENSE_KEY";
-
-    #region Environment Variable Auto-Detection Tests
-
-    [Fact]
-    public void LicenseKey_ReadsFromEnvironmentVariable_WhenNotExplicitlySet()
-    {
-        const string expectedKey = "test-license-key-12345";
-        Environment.SetEnvironmentVariable(EnvVarName, expectedKey);
-
-        try
-        {
-            var config = new MapperConfigurationExpression();
-
-            config.LicenseKey.ShouldBe(expectedKey);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable(EnvVarName, null);
-        }
-    }
+    private const string AutoMapperEnvVar = LicenseAccessor.AutoMapperLicenseKeyEnvVariable;
+    private const string SharedEnvVar = LicenseAccessor.SharedLicenseKeyEnvVariable;
 
     [Fact]
-    public void LicenseKey_ReturnsNull_WhenEnvironmentVariableNotSet()
+    public void ExplicitKey_TakesPrecedence_OverBothEnvironmentVariables()
     {
-        Environment.SetEnvironmentVariable(EnvVarName, null);
-
-        var config = new MapperConfigurationExpression();
-
-        config.LicenseKey.ShouldBeNull();
-    }
-
-    #endregion
-
-    #region Backward Compatibility - Old Way Tests
-
-    [Fact]
-    public void LicenseKey_SupportsOldWay_DirectAssignment()
-    {
-        const string licenseKey = "old-way-explicit-key";
-        var config = new MapperConfigurationExpression();
-
-        config.LicenseKey = licenseKey;
-
-        config.LicenseKey.ShouldBe(licenseKey);
-    }
-
-    [Fact]
-    public void LicenseKey_PrioritizesExplicitValue_OverEnvironmentVariable()
-    {
-        const string envKey = "env-license-key";
         const string explicitKey = "explicit-license-key";
-        Environment.SetEnvironmentVariable(EnvVarName, envKey);
-
-        try
-        {
-            var config = new MapperConfigurationExpression();
-
-            config.LicenseKey = explicitKey;
-
-            config.LicenseKey.ShouldBe(explicitKey);
-            config.LicenseKey.ShouldNotBe(envKey);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable(EnvVarName, null);
-        }
+        WithEnvironment(autoMapper: "env-automapper-key", shared: "env-shared-key", () =>
+            LicenseAccessor.ResolveLicenseKey(explicitKey).ShouldBe(explicitKey));
     }
 
     [Fact]
-    public void LicenseKey_OldWayOverridesEnvironmentVariable_InConfigAction()
+    public void AutoMapperEnvironmentVariable_Used_WhenNoExplicitKey()
     {
-        const string envKey = "env-license-key";
-        const string explicitKey = "explicit-override-key";
-        Environment.SetEnvironmentVariable(EnvVarName, envKey);
-
-        try
-        {
-            var config = new MapperConfigurationExpression();
-
-            config.LicenseKey = explicitKey;
-
-            config.LicenseKey.ShouldBe(explicitKey);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable(EnvVarName, null);
-        }
-    }
-
-    #endregion
-
-    #region Integration Tests - Old Way with DI
-
-    [Fact]
-    public void AddAutoMapper_SupportsOldWay_ExplicitLicenseKey()
-    {
-        const string licenseKey = "old-way-integration-key";
-        MapperConfigurationExpression capturedCfg = null;
-
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddAutoMapper(cfg =>
-        {
-            cfg.LicenseKey = licenseKey;
-            cfg.CreateMap<TestSource, TestDestination>();
-            capturedCfg = (MapperConfigurationExpression)cfg;
-        });
-
-        var serviceProvider = services.BuildServiceProvider();
-        var mapper = serviceProvider.GetRequiredService<IMapper>();
-
-        var result = mapper.Map<TestDestination>(new TestSource { Name = "Test" });
-
-        result.ShouldNotBeNull();
-        result.Name.ShouldBe("Test");
-        capturedCfg.LicenseKey.ShouldBe(licenseKey);
+        const string autoMapperKey = "env-automapper-key";
+        WithEnvironment(autoMapper: autoMapperKey, shared: null, () =>
+            LicenseAccessor.ResolveLicenseKey(null).ShouldBe(autoMapperKey));
     }
 
     [Fact]
-    public void AddAutoMapper_UsesEnvironmentVariable_WhenNoExplicitKeySet()
+    public void SharedEnvironmentVariable_Used_WhenOnlyItIsSet()
     {
-        const string licenseKey = "env-integration-key";
-        Environment.SetEnvironmentVariable(EnvVarName, licenseKey);
-        MapperConfigurationExpression capturedCfg = null;
-
-        try
-        {
-            var services = new ServiceCollection();
-            services.AddLogging();
-            services.AddAutoMapper(cfg =>
-            {
-                cfg.CreateMap<TestSource, TestDestination>();
-                capturedCfg = (MapperConfigurationExpression)cfg;
-            });
-
-            var serviceProvider = services.BuildServiceProvider();
-            var mapper = serviceProvider.GetRequiredService<IMapper>();
-
-            var result = mapper.Map<TestDestination>(new TestSource { Name = "Test" });
-
-            result.ShouldNotBeNull();
-            result.Name.ShouldBe("Test");
-            capturedCfg.LicenseKey.ShouldBe(licenseKey);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable(EnvVarName, null);
-        }
+        const string sharedKey = "env-shared-key";
+        WithEnvironment(autoMapper: null, shared: sharedKey, () =>
+            LicenseAccessor.ResolveLicenseKey(null).ShouldBe(sharedKey));
     }
 
     [Fact]
-    public void AddAutoMapper_OldWayTakesPrecedence_OverEnvironmentVariable()
+    public void AutoMapperEnvironmentVariable_TakesPrecedence_OverSharedEnvironmentVariable()
     {
-        const string envKey = "env-license-key";
-        const string explicitKey = "explicit-license-key-from-old-way";
-        Environment.SetEnvironmentVariable(EnvVarName, envKey);
-        MapperConfigurationExpression capturedCfg = null;
+        const string autoMapperKey = "env-automapper-key";
+        WithEnvironment(autoMapper: autoMapperKey, shared: "env-shared-key", () =>
+            LicenseAccessor.ResolveLicenseKey(null).ShouldBe(autoMapperKey));
+    }
 
+    [Fact]
+    public void ReturnsNull_WhenNothingIsSet()
+    {
+        WithEnvironment(autoMapper: null, shared: null, () =>
+            LicenseAccessor.ResolveLicenseKey(null).ShouldBeNull());
+    }
+
+    private static void WithEnvironment(string autoMapper, string shared, Action assert)
+    {
+        var originalAutoMapper = Environment.GetEnvironmentVariable(AutoMapperEnvVar);
+        var originalShared = Environment.GetEnvironmentVariable(SharedEnvVar);
         try
         {
-            var services = new ServiceCollection();
-            services.AddLogging();
-            services.AddAutoMapper(cfg =>
-            {
-                cfg.LicenseKey = explicitKey;
-                cfg.CreateMap<TestSource, TestDestination>();
-                capturedCfg = (MapperConfigurationExpression)cfg;
-            });
-
-            var serviceProvider = services.BuildServiceProvider();
-            var mapper = serviceProvider.GetRequiredService<IMapper>();
-
-            var result = mapper.Map<TestDestination>(new TestSource { Name = "Test" });
-
-            result.ShouldNotBeNull();
-            result.Name.ShouldBe("Test");
-            capturedCfg.LicenseKey.ShouldBe(explicitKey);
-            capturedCfg.LicenseKey.ShouldNotBe(envKey);
+            Environment.SetEnvironmentVariable(AutoMapperEnvVar, autoMapper);
+            Environment.SetEnvironmentVariable(SharedEnvVar, shared);
+            assert();
         }
         finally
         {
-            Environment.SetEnvironmentVariable(EnvVarName, null);
+            Environment.SetEnvironmentVariable(AutoMapperEnvVar, originalAutoMapper);
+            Environment.SetEnvironmentVariable(SharedEnvVar, originalShared);
         }
     }
-
-    #endregion
-
-    #region Test Helper Classes
-
-    private class TestSource
-    {
-        public string Name { get; set; }
-    }
-
-    private class TestDestination
-    {
-        public string Name { get; set; }
-    }
-
-    #endregion
 }

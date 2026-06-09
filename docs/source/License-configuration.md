@@ -18,6 +18,21 @@ var mapperConfiguration = new MapperConfiguration(cfg => {
 
 You can obtain a valid license from the [AutoMapper website](https://automapper.io).
 
+### Auto-Discovery via Environment Variables
+
+If no license key is set in code, AutoMapper looks for one in environment variables. This is convenient for containerized and cloud environments, and for enterprises that share a single key across many services without code changes:
+
+- `AUTOMAPPER_LICENSE_KEY` – the AutoMapper-specific license key.
+- `LUCKYPENNY_LICENSE_KEY` – a shared key usable across Lucky Penny products (for example, [MediatR](https://github.com/LuckyPennySoftware/MediatR) reads the same variable). Because it is shared, the key must be for a license that includes AutoMapper (a `Bundle` or AutoMapper edition); a MediatR-only license will not validate here.
+
+The license key is resolved in the following order of precedence, using the first value found:
+
+1. An explicit value set in code (`cfg.LicenseKey = "..."`).
+2. The `AUTOMAPPER_LICENSE_KEY` environment variable.
+3. The `LUCKYPENNY_LICENSE_KEY` environment variable.
+
+No code change is required when using an environment variable—just register AutoMapper as usual without setting `LicenseKey`.
+
 ### License Enforcement
 
 Licensing is enforced via log messages at various levels:

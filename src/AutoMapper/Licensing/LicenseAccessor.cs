@@ -9,6 +9,9 @@ namespace AutoMapper.Licensing;
 
 internal class LicenseAccessor
 {
+    internal const string AutoMapperLicenseKeyEnvVariable = "AUTOMAPPER_LICENSE_KEY";
+    internal const string SharedLicenseKeyEnvVariable = "LUCKYPENNY_LICENSE_KEY";
+
     private readonly IGlobalConfiguration _configuration;
     private readonly ILogger _logger;
 
@@ -32,7 +35,7 @@ internal class LicenseAccessor
                 return _license;
             }
 
-            var key = _configuration.LicenseKey;
+            var key = ResolveLicenseKey(_configuration.LicenseKey);
             if (key == null)
             {
                 return new License();
@@ -44,6 +47,16 @@ internal class LicenseAccessor
                 : new License();
         }
     }
+
+    /// <summary>
+    /// Resolves the license key from, in order of precedence: the explicitly configured value,
+    /// the product-specific <c>AUTOMAPPER_LICENSE_KEY</c> environment variable, then the shared
+    /// <c>LUCKYPENNY_LICENSE_KEY</c> environment variable (usable across Lucky Penny products).
+    /// </summary>
+    internal static string ResolveLicenseKey(string explicitKey) =>
+        explicitKey
+        ?? Environment.GetEnvironmentVariable(AutoMapperLicenseKeyEnvVariable)
+        ?? Environment.GetEnvironmentVariable(SharedLicenseKeyEnvVariable);
 
     private Claim[] ValidateKey(string licenseKey)
     {
