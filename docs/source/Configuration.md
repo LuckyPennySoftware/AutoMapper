@@ -6,7 +6,7 @@ Create a `MapperConfiguration` instance and initialize configuration via the con
 var config = new MapperConfiguration(cfg => {
     cfg.CreateMap<Foo, Bar>();
     cfg.AddProfile<FooProfile>();
-});
+}, loggerFactory);
 ```
 
 The `MapperConfiguration` instance can be stored statically, in a static field or in a dependency injection container. Once created it cannot be changed/modified.
@@ -15,7 +15,7 @@ The `MapperConfiguration` instance can be stored statically, in a static field o
 var configuration = new MapperConfiguration(cfg => {
     cfg.CreateMap<Foo, Bar>();
     cfg.AddProfile<FooProfile>();
-});
+}, loggerFactory);
 ```
 Starting with 9.0, the static API is no longer available.
 
@@ -65,24 +65,24 @@ or by automatically scanning for profiles:
 // ... using instance approach:
 var config = new MapperConfiguration(cfg => {
     cfg.AddMaps(myAssembly);
-});
-var configuration = new MapperConfiguration(cfg => cfg.AddMaps(myAssembly));
+}, loggerFactory);
+var configuration = new MapperConfiguration(cfg => cfg.AddMaps(myAssembly), loggerFactory);
 
 // Can also use assembly names:
-var configuration = new MapperConfiguration(cfg =>
+var configuration = new MapperConfiguration(cfg => {
     cfg.AddMaps(new [] {
         "Foo.UI",
         "Foo.Core"
     });
-);
+}, loggerFactory);
 
 // Or marker types for assemblies:
-var configuration = new MapperConfiguration(cfg =>
+var configuration = new MapperConfiguration(cfg => {
     cfg.AddMaps(new [] {
         typeof(HomeController),
         typeof(Entity)
     });
-);
+}, loggerFactory);
 ```
 
 AutoMapper will scan the designated assemblies for classes inheriting from Profile and add them to the configuration.
@@ -95,7 +95,7 @@ You can set the source and destination naming conventions
 var configuration = new MapperConfiguration(cfg => {
   cfg.SourceMemberNamingConvention = LowerUnderscoreNamingConvention.Instance;
   cfg.DestinationMemberNamingConvention = PascalCaseNamingConvention.Instance;
-});
+}, loggerFactory);
 ```
 
 This will map the following properties to each other:
@@ -143,7 +143,7 @@ var configuration = new MapperConfiguration(c =>
     c.ReplaceMemberName("Ä", "A");
     c.ReplaceMemberName("í", "i");
     c.ReplaceMemberName("Airlina", "Airline");
-});
+}, loggerFactory);
 ```
 
 ## Recognizing pre/postfixes
@@ -162,7 +162,7 @@ public class Dest {
 var configuration = new MapperConfiguration(cfg => {
     cfg.RecognizePrefixes("frm");
     cfg.CreateMap<Source, Dest>();
-});
+}, loggerFactory);
 configuration.AssertConfigurationIsValid();
 ```
 
@@ -172,7 +172,7 @@ By default AutoMapper recognizes the prefix "Get", if you need to clear the pref
 var configuration = new MapperConfiguration(cfg => {
     cfg.ClearPrefixes();
     cfg.RecognizePrefixes("tmp");
-});
+}, loggerFactory);
 ```
 
 ## Global property/field filtering
@@ -188,7 +188,7 @@ var configuration = new MapperConfiguration(cfg =>
 	// map properties with a public or private getter
 	cfg.ShouldMapProperty = pi =>
 		pi.GetMethod != null && (pi.GetMethod.IsPublic || pi.GetMethod.IsPrivate);
-});
+}, loggerFactory);
 ```
 
 ## Configuring visibility
@@ -201,7 +201,7 @@ var configuration = new MapperConfiguration(cfg =>
     // map properties with public or internal getters
     cfg.ShouldMapProperty = p => p.GetMethod.IsPublic || p.GetMethod.IsAssembly;
     cfg.CreateMap<Source, Destination>();
-});
+}, loggerFactory);
 ```
 
 Map configurations will now recognize internal/private members.
@@ -211,7 +211,7 @@ Map configurations will now recognize internal/private members.
 Because expression compilation can be a bit resource intensive, AutoMapper lazily compiles the type map plans on first map. However, this behavior is not always desirable, so you can tell AutoMapper to compile its mappings directly:
 
 ```c#
-var configuration = new MapperConfiguration(cfg => {});
+var configuration = new MapperConfiguration(cfg => {}, loggerFactory);
 configuration.CompileMappings();
 ```
 
@@ -225,3 +225,19 @@ You can set `MapAtRuntime` per member or `MaxExecutionPlanDepth` globally (the d
 
 These will reduce the size of the execution plan by replacing the execution plan for a child object with a method call. The compilation will be faster, but the mapping itself might be slower. Search the repo for more details and use a profiler to better understand the effect.
 Avoiding `PreserveReferences` and `MaxDepth` also helps.
+
+## Circular and Self-Referential Types
+
+When AutoMapper detects a self-referential type mapping (e.g., `CreateMap<Node, Node>()` where `Node` has a `Node` property), it automatically enables `PreserveReferences` to avoid re-mapping the same object instance. It also applies a default `MaxDepth` of **64** — matching System.Text.Json and Newtonsoft.Json — to prevent a Denial-of-Service condition from deeply nested object graphs (see GHSA-rvv3-g6hj-g44x).
+
+If your object graphs legitimately exceed 64 levels, increase the limit explicitly:
+
+```c#
+cfg.CreateMap<Node, Node>().MaxDepth(128);
+```
+
+To disable the depth limit entirely and rely solely on object-identity caching, call `.PreserveReferences()` explicitly:
+
+```c#
+cfg.CreateMap<Node, Node>().PreserveReferences();
+```

@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.Inheritance;
 
-public class QueryableInterfaceInheritanceIssue : IntegrationTest<QueryableInterfaceInheritanceIssue.DatabaseInitializer>
+public class QueryableInterfaceInheritanceIssue(DatabaseFixture databaseFixture) : IntegrationTest<QueryableInterfaceInheritanceIssue.DatabaseInitializer>(databaseFixture)
 {
     QueryableDto[] _result;
 
@@ -39,7 +39,7 @@ public class QueryableInterfaceInheritanceIssue : IntegrationTest<QueryableInter
     [Fact]
     public void QueryableShouldMapSpecifiedBaseInterfaceMember()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             _result = ProjectTo<QueryableDto>(context.Entities).ToArray();
         }

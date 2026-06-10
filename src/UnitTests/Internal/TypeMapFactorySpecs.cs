@@ -5,7 +5,7 @@ public class StubNamingConvention : INamingConvention
 {
     public Regex SplittingExpression { get; set; }
     public string SeparatorCharacter { get; set; }
-    public string[] Split(string input) => SplittingExpression.Matches(input).Select(m=>m.Value).ToArray();
+    public string[] Split(string input) => SplittingExpression.Matches(input).Cast<Match>().Select(m=>m.Value).ToArray();
 }
 
 public class When_constructing_type_maps_with_matching_property_names : NonValidatingSpecBase

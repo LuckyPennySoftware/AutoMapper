@@ -150,4 +150,68 @@ namespace AutoMapper.Extensions.Microsoft.DependencyInjection.Tests
         public int Convert(int sourceMember, ResolutionContext context)
             => _service.Modify(sourceMember);
     }
+
+    public class ConditionSource
+    {
+        public int Value { get; set; }
+    }
+
+    public class ConditionDest
+    {
+        public int Value { get; set; }
+    }
+
+    public class DependencyCondition : ICondition<ConditionSource, ConditionDest, int>
+    {
+        private readonly ISomeService _service;
+
+        public DependencyCondition(ISomeService service) => _service = service;
+
+        public bool Evaluate(ConditionSource source, ConditionDest destination, int sourceMember, int destMember, ResolutionContext context)
+            => _service.Modify(sourceMember) > 0;
+    }
+
+    internal class ConditionProfile : Profile
+    {
+        public ConditionProfile()
+        {
+            CreateMap<ConditionSource, ConditionDest>()
+                .ForMember(d => d.Value, o =>
+                {
+                    o.Condition<DependencyCondition>();
+                    o.MapFrom(s => s.Value);
+                });
+        }
+    }
+
+    public class FactorySource
+    {
+        public int Value { get; set; }
+    }
+
+    public class FactoryDest
+    {
+        public int Value { get; set; }
+        public int InitialValue { get; set; }
+    }
+
+    public class DependencyFactory : IDestinationFactory<FactorySource, FactoryDest>
+    {
+        private readonly ISomeService _service;
+
+        public DependencyFactory(ISomeService service) => _service = service;
+
+        public FactoryDest Construct(FactorySource source, ResolutionContext context)
+            => new FactoryDest { InitialValue = _service.Modify(source.Value) };
+    }
+
+    internal class FactoryProfile : Profile
+    {
+        public FactoryProfile()
+        {
+            CreateMap<FactorySource, FactoryDest>()
+                .ConstructUsing<DependencyFactory>()
+                .ForMember(dest => dest.InitialValue, opt => opt.Ignore());
+        }
+    }
 }

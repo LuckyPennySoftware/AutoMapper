@@ -17,7 +17,7 @@ public class Destination
 All the basic generic collection types are supported:
 
 ```c#
-var configuration = new MapperConfiguration(cfg => cfg.CreateMap<Source, Destination>());
+var configuration = new MapperConfiguration(cfg => cfg.CreateMap<Source, Destination>(), loggerFactory);
 
 var sources = new[]
 	{
@@ -58,7 +58,7 @@ This behavior can be changed by setting the `AllowNullCollections` property to t
 var configuration = new MapperConfiguration(cfg => {
     cfg.AllowNullCollections = true;
     cfg.CreateMap<Source, Destination>();
-});
+}, loggerFactory);
 ```
 The setting can be applied globally and can be overridden per profile and per member with `AllowNull` and `DoNotAllowNull`.
 
@@ -95,7 +95,7 @@ var configuration = new MapperConfiguration(c=> {
     c.CreateMap<ParentSource, ParentDestination>()
 	     .Include<ChildSource, ChildDestination>();
     c.CreateMap<ChildSource, ChildDestination>();
-});
+}, loggerFactory);
 
 var sources = new[]
 	{

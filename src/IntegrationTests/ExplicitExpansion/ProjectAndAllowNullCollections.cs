@@ -2,7 +2,7 @@
 
 namespace AutoMapper.IntegrationTests.ExplicitExpansion;
 
-public class ProjectAndAllowNullCollections : IntegrationTest<ProjectAndAllowNullCollections.DatabaseInitializer>
+public class ProjectAndAllowNullCollections(DatabaseFixture databaseFixture) : IntegrationTest<ProjectAndAllowNullCollections.DatabaseInitializer>(databaseFixture)
 {
     public class Foo
     {
@@ -122,7 +122,7 @@ public class ProjectAndAllowNullCollections : IntegrationTest<ProjectAndAllowNul
     [Fact]
     public void Should_work()
     {
-        using(var context = new MyContext())
+        using(var context = Fixture.CreateContext())
         {
             var foos = ProjectTo<FooDto>(context.Foos.AsNoTracking(), null, m => m.Bars).ToList();
 

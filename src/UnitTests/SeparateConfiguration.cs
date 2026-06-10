@@ -1,4 +1,6 @@
-﻿namespace AutoMapper.UnitTests;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+
+namespace AutoMapper.UnitTests;
 public class SeparateConfiguration : NonValidatingSpecBase
 {
     public class Source
@@ -15,7 +17,7 @@ public class SeparateConfiguration : NonValidatingSpecBase
 
         expr.CreateMap<Source, Dest>();
 
-        return new MapperConfiguration(expr);
+        return new MapperConfiguration(expr, new NullLoggerFactory());
     }
 
     [Fact]

@@ -51,7 +51,7 @@
         }
 
 
-        public class UnitTest : IntegrationTest<DatabaseInitializer>
+        public class UnitTest(DatabaseFixture databaseFixture) : IntegrationTest<DatabaseInitializer>(databaseFixture)
         {
             protected override MapperConfiguration CreateConfiguration() => new(cfg =>
             {
@@ -62,7 +62,7 @@
             [Fact]
             public void AutoMapperEFRelationsTest()
             {
-                using (var context = new TestContext())
+                using (var context = Fixture.CreateContext())
                 {
                     var baseEntitiy = context.Bases.Include(b => b.Sub).FirstOrDefault();
                     baseEntitiy.ShouldNotBeNull();
@@ -70,7 +70,7 @@
                     baseEntitiy.Sub.Sub1.ShouldBe("sub1");
                 }
 
-                using (var context = new TestContext())
+                using (var context = Fixture.CreateContext())
                 {
                     var baseDTO = context.Bases.Select(b => new BaseDTO
                     {

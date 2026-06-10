@@ -23,7 +23,11 @@ public interface IObjectMapper
     /// <returns>Map expression</returns>
     Expression MapExpression(IGlobalConfiguration configuration, ProfileMap profileMap,
         MemberMap memberMap, Expression sourceExpression, Expression destExpression);
-    TypePair? GetAssociatedTypes(TypePair initialTypes) => null;
+    TypePair? GetAssociatedTypes(TypePair initialTypes)
+#if NET8_0_OR_GREATER
+        => null
+#endif
+    ;
 }
 /// <summary>
 /// Base class for simple object mappers that don't want to use expressions.
@@ -39,7 +43,7 @@ public abstract class ObjectMapper<TSource, TDestination> : IObjectMapper
     /// </summary>
     /// <param name="context">Resolution context</param>
     /// <returns>Is match</returns>
-    public virtual bool IsMatch(TypePair context) => 
+    public virtual bool IsMatch(TypePair context) =>
         typeof(TSource).IsAssignableFrom(context.SourceType) && typeof(TDestination).IsAssignableFrom(context.DestinationType);
 
     /// <summary>
@@ -63,4 +67,8 @@ public abstract class ObjectMapper<TSource, TDestination> : IObjectMapper
             Constant(sourceExpression.Type),
             Constant(destExpression.Type),
             ContextParameter);
+
+#if FULL_OR_STANDARD
+    public TypePair? GetAssociatedTypes(TypePair initialTypes) => null;
+#endif
 }

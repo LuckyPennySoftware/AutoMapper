@@ -5,8 +5,6 @@ public class NullDestinationType : AutoMapperSpecBase
     [Fact]
     public void Should_require_destination_object()
     {
-        new Action(() => Mapper.Map("", null, null)).ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("destinationType");
-        new Action(() => Mapper.Map("", null, null, _=>{ })).ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("destinationType");
         Mapper.Map("", "", null, null).ShouldBe("");
         Mapper.Map("", null, null, typeof(string)).ShouldBe("");
         Mapper.Map("", "", null, null, _ => { }).ShouldBe("");

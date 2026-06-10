@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests;
 
-public class CustomProjectionStringToString : IntegrationTest<CustomProjectionStringToString.DatabaseInitializer>
+public class CustomProjectionStringToString(DatabaseFixture databaseFixture) : IntegrationTest<CustomProjectionStringToString.DatabaseInitializer>(databaseFixture)
 {
     public class TestContext : LocalDbContext
     {
@@ -24,7 +24,7 @@ public class CustomProjectionStringToString : IntegrationTest<CustomProjectionSt
     [Fact]
     public void Direct_assignability_shouldnt_trump_custom_projection()
     {
-        using (var context = new TestContext())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<Target>(context.Sources).Single().Greeting.ShouldBe(_niceGreeting);
         }
@@ -52,7 +52,7 @@ public class CustomProjectionStringToString : IntegrationTest<CustomProjectionSt
         public string Greeting { get; set; }
     }
 }
-public class CustomProjectionCustomClasses : IntegrationTest<CustomProjectionCustomClasses.DatabaseInitializer>
+public class CustomProjectionCustomClasses(DatabaseFixture databaseFixture) : IntegrationTest<CustomProjectionCustomClasses.DatabaseInitializer>(databaseFixture)
 {
     public class TestContext : LocalDbContext
     {
@@ -75,7 +75,7 @@ public class CustomProjectionCustomClasses : IntegrationTest<CustomProjectionCus
     [Fact]
     public void Should_work()
     {
-        using (var context = new TestContext())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<Target>(context.Sources).Single().Greeting.ShouldBe(_niceGreeting);
         }
@@ -103,7 +103,7 @@ public class CustomProjectionCustomClasses : IntegrationTest<CustomProjectionCus
         public string Greeting { get; set; }
     }
 }
-public class CustomProjectionChildClasses : IntegrationTest<CustomProjectionChildClasses.DatabaseInitializer>
+public class CustomProjectionChildClasses(DatabaseFixture databaseFixture) : IntegrationTest<CustomProjectionChildClasses.DatabaseInitializer>(databaseFixture)
 {
     public class TestContext : LocalDbContext
     {
@@ -126,7 +126,7 @@ public class CustomProjectionChildClasses : IntegrationTest<CustomProjectionChil
     [Fact]
     public void Should_work()
     {
-        using (var context = new TestContext())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<Target>(context.Sources).Single().Child.Greeting.ShouldBe(_niceGreeting);
         }

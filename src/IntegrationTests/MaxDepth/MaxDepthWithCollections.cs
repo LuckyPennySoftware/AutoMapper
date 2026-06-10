@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.MaxDepth;
 
-public class MaxDepthWithCollections : IntegrationTest<MaxDepthWithCollections.DatabaseInitializer>
+public class MaxDepthWithCollections(DatabaseFixture databaseFixture) : IntegrationTest<MaxDepthWithCollections.DatabaseInitializer>(databaseFixture)
 {
     TrainingCourseDto _course;
 
@@ -14,7 +14,7 @@ public class MaxDepthWithCollections : IntegrationTest<MaxDepthWithCollections.D
     [Fact]
     public void Should_project_with_MaxDepth()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             _course = ProjectTo<TrainingCourseDto>(context.TrainingCourses).FirstOrDefault(n => n.CourseName == "Course 1");
         }

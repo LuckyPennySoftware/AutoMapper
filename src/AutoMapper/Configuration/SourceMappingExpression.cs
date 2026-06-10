@@ -15,19 +15,14 @@ public interface ISourceMemberConfigurationExpression
     /// </summary>
     void DoNotValidate();
 }
-public sealed class SourceMappingExpression : ISourceMemberConfigurationExpression, ISourceMemberConfiguration
+public sealed class SourceMappingExpression(MemberInfo sourceMember) : ISourceMemberConfigurationExpression, ISourceMemberConfiguration
 {
-    private readonly MemberInfo _sourceMember;
-    private readonly List<Action<SourceMemberConfig>> _sourceMemberActions = new List<Action<SourceMemberConfig>>();
-
-    public SourceMappingExpression(MemberInfo sourceMember) => _sourceMember = sourceMember;
-
-    public void DoNotValidate() => _sourceMemberActions.Add(smc => smc.Ignore());
-
+    private readonly MemberInfo _sourceMember = sourceMember;
+    private readonly List<Action<SourceMemberConfig>> _sourceMemberActions = [];
+    public void DoNotValidate() => _sourceMemberActions.Add(smc => smc.Ignored = true);
     public void Configure(TypeMap typeMap)
     {
         var sourcePropertyConfig = typeMap.FindOrCreateSourceMemberConfigFor(_sourceMember);
-
         foreach (var action in _sourceMemberActions)
         {
             action(sourcePropertyConfig);
@@ -37,15 +32,9 @@ public sealed class SourceMappingExpression : ISourceMemberConfigurationExpressi
 /// <summary>
 /// Contains member configuration relating to source members
 /// </summary>
-public sealed class SourceMemberConfig
+[EditorBrowsable(EditorBrowsableState.Never)]
+public sealed class SourceMemberConfig(MemberInfo sourceMember)
 {
-    private bool _ignored;
-
-    public SourceMemberConfig(MemberInfo sourceMember) => SourceMember = sourceMember;
-
-    public MemberInfo SourceMember { get; }
-
-    public void Ignore() => _ignored = true;
-
-    public bool IsIgnored() => _ignored;
+    public MemberInfo SourceMember { get; } = sourceMember;
+    public bool Ignored { get; set; }
 }

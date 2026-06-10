@@ -22,7 +22,7 @@ In simplified syntax:
         .ForMember(d => d.Amount, opt => opt.ConvertUsing(new CurrencyFormatter()));
     cfg.CreateMap<OrderLineItem, OrderLineItemDto>()
         .ForMember(d => d.Total, opt => opt.ConvertUsing(new CurrencyFormatter()));
- });
+ }, loggerFactory);
  ```
 
 You can customize the source member when the source member name does not match:
@@ -38,7 +38,7 @@ You can customize the source member when the source member name does not match:
         .ForMember(d => d.Amount, opt => opt.ConvertUsing(new CurrencyFormatter(), src => src.OrderAmount));
     cfg.CreateMap<OrderLineItem, OrderLineItemDto>()
         .ForMember(d => d.Total, opt => opt.ConvertUsing(new CurrencyFormatter(), src => src.LITotal));
- });
+ }, loggerFactory);
  ```
 
 If you need the value converters instantiated by the [service locator](Dependency-injection.html), you can specify the type instead:
@@ -54,7 +54,7 @@ If you need the value converters instantiated by the [service locator](Dependenc
         .ForMember(d => d.Amount, opt => opt.ConvertUsing<CurrencyFormatter, decimal>());
     cfg.CreateMap<OrderLineItem, OrderLineItemDto>()
         .ForMember(d => d.Total, opt => opt.ConvertUsing<CurrencyFormatter, decimal>());
- });
+ }, loggerFactory);
  ```
 
 If you do not know the types or member names at runtime, use the various overloads that accept `System.Type` and `string`-based members:
@@ -70,7 +70,7 @@ If you do not know the types or member names at runtime, use the various overloa
         .ForMember("Amount", opt => opt.ConvertUsing(new CurrencyFormatter(), "OrderAmount"));
     cfg.CreateMap(typeof(OrderLineItem), typeof(OrderLineItemDto))
         .ForMember("Total", opt => opt.ConvertUsing(new CurrencyFormatter(), "LITotal"));
- });
+ }, loggerFactory);
  ```
 
  Value converters are only used for in-memory mapping execution. They will not work for [`ProjectTo`](Queryable-Extensions.html).

@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 namespace AutoMapper.Execution;
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ObjectFactory
 {
@@ -19,7 +20,7 @@ public static class ObjectFactory
     };
     private static Expression CallConstructor(Type type, IGlobalConfiguration configuration)
     {
-        var defaultCtor = type.GetConstructor(Internal.TypeExtensions.InstanceFlags, null, Type.EmptyTypes, null);
+        var defaultCtor = type.GetConstructor(Internal.TypeExtensions.InstanceFlags, null, [], null);
         if (defaultCtor != null)
         {
             return New(defaultCtor);
@@ -34,13 +35,13 @@ public static class ObjectFactory
         return New(ctorWithOptionalArgs.ctor, arguments);
     }
     private static Expression CreateInterfaceExpression(Type type) =>
-        type.IsGenericType(typeof(IDictionary<,>)) ? CreateCollection(type, typeof(Dictionary<,>)) : 
-        type.IsGenericType(typeof(IReadOnlyDictionary<,>)) ? CreateReadOnlyDictionary(type.GenericTypeArguments) : 
-        type.IsGenericType(typeof(ISet<>)) ? CreateCollection(type, typeof(HashSet<>)) : 
+        type.IsGenericType(typeof(IDictionary<,>)) ? CreateCollection(type, typeof(Dictionary<,>)) :
+        type.IsGenericType(typeof(IReadOnlyDictionary<,>)) ? CreateReadOnlyDictionary(type.GenericTypeArguments) :
+        type.IsGenericType(typeof(ISet<>)) ? CreateCollection(type, typeof(HashSet<>)) :
         type.IsCollection() ? CreateCollection(type, typeof(List<>), GetIEnumerableArguments(type)) :
         InvalidType(type, $"Cannot create an instance of interface type {type}.");
-    private static Type[] GetIEnumerableArguments(Type type) => type.GetIEnumerableType()?.GenericTypeArguments ?? new[] { typeof(object) };
-    private static Expression CreateCollection(Type type, Type collectionType, Type[] genericArguments = null) => 
+    private static Type[] GetIEnumerableArguments(Type type) => type.GetIEnumerableType()?.GenericTypeArguments ?? [typeof(object)];
+    private static Expression CreateCollection(Type type, Type collectionType, Type[] genericArguments = null) =>
         ToType(New(collectionType.MakeGenericType(genericArguments ?? type.GenericTypeArguments)), type);
     private static Expression CreateReadOnlyDictionary(Type[] typeArguments)
     {

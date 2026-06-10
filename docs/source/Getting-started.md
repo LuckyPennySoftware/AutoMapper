@@ -17,7 +17,7 @@ AutoMapper will ignore null reference exceptions when mapping your source to you
 Once you have your types you can create a map for the two types using a `MapperConfiguration` and CreateMap. You only need one `MapperConfiguration` instance typically per AppDomain and should be instantiated during startup. More examples of initial setup can be seen in [Setup](Setup.html).
 
 ```c#
-var config = new MapperConfiguration(cfg => cfg.CreateMap<Order, OrderDto>());
+var config = new MapperConfiguration(cfg => cfg.CreateMap<Order, OrderDto>(), loggerFactory);
 ```
 
 The type on the left is the source type, and the type on the right is the destination type.  To perform a mapping, call one of the `Map` overloads:
@@ -53,3 +53,15 @@ var config = AutoMapperConfiguration.Configure();
 
 config.AssertConfigurationIsValid();
 ```
+
+## How do I set the license key?
+
+You can set your license via the configuration:
+
+```c#
+services.AddAutoMapper(cfg => {
+    cfg.LicenseKey = "<License Key Here>";
+});
+```
+
+You can register for your license at [https://automapper.io](https://automapper.io).

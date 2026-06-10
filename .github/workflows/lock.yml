@@ -3,6 +3,7 @@ name: 'Lock threads'
 on:
   schedule:
     - cron: '0 0 * * 0'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,18 +13,21 @@ jobs:
     permissions:
       issues: write  # for dessant/lock-threads to lock issues
       pull-requests: write  # for dessant/lock-threads to lock PRs
+      discussions: write  # for dessant/lock-threads to lock discussions
     runs-on: ubuntu-latest
     steps:
-      - uses: dessant/lock-threads@v2
+      - uses: dessant/lock-threads@v5
         with:
-          github-token: ${{ github.token }}
-          issue-lock-inactive-days: 31
-          pr-lock-inactive-days: 31
-          issue-lock-comment: >
+          issue-inactive-days: 31
+          pr-inactive-days: 31
+          discussion-inactive-days: 31
+          issue-comment: >
             This issue has been automatically locked since there
             has not been any recent activity after it was closed.
             Please open a new issue for related bugs.
-          pr-lock-comment: >
+          pr-comment: >
             This pull request has been automatically locked since there
             has not been any recent activity after it was closed.
-            Please open a new issue for related bugs.
+          discussion-comment: >
+            This discussion has been automatically locked since there
+            has not been any recent activity after it was closed.

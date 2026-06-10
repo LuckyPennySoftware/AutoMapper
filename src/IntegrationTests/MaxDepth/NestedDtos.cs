@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.MaxDepth;
 
-public class NestedDtos : IntegrationTest<NestedDtos.DatabaseInitializer>
+public class NestedDtos(DatabaseFixture databaseFixture) : IntegrationTest<NestedDtos.DatabaseInitializer>(databaseFixture)
 {
     ArtDto _destination;
 
@@ -66,7 +66,7 @@ public class NestedDtos : IntegrationTest<NestedDtos.DatabaseInitializer>
     [Fact]
     public void Should_project_nested_dto()
     {
-        using (var context = new TestContext())
+        using (var context = Fixture.CreateContext())
         {
             _destination = ProjectTo<ArtDto>(context.Arts).FirstOrDefault();
         }

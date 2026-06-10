@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.MaxDepth;
 
-public class NavigationPropertySO : IntegrationTest<NavigationPropertySO.DatabaseInitializer>
+public class NavigationPropertySO(DatabaseFixture databaseFixture) : IntegrationTest<NavigationPropertySO.DatabaseInitializer>(databaseFixture)
 {
     CustomerDTO _destination;
 
@@ -79,7 +79,7 @@ public class NavigationPropertySO : IntegrationTest<NavigationPropertySO.Databas
     [Fact]
     public void Can_map_with_projection()
     {
-        using(var context = new Context())
+        using(var context = Fixture.CreateContext())
         {
             _destination = ProjectTo<CustomerDTO>(context.Customers).Single();
             _destination.Id.ShouldBe(1);

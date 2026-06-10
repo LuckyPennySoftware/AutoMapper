@@ -1,6 +1,6 @@
 namespace AutoMapper.Internal.Mappers;
 
-public class NullableDestinationMapper : IObjectMapper
+public sealed class NullableDestinationMapper : IObjectMapper
 {
     public bool IsMatch(TypePair context) => context.DestinationType.IsNullableType();
     public Expression MapExpression(IGlobalConfiguration configuration, ProfileMap profileMap, MemberMap memberMap, Expression sourceExpression, Expression destExpression) =>

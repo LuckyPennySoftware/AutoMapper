@@ -11,7 +11,7 @@ public class CustomMapFromExpressionTest
                             .ForMember(dto => dto.FullName, opt => opt.MapFrom(src => src.LastName + " " + src.FirstName));
         });
 
-        typeof(NullReferenceException).ShouldNotBeThrownBy(() => config.Internal().ProjectionBuilder.GetMapExpression<UserModel, UserDto>()); //null reference exception here
+        typeof(System.NullReferenceException).ShouldNotBeThrownBy(() => config.Internal().ProjectionBuilder.GetMapExpression<UserModel, UserDto>()); //null reference exception here
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class When_mapping_from_chained_properties : AutoMapperSpecBase
     }
     class InnerModel
     {
-        public InnerModel(string value) => Value = value ?? throw new ArgumentNullException(nameof(value));
+        public InnerModel(string value) => Value = value ?? throw new System.ArgumentNullException(nameof(value));
         private string Value { get; set; }
     }
     class Dto
@@ -101,7 +101,7 @@ public class When_mapping_from_private_method : AutoMapperSpecBase
     }
     class InnerModel
     {
-        public InnerModel(string value) => SomeValue = value ?? throw new ArgumentNullException(nameof(value));
+        public InnerModel(string value) => SomeValue = value ?? throw new System.ArgumentNullException(nameof(value));
         private string SomeValue { get; set; }
         private string GetSomeValue() => SomeValue;
     }

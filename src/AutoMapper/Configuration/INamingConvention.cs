@@ -11,7 +11,7 @@ public interface INamingConvention
 public sealed class ExactMatchNamingConvention : INamingConvention
 {
     public static readonly ExactMatchNamingConvention Instance = new();
-    public string[] Split(string _) => Array.Empty<string>();
+    public string[] Split(string _) => [];
     public string SeparatorCharacter => null;
 }
 public sealed class PascalCaseNamingConvention : INamingConvention
@@ -22,26 +22,28 @@ public sealed class PascalCaseNamingConvention : INamingConvention
     {
         List<string> result = null;
         int lower = 0;
-        for(int index = 1; index < input.Length; index++)
+        for (int index = 1; index < input.Length; index++)
         {
-            if (char.IsUpper(input[index]))
+            if (char.IsUpper(input[index]) &&
+                (!char.IsUpper(input[index - 1]) ||
+                 (index + 1 < input.Length && !char.IsUpper(input[index + 1]))))
             {
-                result ??= new();
+                result ??= [];
                 result.Add(input[lower..index]);
                 lower = index;
             }
         }
         if (result == null)
         {
-            return Array.Empty<string>();
+            return [];
         }
         result.Add(input[lower..]);
-        return result.ToArray();
+        return [.. result];
     }
 }
 public sealed class LowerUnderscoreNamingConvention : INamingConvention
 {
     public static readonly LowerUnderscoreNamingConvention Instance = new();
     public string SeparatorCharacter => "_";
-    public string[] Split(string input) => input.Split('_', StringSplitOptions.RemoveEmptyEntries);
+    public string[] Split(string input) => input.Split(['_'], StringSplitOptions.RemoveEmptyEntries);
 }

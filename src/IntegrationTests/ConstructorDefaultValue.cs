@@ -1,5 +1,5 @@
 ﻿namespace AutoMapper.IntegrationTests;
-public class ConstructorDefaultValue : IntegrationTest<ConstructorDefaultValue.DatabaseInitializer>
+public class ConstructorDefaultValue(DatabaseFixture databaseFixture) : IntegrationTest<ConstructorDefaultValue.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -26,11 +26,11 @@ public class ConstructorDefaultValue : IntegrationTest<ConstructorDefaultValue.D
     [Fact]
     public void Can_map_with_projection()
     {
-        using var context = new Context();
+        using var context = Fixture.CreateContext();
         ProjectTo<CustomerViewModel>(context.Customers).Single().Value.ShouldBe(5);
     }
 }
-public class StructConstructorMapping : IntegrationTest<StructConstructorMapping.DatabaseInitializer>
+public class StructConstructorMapping(DatabaseFixture databaseFixture) : IntegrationTest<StructConstructorMapping.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -61,7 +61,7 @@ public class StructConstructorMapping : IntegrationTest<StructConstructorMapping
     [Fact]
     public void Can_map_with_projection()
     {
-        using var context = new Context();
+        using var context = Fixture.CreateContext();
         ProjectTo<CustomerViewModel>(context.Customers).Single().Date.ShouldBe(new(1984, 5, 23));
     }
 }

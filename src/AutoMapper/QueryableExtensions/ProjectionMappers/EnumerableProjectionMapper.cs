@@ -1,7 +1,8 @@
 namespace AutoMapper.QueryableExtensions.Impl;
+
 using static ReflectionHelper;
 [EditorBrowsable(EditorBrowsableState.Never)]
-public class EnumerableProjectionMapper : IProjectionMapper
+public sealed class EnumerableProjectionMapper : IProjectionMapper
 {
     private static readonly MethodInfo SelectMethod = typeof(Enumerable).StaticGenericMethod("Select", parametersCount: 2);
     private static readonly MethodInfo ToArrayMethod = typeof(Enumerable).GetStaticMethod("ToArray");
@@ -17,7 +18,7 @@ public class EnumerableProjectionMapper : IProjectionMapper
         {
             var itemRequest = request.InnerRequest(sourceListType, destinationListType);
             var transformedExpressions = configuration.ProjectionBuilder.CreateProjection(itemRequest, letPropertyMaps.New());
-            if(transformedExpressions.Empty)
+            if (transformedExpressions.Empty)
             {
                 return null;
             }
@@ -33,7 +34,7 @@ public class EnumerableProjectionMapper : IProjectionMapper
             }
             else
             {
-                var ctorInfo = destinationType.GetConstructor(new[] { sourceExpression.Type });
+                var ctorInfo = destinationType.GetConstructor([sourceExpression.Type]);
                 if (ctorInfo is not null)
                 {
                     sourceExpression = New(ctorInfo, sourceExpression);

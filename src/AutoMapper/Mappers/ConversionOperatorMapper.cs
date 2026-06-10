@@ -1,5 +1,6 @@
 namespace AutoMapper.Internal.Mappers;
-public class ConversionOperatorMapper : IObjectMapper
+
+public sealed class ConversionOperatorMapper : IObjectMapper
 {
     private readonly string _operatorName;
     public ConversionOperatorMapper(string operatorName) => _operatorName = operatorName;
@@ -13,11 +14,14 @@ public class ConversionOperatorMapper : IObjectMapper
                 return sourceMethod;
             }
         }
-        return destinationType.GetMethod(_operatorName, TypeExtensions.StaticFlags, null, new[] { sourceType }, null);
+        return destinationType.GetMethod(_operatorName, TypeExtensions.StaticFlags, null, [sourceType], null);
     }
     public Expression MapExpression(IGlobalConfiguration configuration, ProfileMap profileMap, MemberMap memberMap, Expression sourceExpression, Expression destExpression)
     {
         var conversionOperator = GetConversionOperator(sourceExpression.Type, destExpression.Type);
         return Call(conversionOperator, ToType(sourceExpression, conversionOperator.FirstParameterType()));
     }
+#if FULL_OR_STANDARD
+    public TypePair? GetAssociatedTypes(TypePair initialTypes) => null;
+#endif    
 }

@@ -28,7 +28,7 @@ We can map both directions, including unflattening:
 var configuration = new MapperConfiguration(cfg => {
   cfg.CreateMap<Order, OrderDto>()
      .ReverseMap();
-});
+}, loggerFactory);
 ```
 
 By calling `ReverseMap`, AutoMapper creates a reverse mapping configuration that includes unflattening:

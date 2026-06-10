@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.ExplicitExpansion;
 
-public class ExpandMembersPath : IntegrationTest<ExpandMembersPath.DatabaseInitializer>
+public class ExpandMembersPath(DatabaseFixture databaseFixture) : IntegrationTest<ExpandMembersPath.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -38,7 +38,7 @@ public class ExpandMembersPath : IntegrationTest<ExpandMembersPath.DatabaseIniti
     public void Should_expand_all_members_in_path()
     {
         Class1DTO[] dtos;
-        using(TestContext context = new TestContext())
+        using(TestContext context = Fixture.CreateContext())
         {
             dtos = ProjectTo<Class1DTO>(context.Class1Set, null, r => r.Class2DTO.Class3DTO).ToArray();                
         }
@@ -49,7 +49,7 @@ public class ExpandMembersPath : IntegrationTest<ExpandMembersPath.DatabaseIniti
     public void Should_expand_all_members_in_path_with_strings()
     {
         Class1DTO[] dtos;
-        using(TestContext context = new TestContext())
+        using(TestContext context = Fixture.CreateContext())
         {
             dtos = ProjectTo<Class1DTO>(context.Class1Set, null, "Class2DTO.Class3DTO").ToArray();
         }

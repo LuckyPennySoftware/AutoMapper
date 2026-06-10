@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.BuiltInTypes;
 
-public class NullableLongToLong : IntegrationTest<NullableLongToLong.DatabaseInitializer>
+public class NullableLongToLong(DatabaseFixture databaseFixture) : IntegrationTest<NullableLongToLong.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -44,7 +44,7 @@ public class NullableLongToLong : IntegrationTest<NullableLongToLong.DatabaseIni
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var model = ProjectTo<CustomerViewModel>(context.Customers).Single();
             model.Id.ShouldBe(1);
@@ -54,7 +54,7 @@ public class NullableLongToLong : IntegrationTest<NullableLongToLong.DatabaseIni
     }
 }
 
-public class NullableIntToLong : IntegrationTest<NullableIntToLong.DatabaseInitializer>
+public class NullableIntToLong(DatabaseFixture databaseFixture) : IntegrationTest<NullableIntToLong.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -98,7 +98,7 @@ public class NullableIntToLong : IntegrationTest<NullableIntToLong.DatabaseIniti
     [Fact]
     public void Can_map_with_projection()
     {
-        using(var context = new Context())
+        using(var context = Fixture.CreateContext())
         {
             var model = ProjectTo<CustomerViewModel>(context.Customers).Single();
             model.Id.ShouldBe(1);

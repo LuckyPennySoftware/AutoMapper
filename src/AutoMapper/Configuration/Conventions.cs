@@ -1,4 +1,5 @@
 namespace AutoMapper.Configuration.Conventions;
+
 public interface ISourceToDestinationNameMapper
 {
     MemberInfo GetSourceMember(TypeDetails sourceTypeDetails, Type destType, Type destMemberType, string nameToSearch);
@@ -8,9 +9,9 @@ public interface ISourceToDestinationNameMapper
 public sealed class MemberConfiguration
 {
     NameSplitMember _nameSplitMember;
-    public INamingConvention SourceNamingConvention { get; set; } = PascalCaseNamingConvention.Instance;
-    public INamingConvention DestinationNamingConvention { get; set; } = PascalCaseNamingConvention.Instance;
-    public List<ISourceToDestinationNameMapper> NameToMemberMappers { get; } = new();
+    public INamingConvention SourceNamingConvention { get; set; }
+    public INamingConvention DestinationNamingConvention { get; set; }
+    public List<ISourceToDestinationNameMapper> NameToMemberMappers { get; } = [];
     public bool IsMatch(ProfileMap options, TypeDetails sourceTypeDetails, Type destType, Type destMemberType, string nameToSearch, List<MemberInfo> resolvers, bool isReverseMap)
     {
         var matchingMemberInfo = GetSourceMember(sourceTypeDetails, destType, destMemberType, nameToSearch);
@@ -45,10 +46,6 @@ public sealed class MemberConfiguration
     }
     public void Merge(MemberConfiguration other)
     {
-        if (other == null)
-        {
-            return;
-        }
         var initialCount = NameToMemberMappers.Count;
         for (int index = 0; index < other.NameToMemberMappers.Count; index++)
         {
@@ -64,12 +61,14 @@ public sealed class MemberConfiguration
             }
             NameToMemberMappers.Add(otherMapper);
         }
+        SourceNamingConvention ??= other.SourceNamingConvention;
+        DestinationNamingConvention ??= other.DestinationNamingConvention;
     }
 }
 public sealed class PrePostfixName : ISourceToDestinationNameMapper
 {
-    public List<string> DestinationPrefixes { get; } = new();
-    public List<string> DestinationPostfixes { get; } = new();
+    public List<string> DestinationPrefixes { get; } = [];
+    public List<string> DestinationPostfixes { get; } = [];
     public MemberInfo GetSourceMember(TypeDetails sourceTypeDetails, Type destType, Type destMemberType, string nameToSearch)
     {
         MemberInfo member;
@@ -91,15 +90,15 @@ public sealed class PrePostfixName : ISourceToDestinationNameMapper
 }
 public sealed class ReplaceName : ISourceToDestinationNameMapper
 {
-    public List<MemberNameReplacer> MemberNameReplacers { get; } = new();
+    public List<MemberNameReplacer> MemberNameReplacers { get; } = [];
     public MemberInfo GetSourceMember(TypeDetails sourceTypeDetails, Type destType, Type destMemberType, string nameToSearch)
     {
         var possibleSourceNames = PossibleNames(nameToSearch);
-        if (possibleSourceNames.Length == 0)
+        if (possibleSourceNames.Count == 0)
         {
             return null;
         }
-        var possibleDestNames = sourceTypeDetails.ReadAccessors.Select(mi => (mi, possibles : PossibleNames(mi.Name))).ToArray();
+        var possibleDestNames = Array.ConvertAll(sourceTypeDetails.ReadAccessors, mi => (mi, possibles: PossibleNames(mi.Name)));
         foreach (var sourceName in possibleSourceNames)
         {
             foreach (var (mi, possibles) in possibleDestNames)
@@ -112,15 +111,9 @@ public sealed class ReplaceName : ISourceToDestinationNameMapper
         }
         return null;
     }
-    public void Merge(ISourceToDestinationNameMapper other)
-    {
-        var typedOther = (ReplaceName)other;
-        MemberNameReplacers.TryAdd(typedOther.MemberNameReplacers);
-    }
-    private string[] PossibleNames(string nameToSearch) =>
-            MemberNameReplacers.Select(r => nameToSearch.Replace(r.OriginalValue, r.NewValue))
-                .Concat(new[] { MemberNameReplacers.Aggregate(nameToSearch, (s, r) => s.Replace(r.OriginalValue, r.NewValue)), nameToSearch })
-                .ToArray();
+    public void Merge(ISourceToDestinationNameMapper other) => MemberNameReplacers.TryAdd(((ReplaceName)other).MemberNameReplacers);
+    private List<string> PossibleNames(string nameToSearch) => [..MemberNameReplacers.Select(r => nameToSearch.Replace(r.OriginalValue, r.NewValue)),
+        MemberNameReplacers.Aggregate(nameToSearch, (s, r) => s.Replace(r.OriginalValue, r.NewValue)), nameToSearch];
 }
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly record struct MemberNameReplacer(string OriginalValue, string NewValue);

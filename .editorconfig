@@ -6,6 +6,8 @@ end_of_line = lf
 indent_style = space
 indent_size = 4
 
+csharp_space_around_binary_operators = before_and_after
+
 #### Naming styles ####
 
 # Constants are PascalCase
@@ -84,6 +86,9 @@ dotnet_style_namespace_match_folder = true:silent
 dotnet_style_explicit_tuple_names = true:suggestion
 dotnet_style_prefer_inferred_tuple_names = true:suggestion
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_prefer_system_threading_lock = true:suggestion
+csharp_space_after_keywords_in_control_flow_statements = true
 
 [*.xml]
 indent_size = 2
@@ -92,4 +97,7 @@ indent_size = 2
 indent_size = 2
 
 [*.csproj]
+indent_size = 2
+
+[*.yml]
 indent_size = 2

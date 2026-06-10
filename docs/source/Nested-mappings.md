@@ -36,7 +36,7 @@ In that case, we would need to configure the additional source/destination type 
 var config = new MapperConfiguration(cfg => {
     cfg.CreateMap<OuterSource, OuterDest>();
     cfg.CreateMap<InnerSource, InnerDest>();
-});
+}, loggerFactory);
 config.AssertConfigurationIsValid();
 
 var source = new OuterSource

@@ -1,11 +1,12 @@
 namespace AutoMapper.Internal;
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ReflectionHelper
 {
     public static Type FirstParameterType(this MethodBase method) => method.GetParameters()[0].ParameterType;
     public static Type GetElementType(Type type) => type.IsArray ? type.GetElementType() : GetEnumerableElementType(type);
     public static Type GetEnumerableElementType(Type type) => type.GetIEnumerableType()?.GenericTypeArguments[0] ?? typeof(object);
-    public static TypeMap[] GetIncludedTypeMaps(this IGlobalConfiguration configuration, TypeMap typeMap) => 
+    public static TypeMap[] GetIncludedTypeMaps(this IGlobalConfiguration configuration, TypeMap typeMap) =>
         configuration.GetIncludedTypeMaps(typeMap.IncludedDerivedTypes);
     public static bool IsPublic(this PropertyInfo propertyInfo) => (propertyInfo.GetGetMethod() ?? propertyInfo.GetSetMethod()) != null;
     public static bool Has<TAttribute>(this MemberInfo member) where TAttribute : Attribute => member.IsDefined(typeof(TAttribute));
@@ -45,18 +46,18 @@ public static class ReflectionHelper
         FieldInfo field => field.GetValue(target),
         _ => throw Expected(propertyOrField)
     };
-    public static MemberInfo[] GetMemberPath(Type type, string fullMemberName, TypeMap typeMap = null) => 
+    public static MemberInfo[] GetMemberPath(Type type, string fullMemberName, TypeMap typeMap = null) =>
         GetMemberPath(type, fullMemberName.Split('.'), typeMap);
     public static MemberInfo[] GetMemberPath(Type type, string[] memberNames, TypeMap typeMap = null)
     {
         var sourceDetails = typeMap?.SourceTypeDetails;
         if (sourceDetails != null && memberNames.Length == 1)
         {
-            return new[] { sourceDetails.GetMember(memberNames[0]) };
+            return [sourceDetails.GetMember(memberNames[0])];
         }
         var members = new MemberInfo[memberNames.Length];
         Type previousType = type;
-        for(int index = 0; index < memberNames.Length; index++)
+        for (int index = 0; index < memberNames.Length; index++)
         {
             var currentType = GetCurrentType(previousType);
             var memberName = memberNames[index];
@@ -88,7 +89,7 @@ public static class ReflectionHelper
         {
             switch (expressionToCheck)
             {
-                case MemberExpression { Member: var member, Expression: { NodeType: ExpressionType.Parameter or ExpressionType.Convert } }:
+                case MemberExpression { Member: var member, Expression.NodeType: ExpressionType.Parameter or ExpressionType.Convert }:
                     return member;
                 case UnaryExpression { Operand: var operand }:
                     expressionToCheck = operand;
@@ -105,7 +106,7 @@ public static class ReflectionHelper
         PropertyInfo property => property.PropertyType,
         MethodInfo method => method.ReturnType,
         FieldInfo field => field.FieldType,
-        null => throw new ArgumentNullException(nameof(member)),
+        null => throw new System.ArgumentNullException(nameof(member)),
         _ => throw new ArgumentOutOfRangeException(nameof(member))
     };
 }

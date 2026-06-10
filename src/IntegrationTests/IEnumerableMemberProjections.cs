@@ -1,5 +1,5 @@
 ﻿namespace AutoMapper.IntegrationTests;
-public class IEnumerableMemberProjections : IntegrationTest<IEnumerableMemberProjections.DatabaseInitializer>
+public class IEnumerableMemberProjections(DatabaseFixture databaseFixture) : IntegrationTest<IEnumerableMemberProjections.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -61,7 +61,7 @@ public class IEnumerableMemberProjections : IntegrationTest<IEnumerableMemberPro
     [Fact]
     public void Can_map_to_ienumerable()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var result = ProjectTo<CustomerViewModel>(context.Customers).Single();
 

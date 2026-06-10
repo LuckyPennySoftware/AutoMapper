@@ -1,5 +1,5 @@
 ﻿namespace AutoMapper.IntegrationTests;
-public class ICollectionAggregateProjections : IntegrationTest<ICollectionAggregateProjections.DatabaseInitializer>
+public class ICollectionAggregateProjections(DatabaseFixture databaseFixture) : IntegrationTest<ICollectionAggregateProjections.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -54,7 +54,7 @@ public class ICollectionAggregateProjections : IntegrationTest<ICollectionAggreg
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var result = ProjectTo<CustomerViewModel>(context.Customers.Select(customer => new CustomerItemCodes
             {

@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 IServiceCollection services = new ServiceCollection();
 services.AddTransient<ISomeService>(sp => new FooService(5));
-services.AddAutoMapper(typeof(Source));
+services.AddAutoMapper(opt => opt.AddMaps(typeof(Source)));
 var provider = services.BuildServiceProvider();
 using (var scope = provider.CreateScope())
 {

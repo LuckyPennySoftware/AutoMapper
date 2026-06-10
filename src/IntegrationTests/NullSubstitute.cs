@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests;
 
-public class NullSubstitute : IntegrationTest<NullSubstitute.DatabaseInitializer>
+public class NullSubstitute(DatabaseFixture databaseFixture) : IntegrationTest<NullSubstitute.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -46,13 +46,13 @@ public class NullSubstitute : IntegrationTest<NullSubstitute.DatabaseInitializer
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<CustomerViewModel>(context.Customers).First().Value.ShouldBe(5);
         }
     }
 }
-public class NullSubstituteWithStrings : IntegrationTest<NullSubstituteWithStrings.DatabaseInitializer>
+public class NullSubstituteWithStrings(DatabaseFixture databaseFixture) : IntegrationTest<NullSubstituteWithStrings.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -84,13 +84,13 @@ public class NullSubstituteWithStrings : IntegrationTest<NullSubstituteWithStrin
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<CustomerViewModel>(context.Customers).First().Value.ShouldBe("5");
         }
     }
 }
-public class NullSubstituteWithEntity : IntegrationTest<NullSubstituteWithEntity.DatabaseInitializer>
+public class NullSubstituteWithEntity(DatabaseFixture databaseFixture) : IntegrationTest<NullSubstituteWithEntity.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -133,7 +133,7 @@ public class NullSubstituteWithEntity : IntegrationTest<NullSubstituteWithEntity
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<CustomerViewModel>(context.Customers).First().Value.ShouldBeNull();
         }

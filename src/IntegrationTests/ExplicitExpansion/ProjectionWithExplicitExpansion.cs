@@ -16,7 +16,7 @@ public static class Ext
 
 // Example of Value Type mapped to appropriate Nullable
 
-public class ProjectionWithExplicitExpansion : IntegrationTest<ProjectionWithExplicitExpansion.DatabaseInitializer>
+public class ProjectionWithExplicitExpansion(DatabaseFixture databaseFixture) : IntegrationTest<ProjectionWithExplicitExpansion.DatabaseInitializer>(databaseFixture)
 {
     public class SourceDeepInner
     {
@@ -93,7 +93,7 @@ public class ProjectionWithExplicitExpansion : IntegrationTest<ProjectionWithExp
     [Fact]
     public void NoExplicitExpansion()
     {
-        using (var ctx = new Context())
+        using (var ctx = Fixture.CreateContext())
         {
             var dto = ProjectTo<Dto>(ctx.Sources).ToList().First();
             var sqlSelect = ctx.GetLastSelectSqlLogEntry();
@@ -109,7 +109,7 @@ public class ProjectionWithExplicitExpansion : IntegrationTest<ProjectionWithExp
     [Fact]
     public void ProjectReferenceType()
     {
-        using (var ctx = new Context())
+        using (var ctx = Fixture.CreateContext())
         {
             var dto = ProjectTo<Dto>(ctx.Sources, null,  _ => _.Name).First();
             var sqlSelect = ctx.GetLastSelectSqlLogEntry();
@@ -124,7 +124,7 @@ public class ProjectionWithExplicitExpansion : IntegrationTest<ProjectionWithExp
     [Fact]
     public void ProjectValueType()
     {
-        using (var ctx = new Context())
+        using (var ctx = Fixture.CreateContext())
         {
             var dto = ProjectTo<Dto>(ctx.Sources, null,  _ => _.Desc).First();
 
@@ -141,7 +141,7 @@ public class ProjectionWithExplicitExpansion : IntegrationTest<ProjectionWithExp
     [Fact]
     public void ProjectBoth()
     {
-        using (var ctx = new Context())
+        using (var ctx = Fixture.CreateContext())
         {
             var dto = ProjectTo<Dto>(ctx.Sources, null,  _ => _.Name, _ => _.Desc).First();
 
@@ -158,7 +158,7 @@ public class ProjectionWithExplicitExpansion : IntegrationTest<ProjectionWithExp
     [Fact]
     public void ProjectInner()
     {
-        using (var ctx = new Context())
+        using (var ctx = Fixture.CreateContext())
         {
             var dto = ProjectTo<Dto>(ctx.Sources, null,  _ => _.InnerDescFlattened).ToList().First();
 
@@ -176,7 +176,7 @@ public class ProjectionWithExplicitExpansion : IntegrationTest<ProjectionWithExp
     [Fact]
     public void ProjectInnerNonKey()
     {
-        using (var ctx = new Context())
+        using (var ctx = Fixture.CreateContext())
         {
             var dto = ProjectTo<Dto>(ctx.Sources, null,  _ => _.InnerFlattenedNonKey).ToList().First();
 
@@ -197,7 +197,7 @@ public class ProjectionWithExplicitExpansion : IntegrationTest<ProjectionWithExp
     [Fact]
     public void ProjectDeepInner()
     {
-        using (var ctx = new Context())
+        using (var ctx = Fixture.CreateContext())
         {
             var dto = ProjectTo<Dto>(ctx.Sources, null,  _ => _.DeepFlattened).ToList().First();
             var sqlSelect = ctx.GetLastSelectSqlLogEntry();
@@ -214,7 +214,7 @@ public class ProjectionWithExplicitExpansion : IntegrationTest<ProjectionWithExp
         }
     }
 }
-public class ConstructorExplicitExpansion : IntegrationTest<ConstructorExplicitExpansion.DatabaseInitializer>
+public class ConstructorExplicitExpansion(DatabaseFixture databaseFixture) : IntegrationTest<ConstructorExplicitExpansion.DatabaseInitializer>(databaseFixture)
 {
     public class Entity
     {
@@ -238,7 +238,7 @@ public class ConstructorExplicitExpansion : IntegrationTest<ConstructorExplicitE
     [Fact]
     public void Should_work()
     {
-        using var context = new Context();
+        using var context = Fixture.CreateContext();
         var dto = ProjectTo<Dto>(context.Entities).Single();
         dto.Name.ShouldBeNull();
         dto = ProjectTo<Dto>(context.Entities, null, d=>d.Name).Single();

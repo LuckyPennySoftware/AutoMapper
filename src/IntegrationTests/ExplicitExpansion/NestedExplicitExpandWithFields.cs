@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.ExplicitExpansion;
 
-public class NestedExplicitExpandWithFields : IntegrationTest<NestedExplicitExpandWithFields.DatabaseInitializer>
+public class NestedExplicitExpandWithFields(DatabaseFixture databaseFixture) : IntegrationTest<NestedExplicitExpandWithFields.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -38,7 +38,7 @@ public class NestedExplicitExpandWithFields : IntegrationTest<NestedExplicitExpa
     public void Should_handle_nested_explicit_expand_with_expressions()
     {
         Class1DTO[] dtos;
-        using(TestContext context = new TestContext())
+        using(TestContext context = Fixture.CreateContext())
         {
             dtos = ProjectTo<Class1DTO>(context.Class1Set, null, r => r.Class2DTO, r => r.Class2DTO.Class3DTO).ToArray();                
         }
@@ -49,7 +49,7 @@ public class NestedExplicitExpandWithFields : IntegrationTest<NestedExplicitExpa
     public void Should_handle_nested_explicit_expand_with_strings()
     {
         Class1DTO[] dtos;
-        using(TestContext context = new TestContext())
+        using(TestContext context = Fixture.CreateContext())
         {
             dtos = ProjectTo<Class1DTO>(context.Class1Set, null, "Class2DTO", "Class2DTO.Class3DTO").ToArray();
         }

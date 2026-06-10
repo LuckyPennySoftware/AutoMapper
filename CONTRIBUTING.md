@@ -6,7 +6,7 @@ Then we can decide if and how a feature or a change could be implemented and if 
 Also read this first: [Being a good open source citizen](https://hackernoon.com/being-a-good-open-source-citizen-9060d0ab9732#.x3hocgw85)
 
 ## General feedback and discussions
-Please start a discussion on the [core repo issue tracker](https://github.com/AutoMapper/AutoMapper/issues).
+Please start a discussion on the [core repo issue tracker](https://github.com/LuckyPennySoftware/AutoMapper/issues).
 
 ## Platform
 AutoMapper is built using the RTM tooling that ships with the latest Visual Studio. This is the only configuration accepted.
@@ -18,14 +18,10 @@ Run the PowerShell script `Build.ps1` from the command line. This builds and run
 ## Bugs and feature requests?
 Please log a new issue in the appropriate GitHub repo:
 
-* [Core](https://github.com/AutoMapper/AutoMapper)
+* [Core](https://github.com/LuckyPennySoftware/AutoMapper)
 * [EF6 Extensions](https://github.com/AutoMapper/AutoMapper.EF6)
 * [IDataReader/Record Extensions](https://github.com/AutoMapper/AutoMapper.Data)
 * [Collection Extensions](https://github.com/AutoMapper/AutoMapper.Collection)
-* [Microsoft DI Extensions](https://github.com/AutoMapper/AutoMapper.Extensions.Microsoft.DependencyInjection)
-
-## Other discussions
-https://gitter.im/AutoMapper/AutoMapper
 
 ## Filing issues
 The best way to get your bug fixed is to be as detailed as you can be about the problem.
@@ -39,11 +35,10 @@ Here are questions you can answer before you file a bug to make sure you're not 
 GitHub supports [markdown](https://github.github.com/github-flavored-markdown/), so when filing bugs make sure you check the formatting before clicking submit.
 
 ## Contributing code and content
-You will need to sign a [Contributor License Agreement](https://cla.dotnetfoundation.org/) before submitting your pull request.
 
 Make sure you can build the code. Familiarize yourself with the project workflow and our coding conventions. If you don't know what a pull request is read this article: https://help.github.com/articles/using-pull-requests.
 
-**We only accept PRs to the master branch.**
+**We only accept PRs to the main branch.**
 
 Before submitting a feature or substantial code contribution please discuss it with the team and ensure it follows the product roadmap. Here's a list of blog posts that are worth reading before doing a pull request:
 

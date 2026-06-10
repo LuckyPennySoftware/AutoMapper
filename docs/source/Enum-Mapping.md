@@ -95,7 +95,7 @@ public class MappingConfigurationsTests
             configuration.EnableEnumMappingValidation();
 
             configuration.AddMaps(typeof(AssemblyInfo).GetTypeInfo().Assembly);
-        });
+        }, loggerFactory);
 		
         // Assert
         config.AssertConfigurationIsValid();

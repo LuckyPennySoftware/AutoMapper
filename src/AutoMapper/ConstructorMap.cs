@@ -1,9 +1,10 @@
 ﻿namespace AutoMapper;
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class ConstructorMap
 {
     private bool? _canResolve;
-    private readonly List<ConstructorParameterMap> _ctorParams = new();
+    private readonly List<ConstructorParameterMap> _ctorParams = [];
     public ConstructorInfo Ctor { get; private set; }
     public IReadOnlyCollection<ConstructorParameterMap> CtorParams => _ctorParams;
     public void Reset(ConstructorInfo ctor)
@@ -46,15 +47,15 @@ public sealed class ConstructorMap
     public bool ApplyMap(TypeMap typeMap, IncludedMember includedMember = null)
     {
         var constructorMap = typeMap.ConstructorMap;
-        if(constructorMap == null)
+        if (constructorMap == null)
         {
             return false;
         }
         bool applied = false;
-        foreach(var parameterMap in _ctorParams)
+        foreach (var parameterMap in _ctorParams)
         {
             var inheritedParameterMap = constructorMap[parameterMap.DestinationName];
-            if(inheritedParameterMap is not { IsMapped: true, DestinationType: var type } || type != parameterMap.DestinationType || !parameterMap.ApplyMap(inheritedParameterMap, includedMember))
+            if (inheritedParameterMap is not { IsMapped: true, DestinationType: var type } || type != parameterMap.DestinationType || !parameterMap.ApplyMap(inheritedParameterMap, includedMember))
             {
                 continue;
             }
@@ -67,20 +68,23 @@ public sealed class ConstructorMap
 [EditorBrowsable(EditorBrowsableState.Never)]
 public class ConstructorParameterMap : MemberMap
 {
-    public ConstructorParameterMap(TypeMap typeMap, ParameterInfo parameter, MemberInfo[] sourceMembers) : base(typeMap)
+    public ConstructorParameterMap(TypeMap typeMap, ParameterInfo parameter, MemberInfo[] sourceMembers) : base(typeMap, parameter.ParameterType)
     {
         Parameter = parameter;
+        if (DestinationType.IsByRef)
+        {
+            DestinationType = DestinationType.GetElementType();
+        }
         if (sourceMembers.Length > 0)
         {
             MapByConvention(sourceMembers);
         }
         else
         {
-            SourceMembers = Array.Empty<MemberInfo>();
+            SourceMembers = [];
         }
     }
     public ParameterInfo Parameter { get; }
-    public override Type DestinationType => Parameter.ParameterType;
     public override IncludedMember IncludedMember { get; protected set; }
     public override MemberInfo[] SourceMembers { get; set; }
     public override string DestinationName => Parameter.Name;
@@ -88,12 +92,12 @@ public class ConstructorParameterMap : MemberMap
     public override string ToString() => $"{Parameter.Member}, parameter {DestinationName}";
     public bool ApplyMap(ConstructorParameterMap inheritedParameterMap, IncludedMember includedMember)
     {
-        if(includedMember != null && IsMapped)
+        if (includedMember != null && IsMapped)
         {
             return false;
         }
         ExplicitExpansion ??= inheritedParameterMap.ExplicitExpansion;
-        if(ApplyInheritedMap(inheritedParameterMap))
+        if (ApplyInheritedMap(inheritedParameterMap))
         {
             IncludedMember = includedMember?.Chain(inheritedParameterMap.IncludedMember);
             return true;

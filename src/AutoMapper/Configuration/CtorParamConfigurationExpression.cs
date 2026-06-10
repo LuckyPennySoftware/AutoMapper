@@ -1,4 +1,5 @@
 ﻿namespace AutoMapper.Configuration;
+
 public interface ICtorParamConfigurationExpression
 {
     /// <summary>
@@ -34,36 +35,24 @@ public interface ICtorParameterConfiguration
     void Configure(TypeMap typeMap);
 }
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed class CtorParamConfigurationExpression<TSource, TDestination> : ICtorParamConfigurationExpression<TSource>, ICtorParameterConfiguration
+public sealed class CtorParamConfigurationExpression<TSource, TDestination>(string ctorParamName, Type sourceType) : ICtorParamConfigurationExpression<TSource>, ICtorParameterConfiguration
 {
-    public string CtorParamName { get; }
-    public Type SourceType { get; }
-
-    private readonly List<Action<ConstructorParameterMap>> _ctorParamActions = new List<Action<ConstructorParameterMap>>();
-
-    public CtorParamConfigurationExpression(string ctorParamName, Type sourceType)
-    {
-        CtorParamName = ctorParamName;
-        SourceType = sourceType;
-    }
-
+    public string CtorParamName { get; } = ctorParamName;
+    public Type SourceType { get; } = sourceType;
+    private readonly List<Action<ConstructorParameterMap>> _ctorParamActions = [];
     public void MapFrom<TMember>(Expression<Func<TSource, TMember>> sourceMember) =>
         _ctorParamActions.Add(cpm => cpm.MapFrom(sourceMember));
-
     public void MapFrom<TMember>(Func<TSource, ResolutionContext, TMember> resolver)
     {
         Expression<Func<TSource, TDestination, TMember, ResolutionContext, TMember>> resolverExpression = (src, dest, destMember, ctxt) => resolver(src, ctxt);
         _ctorParamActions.Add(cpm => cpm.SetResolver(new FuncResolver(resolverExpression)));
     }
-
     public void MapFrom(string sourceMembersPath)
     {
         var sourceMembers = ReflectionHelper.GetMemberPath(SourceType, sourceMembersPath);
         _ctorParamActions.Add(cpm => cpm.MapFrom(sourceMembersPath, sourceMembers));
     }
-
     public void ExplicitExpansion(bool value) => _ctorParamActions.Add(cpm => cpm.ExplicitExpansion = value);
-
     public void Configure(TypeMap typeMap)
     {
         var ctorMap = typeMap.ConstructorMap;

@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.BuiltInTypes;
 
-public class EnumToUnderlyingType : IntegrationTest<EnumToUnderlyingType.DatabaseInitializer>
+public class EnumToUnderlyingType(DatabaseFixture databaseFixture) : IntegrationTest<EnumToUnderlyingType.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -31,13 +31,13 @@ public class EnumToUnderlyingType : IntegrationTest<EnumToUnderlyingType.Databas
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<CustomerViewModel>(context.Customers).First().ConsoleColor.ShouldBe((int)ConsoleColor.Yellow);
         }
     }
 }
-public class UnderlyingTypeToEnum : IntegrationTest<UnderlyingTypeToEnum.DatabaseInitializer>
+public class UnderlyingTypeToEnum(DatabaseFixture databaseFixture) : IntegrationTest<UnderlyingTypeToEnum.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -68,13 +68,13 @@ public class UnderlyingTypeToEnum : IntegrationTest<UnderlyingTypeToEnum.Databas
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<CustomerViewModel>(context.Customers).First().ConsoleColor.ShouldBe(ConsoleColor.Yellow);
         }
     }
 }
-public class EnumToEnum : IntegrationTest<EnumToEnum.DatabaseInitializer>
+public class EnumToEnum(DatabaseFixture databaseFixture) : IntegrationTest<EnumToEnum.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -105,7 +105,7 @@ public class EnumToEnum : IntegrationTest<EnumToEnum.DatabaseInitializer>
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<CustomerViewModel>(context.Customers).First().ConsoleColor.ShouldBe(ConsoleColor.DarkYellow);
         }

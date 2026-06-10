@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.BuiltInTypes;
 
-public class ByteArrayColumns : IntegrationTest<ByteArrayColumns.DatabaseInitializer>
+public class ByteArrayColumns(DatabaseFixture databaseFixture) : IntegrationTest<ByteArrayColumns.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -47,7 +47,7 @@ public class ByteArrayColumns : IntegrationTest<ByteArrayColumns.DatabaseInitial
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var customerVms = ProjectTo<CustomerViewModel>(context.Customers).ToList();
             customerVms.ForEach(x =>

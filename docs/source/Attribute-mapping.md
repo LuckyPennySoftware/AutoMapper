@@ -7,7 +7,7 @@ In addition to fluent configuration is the ability to declare and configure maps
 In order to search for maps to configure, use the `AddMaps` method:
 
 ```c#
-var configuration = new MapperConfiguration(cfg => cfg.AddMaps("MyAssembly"));
+var configuration = new MapperConfiguration(cfg => cfg.AddMaps("MyAssembly"), loggerFactory);
 
 var mapper = new Mapper(configuration);
 ```

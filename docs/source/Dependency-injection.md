@@ -10,11 +10,11 @@ Starting with version 13.0, `AddAutoMapper` is part of the core package and the 
 
 You define the configuration using [profiles](Configuration.html#profile-instances). And then you let AutoMapper know in what assemblies are those profiles defined by calling the `IServiceCollection` extension method `AddAutoMapper` at startup:
 ```c#
-services.AddAutoMapper(profileAssembly1, profileAssembly2 /*, ...*/);
+services.AddAutoMapper(cfg => { }, profileAssembly1, profileAssembly2 /*, ...*/);
 ```
 or marker types:
 ```c#
-services.AddAutoMapper(typeof(ProfileTypeFromAssembly1), typeof(ProfileTypeFromAssembly2) /*, ...*/);
+services.AddAutoMapper(cfg => { }, typeof(ProfileTypeFromAssembly1), typeof(ProfileTypeFromAssembly2) /*, ...*/);
 ```
 Now you can inject AutoMapper at runtime into your services/controllers:
 ```c#
@@ -32,11 +32,11 @@ There is a third-party [NuGet package](https://www.nuget.org/packages/AutoMapper
 
 Also, check [this blog](https://dotnetfalcon.com/autofac-support-for-automapper/).
 
-### [Other DI engines](https://github.com/AutoMapper/AutoMapper/wiki/DI-examples)
+### [Other DI engines](https://github.com/LuckyPennySoftware/AutoMapper/wiki/DI-examples)
 
 ## Low level API-s
 
-AutoMapper supports the ability to construct [Custom Value Resolvers](Custom-value-resolvers.html), [Custom Type Converters](Custom-type-converters.html), and [Value Converters](Value-converters.html) using static service location:
+AutoMapper supports the ability to construct [Custom Value Resolvers](Custom-value-resolvers.html), [Custom Type Converters](Custom-type-converters.html), [Value Converters](Value-converters.html), and [Class-based Conditions](Conditional-mapping.html#class-based-conditions) using static service location:
 
 ```c#
 var configuration = new MapperConfiguration(cfg =>
@@ -44,16 +44,21 @@ var configuration = new MapperConfiguration(cfg =>
     cfg.ConstructServicesUsing(ObjectFactory.GetInstance);
 
     cfg.CreateMap<Source, Destination>();
-});
+}, loggerFactory);
 ```
 
-Or dynamic service location, to be used in the case of instance-based containers (including child/nested containers):
+### Automatic Class Registration
 
-```c#
-var mapper = new Mapper(configuration, childContainer.GetInstance);
+When using `AddAutoMapper`, AutoMapper will automatically register implementations of the following types as `ServiceLifetime.Transient` from the specified assemblies:
 
-var dest = mapper.Map<Source, Destination>(new Source { Value = 15 });
-```
+- `IValueResolver<TSource, TDestination, TDestMember>`
+- `IMemberValueResolver<TSource, TDestination, TSourceMember, TDestMember>`
+- `ITypeConverter<TSource, TDestination>`
+- `IValueConverter<TSourceMember, TDestinationMember>`
+- `IDestinationFactory<TSource, TDestination>`
+- `ICondition<TSource, TDestination, TMember>`
+- `IPreCondition<TSource, TDestination>`
+- `IMappingAction<TSource, TDestination>`
 
 ## Queryable Extensions
 

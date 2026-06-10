@@ -1,20 +1,88 @@
-﻿namespace AutoMapper.IntegrationTests;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Testcontainers.MsSql;
 
-public abstract class IntegrationTest<TInitializer> : AutoMapperSpecBase, IAsyncLifetime where TInitializer : IInitializer, new()
+namespace AutoMapper.IntegrationTests;
+
+[CollectionDefinition(nameof(DatabaseFixture))]
+public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
 {
-    Task IAsyncLifetime.DisposeAsync() => Task.CompletedTask;
-    Task IAsyncLifetime.InitializeAsync() => new TInitializer().Migrate();
 }
-public interface IInitializer
+
+public class DatabaseFixture : IAsyncLifetime
+{
+    private MsSqlContainer _msSqlContainer;
+
+    async Task IAsyncLifetime.DisposeAsync()
+    {
+        await _msSqlContainer.DisposeAsync();
+    }
+
+    public string GetConnectionString() => _msSqlContainer.GetConnectionString();
+
+    async Task IAsyncLifetime.InitializeAsync()
+    {
+        _msSqlContainer = new MsSqlBuilder().Build();
+
+        await _msSqlContainer.StartAsync();
+    }
+}
+
+[Collection(nameof(DatabaseFixture))]
+public abstract class IntegrationTest<TDbContextFixture> : AutoMapperSpecBase, IAsyncLifetime
+    where TDbContextFixture : IDbContextFixture, new()
+{
+    private readonly DatabaseFixture _databaseFixture;
+
+    protected IntegrationTest(DatabaseFixture databaseFixture)
+    {
+        _databaseFixture = databaseFixture;
+    }
+
+    protected TDbContextFixture Fixture { get; private set; }
+
+    Task IAsyncLifetime.DisposeAsync() => Task.CompletedTask;
+
+    async Task IAsyncLifetime.InitializeAsync()
+    {
+        var connectionString = _databaseFixture.GetConnectionString();
+
+        var builder = new SqlConnectionStringBuilder(connectionString)
+        {
+            InitialCatalog = GetType().FullName
+        };
+
+        Fixture = new TDbContextFixture
+        {
+            ConnectionString = builder.ToString()
+        };
+
+        await Fixture.Migrate();
+    }
+}
+
+public interface IDbContextFixture
 {
     Task Migrate();
+    string ConnectionString { get; set; }
 }
-public class DropCreateDatabaseAlways<TContext> : IInitializer where TContext : DbContext, new()
+
+public class DropCreateDatabaseAlways<TContext> : IDbContextFixture where TContext : LocalDbContext, new()
 {
-    protected virtual void Seed(TContext context){}
+    public string ConnectionString { get; set; }
+
+    protected virtual void Seed(TContext context)
+    {
+    }
+
     public async Task Migrate()
     {
-        await using var context = new TContext();
+        await using var context = new TContext
+        {
+            ConnectionString = ConnectionString
+        };
+
         var database = context.Database;
         await database.EnsureDeletedAsync();
         var strategy = database.CreateExecutionStrategy();
@@ -24,10 +92,21 @@ public class DropCreateDatabaseAlways<TContext> : IInitializer where TContext : 
 
         await context.SaveChangesAsync();
     }
+
+    public TContext CreateContext()
+    {
+        return new TContext
+        {
+            ConnectionString = ConnectionString
+        };
+    }
 }
+
 public abstract class LocalDbContext : DbContext
 {
+    public string ConnectionString { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlServer(
-        @$"Data Source=(localdb)\mssqllocaldb;Integrated Security=True;MultipleActiveResultSets=True;Database={GetType()};Connection Timeout=300",
+        ConnectionString,
         o => o.EnableRetryOnFailure(maxRetryCount: 10).CommandTimeout(120));
 }

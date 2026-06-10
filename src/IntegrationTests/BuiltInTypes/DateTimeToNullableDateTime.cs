@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.BuiltInTypes;
 
-public class DateTimeToNullableDateTime : IntegrationTest<DateTimeToNullableDateTime.DatabaseInitializer>
+public class DateTimeToNullableDateTime(DatabaseFixture databaseFixture) : IntegrationTest<DateTimeToNullableDateTime.DatabaseInitializer>(databaseFixture)
 {
     public class Parent
     {
@@ -32,7 +32,7 @@ public class DateTimeToNullableDateTime : IntegrationTest<DateTimeToNullableDate
     [Fact]
     public void Should_not_fail()
     {
-        using (var context = new TestContext())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<ParentDto>(context.Parents).Single().Date.ShouldBe(_expected);
         }

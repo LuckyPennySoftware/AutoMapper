@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.ExplicitExpansion;
 
-public class ExpandCollections : IntegrationTest<ExpandCollections.DatabaseInitializer>
+public class ExpandCollections(DatabaseFixture databaseFixture) : IntegrationTest<ExpandCollections.DatabaseInitializer>(databaseFixture)
 {
     TrainingCourseDto _course;
 
@@ -14,7 +14,7 @@ public class ExpandCollections : IntegrationTest<ExpandCollections.DatabaseIniti
     [Fact]
     public void Should_expand_collections_items()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             _course = ProjectTo<TrainingCourseDto>(context.TrainingCourses, null, c => c.Content.Select(co => co.Category)).FirstOrDefault(n => n.CourseName == "Course 1");
         }

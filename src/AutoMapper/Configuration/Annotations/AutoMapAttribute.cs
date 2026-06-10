@@ -5,12 +5,9 @@
 /// Discovered during scanning assembly scanning for configuration when calling <see cref="O:AutoMapper.IMapperConfigurationExpression.AddMaps"/>
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct, AllowMultiple = true)]
-public sealed class AutoMapAttribute : Attribute
+public sealed class AutoMapAttribute(Type sourceType) : Attribute
 {
-    public AutoMapAttribute(Type sourceType) 
-        => SourceType = sourceType;
-
-    public Type SourceType { get; }
+    public Type SourceType { get; } = sourceType;
     public bool ReverseMap { get; set; }
 
     /// <summary>

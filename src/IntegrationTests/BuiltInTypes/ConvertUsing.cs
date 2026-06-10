@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.BuiltInTypes;
 
-public class ConvertUsingWithNullables : IntegrationTest<ConvertUsingWithNullables.DatabaseInitializer>
+public class ConvertUsingWithNullables(DatabaseFixture databaseFixture) : IntegrationTest<ConvertUsingWithNullables.DatabaseInitializer>(databaseFixture)
 {
     public class MyProfile : Profile
     {
@@ -53,7 +53,7 @@ public class ConvertUsingWithNullables : IntegrationTest<ConvertUsingWithNullabl
     [Fact]
     public void Should_project_ok()
     {
-        using(var context = new TestContext())
+        using(var context = Fixture.CreateContext())
         {
             var results = ProjectTo<MyTableModel>(context.MyTable).ToList();
             results[0].Id.ShouldBe(1);
@@ -66,7 +66,7 @@ public class ConvertUsingWithNullables : IntegrationTest<ConvertUsingWithNullabl
     }
 }
 
-public class ConvertUsingBug : IntegrationTest<ConvertUsingBug.DatabaseInitializer>
+public class ConvertUsingBug(DatabaseFixture databaseFixture) : IntegrationTest<ConvertUsingBug.DatabaseInitializer>(databaseFixture)
 {
     public class Parent
     {
@@ -113,14 +113,14 @@ public class ConvertUsingBug : IntegrationTest<ConvertUsingBug.DatabaseInitializ
     [Fact]
     public void can_map_with_projection()
     {
-        using (var db = new ApplicationDBContext())
+        using (var db = Fixture.CreateContext())
         {
             var result = ProjectTo<ParentVM>(db.Parents);
         }
     }
     public class DatabaseInitializer : DropCreateDatabaseAlways<ApplicationDBContext> { }
 }
-public class StringTypeConverter : IntegrationTest<StringTypeConverter.DatabaseInitializer>
+public class StringTypeConverter(DatabaseFixture databaseFixture) : IntegrationTest<StringTypeConverter.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -130,7 +130,7 @@ public class StringTypeConverter : IntegrationTest<StringTypeConverter.DatabaseI
     [Fact]
     public void Should_work()
     {
-        using var context = new ApplicationDBContext();
+        using var context = Fixture.CreateContext();
         var query = ProjectTo<Appointment>(context.Planning);
         query.Single().Subject.ShouldBe("Test");
     }

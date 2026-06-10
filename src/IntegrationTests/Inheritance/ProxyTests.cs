@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.Inheritance;
 
-public class ProxyTests : IAsyncLifetime
+public class ProxyTests(DatabaseFixture databaseFixture) : IntegrationTest<ProxyTests.DatabaseInitializer>(databaseFixture)
 {
     [Fact]
     public void Test()
@@ -12,13 +12,13 @@ public class ProxyTests : IAsyncLifetime
         });
         config.AssertConfigurationIsValid();
 
-        var context = new ClientContext();
+        var context = Fixture.CreateContext();
         var course = context.TrainingCourses.FirstOrDefault(n => n.CourseName == "Course 1");
         var mapper = config.CreateMapper();
         var dto = mapper.Map<TrainingCourseDto>(course);
     }
 
-    class DatabaseInitializer : DropCreateDatabaseAlways<ClientContext>
+    public class DatabaseInitializer : DropCreateDatabaseAlways<ClientContext>
     {
         protected override void Seed(ClientContext context)
         {
@@ -30,7 +30,7 @@ public class ProxyTests : IAsyncLifetime
         }
     }
 
-    class ClientContext : LocalDbContext
+    public class ClientContext : LocalDbContext
     {
         public ClientContext()
         {
@@ -102,13 +102,4 @@ public class ProxyTests : IAsyncLifetime
 
         //  public int CourseId { get; set; }
     }
-
-    public async Task InitializeAsync()
-    {
-        var initializer = new DatabaseInitializer();
-
-        await initializer.Migrate();
-    }
-
-    public Task DisposeAsync() => Task.CompletedTask;
 }

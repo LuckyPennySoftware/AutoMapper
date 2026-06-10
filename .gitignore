@@ -24,6 +24,7 @@ packages
 .nuget
 project.lock.json
 .vs
+.DS_Store
 
 # JetBrains Rider
 .idea/

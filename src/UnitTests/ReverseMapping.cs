@@ -378,7 +378,7 @@ public class ReverseMapConventions : AutoMapperSpecBase
         public Regex SplittingExpression { get; } = new Regex(@"\p{Lu}[a-z0-9]*(?=_?)");
 
         public string SeparatorCharacter => "_";
-        public string[] Split(string input) => SplittingExpression.Matches(input).Select(m => m.Value).ToArray();
+        public string[] Split(string input) => SplittingExpression.Matches(input).Cast<Match>().Select(m => m.Value).ToArray();
     }
 
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>

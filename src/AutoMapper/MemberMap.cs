@@ -6,8 +6,8 @@ namespace AutoMapper;
 public class MemberMap : IValueResolver
 {
     private protected Type _sourceType;
-    protected MemberMap(TypeMap typeMap = null) => TypeMap = typeMap;
-    internal static readonly MemberMap Instance = new();
+    protected MemberMap(TypeMap typeMap, Type destinationType) => (TypeMap, DestinationType) = (typeMap, destinationType);
+    internal static readonly MemberMap Instance = new(null, null);
     public TypeMap TypeMap { get; protected set; }
     public LambdaExpression CustomMapExpression => Resolver?.ProjectToExpression;
     public bool IsResolveConfigured => Resolver != null && Resolver != this;
@@ -19,10 +19,10 @@ public class MemberMap : IValueResolver
         Ignored = false;
     }
     public virtual Type SourceType => _sourceType ??= GetSourceType();
-    public virtual MemberInfo[] SourceMembers { get => Array.Empty<MemberInfo>(); set { } }
+    public virtual MemberInfo[] SourceMembers { get => []; set { } }
     public virtual IncludedMember IncludedMember { get => default; protected set { } }
     public virtual string DestinationName => default;
-    public virtual Type DestinationType { get => default; protected set { } }
+    public Type DestinationType { get; protected set; }
     public virtual TypePair Types() => new(SourceType, DestinationType);
     public bool CanResolveValue => !Ignored && Resolver != null;
     public bool IsMapped => Ignored || Resolver != null;
@@ -36,7 +36,7 @@ public class MemberMap : IValueResolver
     public virtual LambdaExpression PreCondition { get => default; set { } }
     public virtual LambdaExpression Condition { get => default; set { } }
     public IValueResolver Resolver { get; protected set; }
-    public virtual IReadOnlyCollection<ValueTransformerConfiguration> ValueTransformers => Array.Empty<ValueTransformerConfiguration>();
+    public virtual IReadOnlyCollection<ValueTransformerConfiguration> ValueTransformers => [];
     public MemberInfo SourceMember => Resolver?.GetSourceMember(this);
     public string GetSourceMemberName() => Resolver?.SourceMemberName ?? SourceMember?.Name;
     public bool MustUseDestination => UseDestinationValue is true || !CanBeSet;
@@ -65,22 +65,22 @@ public class MemberMap : IValueResolver
     }
     protected bool ApplyInheritedMap(MemberMap inheritedMap)
     {
-        if(Ignored || IsResolveConfigured)
+        if (Ignored || IsResolveConfigured)
         {
             return false;
         }
-        if(inheritedMap.Ignored)
+        if (inheritedMap.Ignored)
         {
             Ignored = true;
             return true;
         }
-        if(inheritedMap.IsResolveConfigured)
+        if (inheritedMap.IsResolveConfigured)
         {
             _sourceType = inheritedMap._sourceType;
             Resolver = inheritedMap.Resolver.CloseGenerics(TypeMap);
             return true;
         }
-        if(Resolver == null)
+        if (Resolver == null)
         {
             _sourceType = inheritedMap._sourceType;
             MapByConvention(inheritedMap.SourceMembers);
@@ -92,6 +92,12 @@ public class MemberMap : IValueResolver
         ChainSourceMembers(configuration, source, destinationMember);
     MemberInfo IValueResolver.GetSourceMember(MemberMap memberMap) => SourceMembers[0];
     Type IValueResolver.ResolvedType => SourceMembers[^1].GetMemberType();
+
+#if FULL_OR_STANDARD
+    public string SourceMemberName => null;
+    public LambdaExpression ProjectToExpression => null;
+    public IValueResolver CloseGenerics(TypeMap typeMap) => this;
+#endif
 }
 public readonly record struct ValueTransformerConfiguration(Type ValueType, LambdaExpression TransformerExpression)
 {
@@ -105,6 +111,6 @@ public static class ValueTransformerConfigurationExtensions
     /// <typeparam name="TValue">Value type to match and transform</typeparam>
     /// <param name="valueTransformers">Value transformer list</param>
     /// <param name="transformer">Transformation expression</param>
-    public static void Add<TValue>(this List<ValueTransformerConfiguration> valueTransformers, Expression<Func<TValue, TValue>> transformer) => 
-        valueTransformers.Add(new ValueTransformerConfiguration(typeof(TValue), transformer));
+    public static void Add<TValue>(this List<ValueTransformerConfiguration> valueTransformers, Expression<Func<TValue, TValue>> transformer) =>
+        valueTransformers.Add(new(typeof(TValue), transformer));
 }

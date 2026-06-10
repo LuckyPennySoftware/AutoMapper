@@ -1,5 +1,6 @@
 namespace AutoMapper.Internal.Mappers;
-public class EnumToEnumMapper : IObjectMapper
+
+public sealed class EnumToEnumMapper : IObjectMapper
 {
     private static readonly MethodInfo TryParseMethod = typeof(Enum).StaticGenericMethod("TryParse", parametersCount: 3);
     public bool IsMatch(TypePair context) => context.IsEnumToEnum();
@@ -16,4 +17,7 @@ public class EnumToEnumMapper : IObjectMapper
         statements.Add(Condition(tryParse, result, Convert(sourceExpression, destinationType)));
         return Block(variables, statements);
     }
+#if FULL_OR_STANDARD
+    public TypePair? GetAssociatedTypes(TypePair initialTypes) => null;
+#endif
 }

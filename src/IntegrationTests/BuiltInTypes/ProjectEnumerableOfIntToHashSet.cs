@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.BuiltInTypes;
 
-public class ProjectEnumerableOfIntToHashSet : IntegrationTest<ProjectEnumerableOfIntToHashSet.DatabaseInitializer>
+public class ProjectEnumerableOfIntToHashSet(DatabaseFixture databaseFixture) : IntegrationTest<ProjectEnumerableOfIntToHashSet.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -52,7 +52,7 @@ public class ProjectEnumerableOfIntToHashSet : IntegrationTest<ProjectEnumerable
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var customer = ProjectTo<CustomerViewModel>(context.Customers).Single();
             customer.ItemsIds.SequenceEqual(new int[] { 1, 2, 3 }).ShouldBeTrue();

@@ -36,7 +36,7 @@ var configuration = new MapperConfiguration(cfg =>
   cfg.CreateMap<CalendarEvent, CalendarEventForm>()
 	.ForMember(dest => dest.EventDate, opt => opt.MapFrom(src => src.Date.Date))
 	.ForMember(dest => dest.EventHour, opt => opt.MapFrom(src => src.Date.Hour))
-	.ForMember(dest => dest.EventMinute, opt => opt.MapFrom(src => src.Date.Minute)));
+	.ForMember(dest => dest.EventMinute, opt => opt.MapFrom(src => src.Date.Minute)), loggerFactory);
 
 // Perform mapping
 CalendarEventForm form = mapper.Map<CalendarEvent, CalendarEventForm>(calendarEvent);

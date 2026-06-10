@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.Inheritance;
 
-public class OverrideDestinationMappingsTest : IntegrationTest<OverrideDestinationMappingsTest.DatabaseInitializer>
+public class OverrideDestinationMappingsTest(DatabaseFixture databaseFixture) : IntegrationTest<OverrideDestinationMappingsTest.DatabaseInitializer>(databaseFixture)
 {
     public class Context : LocalDbContext
     {
@@ -31,9 +31,9 @@ public class OverrideDestinationMappingsTest : IntegrationTest<OverrideDestinati
         model.Child.ShouldBeOfType<ChildModel>();
     }
 
-    private static Entity LoadEntity()
+    private Entity LoadEntity()
     {
-        using(var context = new Context())
+        using(var context = Fixture.CreateContext())
         {
             return context.Entity.Include(e => e.Child).First();
         }

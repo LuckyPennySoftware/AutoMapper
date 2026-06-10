@@ -1,6 +1,7 @@
 ﻿namespace AutoMapper.QueryableExtensions.Impl;
+
 [EditorBrowsable(EditorBrowsableState.Never)]
-public class EnumProjectionMapper : IProjectionMapper
+public sealed class EnumProjectionMapper : IProjectionMapper
 {
     public Expression Project(IGlobalConfiguration configuration, in ProjectionRequest request, Expression resolvedSource, LetPropertyMaps letPropertyMaps)
         => Convert(resolvedSource, request.DestinationType);

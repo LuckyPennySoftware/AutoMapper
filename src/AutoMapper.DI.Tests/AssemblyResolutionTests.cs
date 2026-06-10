@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AutoMapper.Extensions.Microsoft.DependencyInjection.Tests
 {
@@ -20,7 +22,8 @@ namespace AutoMapper.Extensions.Microsoft.DependencyInjection.Tests
         private static ServiceProvider BuildServiceProvider()
         {
             IServiceCollection services = new ServiceCollection();
-            services.AddAutoMapper(typeof(Source).GetTypeInfo().Assembly);
+            services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+            services.AddAutoMapper(_ => { }, typeof(Source).GetTypeInfo().Assembly);
             var serviceProvider = services.BuildServiceProvider();
             return serviceProvider;
         }
@@ -34,7 +37,7 @@ namespace AutoMapper.Extensions.Microsoft.DependencyInjection.Tests
         [Fact]
         public void ShouldConfigureProfiles()
         {
-            _provider.GetService<IConfigurationProvider>().Internal().GetAllTypeMaps().Count.ShouldBe(4);
+            _provider.GetService<IConfigurationProvider>().Internal().GetAllTypeMaps().Count.ShouldBe(6);
         }
 
         [Fact]

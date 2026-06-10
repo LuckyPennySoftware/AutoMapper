@@ -8,17 +8,12 @@
 /// Must be used in combination with <see cref="AutoMapAttribute" />
 /// </remarks>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public sealed class ValueResolverAttribute : Attribute, IMemberConfigurationProvider
+public sealed class ValueResolverAttribute(Type type) : Attribute, IMemberConfigurationProvider
 {
     /// <summary>
     /// <see cref="IValueResolver{TSource,TDestination,TDestMember}" /> or <see cref="IMemberValueResolver{TSource,TDestination,TSourceMember,TDestMember}" /> type
     /// </summary>
-    public Type Type { get; }
-
-    public ValueResolverAttribute(Type type)
-    {
-        Type = type;
-    }
+    public Type Type { get; } = type;
 
     public void ApplyConfiguration(IMemberConfigurationExpression memberConfigurationExpression)
     {

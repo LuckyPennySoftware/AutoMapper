@@ -38,7 +38,7 @@ var configuration = new MapperConfiguration(cfg =>
     .ForMember(ol => ol.Item, conf => conf.MapFrom(dto => dto));
   cfg.CreateMap<OrderLineDTO, Item>()
     .ForMember(i => i.Name, conf => conf.MapFrom(dto => dto.Item));
-});
+}, loggerFactory);
 ```
 When mapping from DTO Expression
 
@@ -137,7 +137,7 @@ With `.ProjectTo<TDto>` this is quite simple, as there is no sense in directly r
 ```c#
 var configuration = new MapperConfiguration(cfg =>
     cfg.CreateMap<OrderLine, OrderLineDTO>()
-    .ForMember(dto => dto.Item, conf => conf.MapFrom(ol => ol.Item.Name)));
+    .ForMember(dto => dto.Item, conf => conf.MapFrom(ol => ol.Item.Name)), loggerFactory);
 
 public List<OrderLineDTO> GetLinesForOrder(int orderId)
 {
@@ -161,7 +161,7 @@ Using it, you can do the following:
 ```c#
 var configuration = new MapperConfiguration(cfg =>
     cfg.CreateMap<OrderLine, OrderLineDTO>()
-    .ForMember(dto => dto.Item, conf => conf.MapFrom(ol => ol.Item.Name)));
+    .ForMember(dto => dto.Item, conf => conf.MapFrom(ol => ol.Item.Name)), loggerFactory);
 
 public IQueryable<OrderLineDTO> GetLinesForOrder(int orderId)
 {

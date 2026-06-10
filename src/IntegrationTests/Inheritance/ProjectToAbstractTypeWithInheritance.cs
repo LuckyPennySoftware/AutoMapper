@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.Inheritance;
 
-public class ProjectToAbstractTypeWithInheritance : IntegrationTest<ProjectToAbstractTypeWithInheritance.DatabaseInitializer>
+public class ProjectToAbstractTypeWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<ProjectToAbstractTypeWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     public class StepGroup
     {
@@ -127,7 +127,7 @@ public class ProjectToAbstractTypeWithInheritance : IntegrationTest<ProjectToAbs
     [Fact]
     public void ProjectCollectionWithElementInheritingAbstractClass()
     {
-        using var context = new Context();
+        using var context = Fixture.CreateContext();
         var steps = ProjectTo<StepGroupModel>(context.StepGroups).Single().Steps;
         steps[0].ShouldBeOfType<CheckingStepModel>().Name.ShouldBe("CheckingStep");
         steps[1].ShouldBeOfType<InstructionStepModel>().Name.ShouldBe("InstructionStep");
@@ -136,7 +136,7 @@ public class ProjectToAbstractTypeWithInheritance : IntegrationTest<ProjectToAbs
     [Fact]
     public void ProjectIncludingPolymorphicElement()
     {
-        using var context = new Context();
+        using var context = Fixture.CreateContext();
         var stepInput = ProjectTo<StepInputModel>(context.StepInputs).Single();
         stepInput.Step.ShouldBeOfType<InstructionStepModel>().Name.ShouldBe("InstructionStep");
     }

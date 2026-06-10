@@ -7,14 +7,9 @@
 /// Must be used in combination with <see cref="AutoMapAttribute" />
 /// </remarks>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public sealed class MappingOrderAttribute : Attribute, IMemberConfigurationProvider
+public sealed class MappingOrderAttribute(int value) : Attribute, IMemberConfigurationProvider
 {
-    public int Value { get; }
-
-    public MappingOrderAttribute(int value)
-    {
-        Value = value;
-    }
+    public int Value { get; } = value;
 
     public void ApplyConfiguration(IMemberConfigurationExpression memberConfigurationExpression)
     {

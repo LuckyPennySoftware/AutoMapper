@@ -22,8 +22,8 @@ public static class PrimitiveHelper
         }
         return list;
     }
-    public static ReadOnlyCollection<T> ToReadOnly<T>(this T item) where T : Expression => new ReadOnlyCollectionBuilder<T>{ item }.ToReadOnlyCollection();
-    public static IReadOnlyCollection<T> NullCheck<T>(this IReadOnlyCollection<T> source) => source ?? Array.Empty<T>();
+    public static ReadOnlyCollection<T> ToReadOnly<T>(this T item) where T : Expression => new ReadOnlyCollectionBuilder<T> { item }.ToReadOnlyCollection();
+    public static IReadOnlyCollection<T> NullCheck<T>(this IReadOnlyCollection<T> source) => source ?? [];
     public static IEnumerable<T> Concat<T>(this IReadOnlyCollection<T> collection, IReadOnlyCollection<T> otherCollection)
     {
         if (otherCollection == null || otherCollection.Count == 0)

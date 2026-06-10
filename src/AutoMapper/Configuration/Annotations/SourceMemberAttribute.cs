@@ -7,11 +7,9 @@
 /// Must be used in combination with <see cref="AutoMapAttribute" />
 /// </remarks>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public sealed class SourceMemberAttribute : Attribute, IMemberConfigurationProvider
+public sealed class SourceMemberAttribute(string name) : Attribute, IMemberConfigurationProvider
 {
-    public string Name { get; }
-
-    public SourceMemberAttribute(string name) => Name = name;
+    public string Name { get; } = name;
 
     public void ApplyConfiguration(IMemberConfigurationExpression memberConfigurationExpression)
     {

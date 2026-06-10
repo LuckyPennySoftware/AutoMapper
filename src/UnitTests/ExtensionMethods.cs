@@ -64,7 +64,7 @@ public static class BarExtensions
     public static string GetSimpleName(this When_null_is_passed_to_an_extension_method.Bar source)
     {
         if(source == null)
-            throw new ArgumentNullException("source");
+            throw new System.ArgumentNullException("source");
         return "SimpleName";
     }
 }

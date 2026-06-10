@@ -1,9 +1,8 @@
-![AutoMapper](https://camo.githubusercontent.com/603a9fdf1c6578e4df423ecdb784cb5d634e016850c10ba0798970fd48c55d41/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6175746f6d61707065722f6c6f676f2e706e67)
+![AutoMapper](https://s3.amazonaws.com/automapper/logo.png)
 
-[![CI](https://github.com/automapper/automapper/workflows/CI/badge.svg)](https://github.com/AutoMapper/AutoMapper/actions?query=workflow%3ACI)
+[![CI](https://github.com/luckypennysoftware/automapper/workflows/CI/badge.svg)](https://github.com/luckypennysoftware/AutoMapper/actions?query=workflow%3ACI)
 [![NuGet](http://img.shields.io/nuget/vpre/AutoMapper.svg?label=NuGet)](https://www.nuget.org/packages/AutoMapper/)
-[![MyGet (dev)](https://img.shields.io/myget/automapperdev/vpre/AutoMapper.svg?label=MyGet)](https://myget.org/feed/automapperdev/package/nuget/AutoMapper)
-[![Documentation Status](https://readthedocs.org/projects/automapper/badge/?version=stable)](https://docs.automapper.org/en/stable/?badge=stable)
+[![Documentation Status](https://readthedocs.org/projects/automapper/badge/?version=stable)](https://docs.automapper.io/en/stable/?badge=stable)
 
 
 ### What is AutoMapper?
@@ -27,12 +26,29 @@ var configuration = new MapperConfiguration(cfg =>
 {
     cfg.CreateMap<Foo, FooDto>();
     cfg.CreateMap<Bar, BarDto>();
+}, loggerFactory);
+
+// or more typically, using IServiceCollection with automatic service registration
+services.AddAutoMapper(cfg => 
+{
+    cfg.CreateMap<Foo, FooDto>();
+    cfg.CreateMap<Bar, BarDto>();
 });
+// AutoMapper will automatically register any implementations of:
+// - IValueResolver<TSource, TDestination, TDestMember>
+// - IMemberValueResolver<TSource, TDestination, TSourceMember, TDestMember>
+// - ITypeConverter<TSource, TDestination>
+// - IValueConverter<TSourceMember, TDestinationMember>
+// - ICondition<TSource, TDestination, TDestMember>
+// - IPreCondition<TSource, TDestination>
+// - IMappingAction<TSource, TDestination>
+// from the provided assemblies
+
 // only during development, validate your mappings; remove it before release
 #if DEBUG
 configuration.AssertConfigurationIsValid();
 #endif
-// use DI (http://docs.automapper.org/en/latest/Dependency-injection.html) or create the mapper yourself
+// use DI (http://docs.automapper.io/en/latest/Dependency-injection.html) or create the mapper yourself
 var mapper = configuration.CreateMapper();
 ```
 Then in your application code, execute the mappings:
@@ -42,7 +58,7 @@ var fooDto = mapper.Map<FooDto>(foo);
 var barDto = mapper.Map<BarDto>(bar);
 ```
 
-Check out the [getting started guide](https://automapper.readthedocs.io/en/latest/Getting-started.html). When you're done there, the [wiki](https://automapper.readthedocs.io/en/latest/) goes in to the nitty-gritty details. If you have questions, you can post them to [Stack Overflow](https://stackoverflow.com/questions/tagged/automapper) or in our [Gitter](https://gitter.im/AutoMapper/AutoMapper).
+Check out the [getting started guide](https://automapper.readthedocs.io/en/latest/Getting-started.html). When you're done there, the [wiki](https://automapper.readthedocs.io/en/latest/) goes in to the nitty-gritty details. If you have questions, you can post them to [Stack Overflow](https://stackoverflow.com/questions/tagged/automapper).
 
 ### Where can I get it?
 
@@ -58,19 +74,21 @@ dotnet add package AutoMapper
 
 ### Do you have an issue?
 
-First check if it's already fixed by trying the [MyGet build](https://automapper.readthedocs.io/en/latest/The-MyGet-build.html).
-
 You might want to know exactly what [your mapping does](https://automapper.readthedocs.io/en/latest/Understanding-your-mapping.html) at runtime.
 
 If you're still running into problems, file an issue above.
 
-### License, etc.
+If you are a paying customer, you can contact support via your account.
 
-This project has adopted the code of conduct defined by the Contributor Covenant to clarify expected behavior in our community.
-For more information see the [.NET Foundation Code of Conduct](https://dotnetfoundation.org/code-of-conduct).
+### How do I set the license key?
 
-AutoMapper is Copyright &copy; 2009 [Jimmy Bogard](https://jimmybogard.com) and other contributors under the [MIT license](LICENSE.txt).
+You can set the license key when registering AutoMapper:
 
-### .NET Foundation
+```csharp
+services.AddAutoMapper(cfg => 
+{
+    cfg.LicenseKey = "<license key here>";
+})
+```
 
-This project is supported by the [.NET Foundation](https://dotnetfoundation.org).
+You can register for your license key at [AutoMapper.io](https://automapper.io)

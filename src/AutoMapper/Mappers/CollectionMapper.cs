@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 namespace AutoMapper.Internal.Mappers;
+
 using static ReflectionHelper;
-public class CollectionMapper : IObjectMapper
+public sealed class CollectionMapper : IObjectMapper
 {
     static readonly MethodInfo IListAdd = typeof(IList).GetMethod(nameof(IList.Add));
     public TypePair? GetAssociatedTypes(TypePair context) => new(GetElementType(context.SourceType), GetElementType(context.DestinationType));
@@ -49,12 +50,12 @@ public class CollectionMapper : IObjectMapper
             var sourceElementType = GetEnumerableElementType(sourceType);
             if (destinationCollectionType == null || (sourceType == sourceElementType && destinationType == destinationElementType))
             {
-                return destinationType.IsAssignableFrom(sourceType) ? 
-                            sourceExpression : 
+                return destinationType.IsAssignableFrom(sourceType) ?
+                            sourceExpression :
                             Throw(Constant(new NotSupportedException($"Unknown collection. Consider a custom type converter from {sourceType} to {destinationType}.")), destinationType);
             }
             var itemParam = Parameter(sourceElementType, "item");
-            var itemExpr = configuration.MapExpression(profileMap, new TypePair(sourceElementType, destinationElementType), itemParam);
+            var itemExpr = configuration.MapExpression(profileMap, new(sourceElementType, destinationElementType), itemParam);
             Expression destination, assignNewExpression;
             UseDestinationValue();
             var (variables, statements) = configuration.Scratchpad();
@@ -107,7 +108,11 @@ public class CollectionMapper : IObjectMapper
                             return;
                         }
                         destinationElementType = GetEnumerableElementType(destinationType);
+#if FULL_OR_STANDARD                        
+                        destinationCollectionType = destinationType.IsGenericType(typeof(ISet<>)) ? typeof(HashSet<>) : typeof(ICollection<>);
+#else
                         destinationCollectionType = destinationType.IsGenericType(typeof(IReadOnlySet<>)) ? typeof(HashSet<>) : typeof(ICollection<>);
+#endif
                         destinationCollectionType = destinationCollectionType.MakeGenericType(destinationElementType);
                         destExpression = Convert(mustUseDestination ? destExpression : Null, destinationCollectionType);
                         addMethod = destinationCollectionType.GetMethod("Add");
@@ -141,11 +146,11 @@ public class CollectionMapper : IObjectMapper
         }
     }
     private static Expression CreateNameValueCollection(Expression sourceExpression) =>
-        New(typeof(NameValueCollection).GetConstructor(new[] { typeof(NameValueCollection) }), sourceExpression);
+        New(typeof(NameValueCollection).GetConstructor([typeof(NameValueCollection)]), sourceExpression);
     static class ArrayMapper
     {
         private static readonly MethodInfo ToArrayMethod = typeof(Enumerable).GetStaticMethod("ToArray");
-        private static readonly MethodInfo CopyToMethod = typeof(Array).GetMethod("CopyTo", new[] { typeof(Array), typeof(int) });
+        private static readonly MethodInfo CopyToMethod = typeof(Array).GetMethod("CopyTo", [typeof(Array), typeof(int)]);
         private static readonly MethodInfo CountMethod = typeof(Enumerable).StaticGenericMethod("Count", parametersCount: 1);
         private static readonly MethodInfo MapMultidimensionalMethod = typeof(ArrayMapper).GetStaticMethod(nameof(MapMultidimensional));
         private static readonly ParameterExpression Index = Variable(typeof(int), "destinationArrayIndex");
@@ -155,7 +160,7 @@ public class CollectionMapper : IObjectMapper
         {
             var sourceElementType = source.GetType().GetElementType();
             var destinationArray = Array.CreateInstance(destinationElementType, Enumerable.Range(0, source.Rank).Select(source.GetLength).ToArray());
-            var filler = new MultidimensionalArrayFiller(destinationArray);
+            MultidimensionalArrayFiller filler = new(destinationArray);
             foreach (var item in source)
             {
                 filler.NewValue(context.Map(item, null, sourceElementType, destinationElementType, null));
@@ -194,7 +199,7 @@ public class CollectionMapper : IObjectMapper
                 createDestination = Assign(destination, NewArrayBounds(destinationElementType, statements));
             }
             var itemParam = Parameter(sourceElementType, "sourceItem");
-            var itemExpr = configuration.MapExpression(profileMap, new TypePair(sourceElementType, destinationElementType), itemParam);
+            var itemExpr = configuration.MapExpression(profileMap, new(sourceElementType, destinationElementType), itemParam);
             var setItem = Assign(ArrayAccess(destination, IncrementIndex), itemExpr);
             variables.Clear();
             statements.Clear();
@@ -234,36 +239,30 @@ public class CollectionMapper : IObjectMapper
                 }
                 return Call(ToArrayMethod.MakeGenericMethod(sourceElementType), sourceExpression);
             }
-            bool MustMap(Type sourceType, Type destinationType) => !destinationType.IsAssignableFrom(sourceType) || 
+            bool MustMap(Type sourceType, Type destinationType) => !destinationType.IsAssignableFrom(sourceType) ||
                 configuration.FindTypeMapFor(sourceType, destinationType) != null;
         }
     }
 }
-public class MultidimensionalArrayFiller
+public readonly struct MultidimensionalArrayFiller(Array destination)
 {
-    private readonly int[] _indices;
-    private readonly Array _destination;
-    public MultidimensionalArrayFiller(Array destination)
-    {
-        _indices = new int[destination.Rank];
-        _destination = destination;
-    }
+    readonly int[] _indices = new int[destination.Rank];
     public void NewValue(object value)
     {
-        var dimension = _destination.Rank - 1;
+        var dimension = destination.Rank - 1;
         var changedDimension = false;
-        while (_indices[dimension] == _destination.GetLength(dimension))
+        while (_indices[dimension] == destination.GetLength(dimension))
         {
             _indices[dimension] = 0;
             dimension--;
             if (dimension < 0)
             {
-                throw new InvalidOperationException("Not enough room in destination array " + _destination);
+                throw new InvalidOperationException("Not enough room in destination array " + destination);
             }
             _indices[dimension]++;
             changedDimension = true;
         }
-        _destination.SetValue(value, _indices);
+        destination.SetValue(value, _indices);
         if (changedDimension)
         {
             _indices[dimension + 1]++;

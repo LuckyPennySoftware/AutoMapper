@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.ExplicitExpansion;
 
-public class ConstructorExplicitExpansionOverride : IntegrationTest<ConstructorExplicitExpansionOverride.DatabaseInitializer> {
+public class ConstructorExplicitExpansionOverride(DatabaseFixture databaseFixture) : IntegrationTest<ConstructorExplicitExpansionOverride.DatabaseInitializer>(databaseFixture) {
     public class Entity {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -29,7 +29,7 @@ public class ConstructorExplicitExpansionOverride : IntegrationTest<ConstructorE
     });
     [Fact]
     public void Should_work() {
-        using var context = new Context();
+        using var context = Fixture.CreateContext();
         var dtos = ProjectTo<Dto>(context.Entities).ToList();
         dtos.Count.ShouldBe(2);
         dtos[0].ShouldBeOfType<Dto>().Name.ShouldBeNull();

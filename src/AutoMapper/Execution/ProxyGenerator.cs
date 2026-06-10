@@ -4,10 +4,10 @@ namespace AutoMapper.Execution;
 
 public static class ProxyGenerator
 {
-    private static readonly MethodInfo DelegateCombine = typeof(Delegate).GetMethod(nameof(Delegate.Combine), new[] { typeof(Delegate), typeof(Delegate) });
+    private static readonly MethodInfo DelegateCombine = typeof(Delegate).GetMethod(nameof(Delegate.Combine), [typeof(Delegate), typeof(Delegate)]);
     private static readonly MethodInfo DelegateRemove = typeof(Delegate).GetMethod(nameof(Delegate.Remove));
     private static readonly EventInfo PropertyChanged = typeof(INotifyPropertyChanged).GetEvent(nameof(INotifyPropertyChanged.PropertyChanged));
-    private static readonly ConstructorInfo ProxyBaseCtor = typeof(ProxyBase).GetConstructor(Type.EmptyTypes);
+    private static readonly ConstructorInfo ProxyBaseCtor = typeof(ProxyBase).GetConstructor([]);
     private static readonly ModuleBuilder ProxyModule = CreateProxyModule();
     private static readonly LockingConcurrentDictionary<TypeDescription, Type> ProxyTypes = new(EmitProxy);
     private static ModuleBuilder CreateProxyModule()
@@ -34,11 +34,11 @@ public static class ProxyGenerator
             var propertyNames = string.Join("_", typeDescription.AdditionalProperties.Select(p => p.Name));
             var typeName = $"Proxy_{interfaceType.FullName}_{typeDescription.GetHashCode()}_{propertyNames}";
             const int MaxTypeNameLength = 1023;
-            typeName = typeName.Substring(0, Math.Min(MaxTypeNameLength, typeName.Length));
+            typeName = typeName[..Math.Min(MaxTypeNameLength, typeName.Length)];
             Debug.WriteLine(typeName, "Emitting proxy type");
             return ProxyModule.DefineType(typeName,
                 TypeAttributes.Class | TypeAttributes.Sealed | TypeAttributes.Public, typeof(ProxyBase),
-                interfaceType.IsInterface ? new[] { interfaceType } : Type.EmptyTypes);
+                interfaceType.IsInterface ? [interfaceType] : []);
         }
         void GeneratePropertyChanged()
         {
@@ -65,7 +65,7 @@ public static class ProxyGenerator
         }
         void GenerateFields()
         {
-            var fieldBuilders = new Dictionary<string, PropertyEmitter>();
+            Dictionary<string, PropertyEmitter> fieldBuilders = [];
             foreach (var property in PropertiesToImplement())
             {
                 if (fieldBuilders.TryGetValue(property.Name, out var propertyEmitter))
@@ -83,8 +83,8 @@ public static class ProxyGenerator
         }
         List<PropertyDescription> PropertiesToImplement()
         {
-            var propertiesToImplement = new List<PropertyDescription>();
-            var allInterfaces = new List<Type>(interfaceType.GetInterfaces()) { interfaceType };
+            List<PropertyDescription> propertiesToImplement = [];
+            List<Type> allInterfaces = [.. interfaceType.GetInterfaces(), interfaceType];
             // first we collect all properties, those with setters before getters in order to enable less specific redundant getters
             foreach (var property in
                 allInterfaces.Where(intf => intf != typeof(INotifyPropertyChanged))
@@ -105,16 +105,16 @@ public static class ProxyGenerator
         }
         void GenerateConstructor()
         {
-            var constructorBuilder = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, Type.EmptyTypes);
+            var constructorBuilder = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, []);
             var ctorIl = constructorBuilder.GetILGenerator();
             ctorIl.Emit(OpCodes.Ldarg_0);
             ctorIl.Emit(OpCodes.Call, ProxyBaseCtor);
             ctorIl.Emit(OpCodes.Ret);
         }
     }
-    public static Type GetProxyType(Type interfaceType) => ProxyTypes.GetOrAdd(new(interfaceType, Array.Empty<PropertyDescription>()));
+    public static Type GetProxyType(Type interfaceType) => ProxyTypes.GetOrAdd(new(interfaceType, []));
     public static Type GetSimilarType(Type sourceType, IEnumerable<PropertyDescription> additionalProperties) =>
-        ProxyTypes.GetOrAdd(new(sourceType, additionalProperties.OrderBy(p=>p.Name).ToArray()));
+        ProxyTypes.GetOrAdd(new(sourceType, [.. additionalProperties.OrderBy(p => p.Name)]));
     class PropertyEmitter
     {
         private static readonly MethodInfo ProxyBaseNotifyPropertyChanged = typeof(ProxyBase).GetInstanceMethod("NotifyPropertyChanged");
@@ -142,7 +142,7 @@ public static class ProxyGenerator
             }
             _setterBuilder = owner.DefineMethod($"set_{name}",
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig |
-                MethodAttributes.SpecialName, typeof(void), new[] { propertyType });
+                MethodAttributes.SpecialName, typeof(void), [propertyType]);
             ILGenerator setterIl = _setterBuilder.GetILGenerator();
             setterIl.Emit(OpCodes.Ldarg_0);
             setterIl.Emit(OpCodes.Ldarg_1);
@@ -164,8 +164,7 @@ public static class ProxyGenerator
 public abstract class ProxyBase
 {
     public ProxyBase() { }
-    protected void NotifyPropertyChanged(PropertyChangedEventHandler handler, string method) =>
-        handler?.Invoke(this, new PropertyChangedEventArgs(method));
+    protected void NotifyPropertyChanged(PropertyChangedEventHandler handler, string method) => handler?.Invoke(this, new(method));
 }
 public readonly record struct TypeDescription(Type Type, PropertyDescription[] AdditionalProperties)
 {

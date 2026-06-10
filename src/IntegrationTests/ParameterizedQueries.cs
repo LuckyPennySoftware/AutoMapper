@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests;
 
-public class ParameterizedQueries : IntegrationTest<ParameterizedQueries.DatabaseInitializer>
+public class ParameterizedQueries(DatabaseFixture databaseFixture) : IntegrationTest<ParameterizedQueries.DatabaseInitializer>(databaseFixture)
 {
     public class Entity
     {
@@ -45,7 +45,7 @@ public class ParameterizedQueries : IntegrationTest<ParameterizedQueries.Databas
     {
         List<EntityDto> dtos;
         string username;
-        using (var db = new ClientContext())
+        using (var db = Fixture.CreateContext())
         {
             username = "Mary";
             var query = ProjectTo<EntityDto>(db.Entities, new { username });

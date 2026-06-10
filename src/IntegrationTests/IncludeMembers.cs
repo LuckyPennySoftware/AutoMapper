@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests;
 
-public class IncludeMembers : IntegrationTest<IncludeMembers.DatabaseInitializer>
+public class IncludeMembers(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembers.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -53,7 +53,7 @@ public class IncludeMembers : IntegrationTest<IncludeMembers.DatabaseInitializer
     [Fact]
     public void Should_flatten()
     {
-        using(var context = new Context())
+        using(var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources);
             var result = projectTo.Single();
@@ -63,7 +63,7 @@ public class IncludeMembers : IntegrationTest<IncludeMembers.DatabaseInitializer
         }
     }
 }
-public class IncludeMembersExplicitExpansion : IntegrationTest<IncludeMembersExplicitExpansion.DatabaseInitializer>
+public class IncludeMembersExplicitExpansion(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersExplicitExpansion.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -116,7 +116,7 @@ public class IncludeMembersExplicitExpansion : IntegrationTest<IncludeMembersExp
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources, null, d=>d.Title);
             var result = projectTo.Single();
@@ -127,7 +127,8 @@ public class IncludeMembersExplicitExpansion : IntegrationTest<IncludeMembersExp
     }
 }
 
-public class IncludeMembersFirstOrDefault : IntegrationTest<IncludeMembersFirstOrDefault.DatabaseInitializer>
+public class IncludeMembersFirstOrDefault(DatabaseFixture databaseFixture)
+    : IntegrationTest<IncludeMembersFirstOrDefault.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -178,6 +179,7 @@ public class IncludeMembersFirstOrDefault : IntegrationTest<IncludeMembersFirstO
             base.Seed(context);
         }
     }
+
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
         cfg.CreateProjection<Source, Destination>().IncludeMembers(s => s.InnerSources.FirstOrDefault(), s => s.OtherInnerSources.FirstOrDefault());
@@ -187,7 +189,7 @@ public class IncludeMembersFirstOrDefault : IntegrationTest<IncludeMembersFirstO
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources);
             FirstOrDefaultCounter.Assert(projectTo, 2);
@@ -201,7 +203,7 @@ public class IncludeMembersFirstOrDefault : IntegrationTest<IncludeMembersFirstO
     }
 }
 
-public class IncludeMembersFirstOrDefaultWithMapFromExpression : IntegrationTest<IncludeMembersFirstOrDefaultWithMapFromExpression.DatabaseInitializer>
+public class IncludeMembersFirstOrDefaultWithMapFromExpression(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersFirstOrDefaultWithMapFromExpression.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -261,7 +263,7 @@ public class IncludeMembersFirstOrDefaultWithMapFromExpression : IntegrationTest
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources);
             FirstOrDefaultCounter.Assert(projectTo, 2);
@@ -274,7 +276,7 @@ public class IncludeMembersFirstOrDefaultWithMapFromExpression : IntegrationTest
         }
     }
 }
-public class IncludeMembersFirstOrDefaultWithSubqueryMapFrom : IntegrationTest<IncludeMembersFirstOrDefaultWithSubqueryMapFrom.DatabaseInitializer>
+public class IncludeMembersFirstOrDefaultWithSubqueryMapFrom(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersFirstOrDefaultWithSubqueryMapFrom.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -354,7 +356,7 @@ public class IncludeMembersFirstOrDefaultWithSubqueryMapFrom : IntegrationTest<I
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources);
             FirstOrDefaultCounter.Assert(projectTo, 4);
@@ -367,7 +369,7 @@ public class IncludeMembersFirstOrDefaultWithSubqueryMapFrom : IntegrationTest<I
         }
     }
 }
-public class IncludeMembersSelectFirstOrDefaultWithSubqueryMapFrom : IntegrationTest<IncludeMembersSelectFirstOrDefaultWithSubqueryMapFrom.DatabaseInitializer>
+public class IncludeMembersSelectFirstOrDefaultWithSubqueryMapFrom(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersSelectFirstOrDefaultWithSubqueryMapFrom.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -458,7 +460,7 @@ public class IncludeMembersSelectFirstOrDefaultWithSubqueryMapFrom : Integration
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources);
             FirstOrDefaultCounter.Assert(projectTo, 4);
@@ -471,7 +473,7 @@ public class IncludeMembersSelectFirstOrDefaultWithSubqueryMapFrom : Integration
         }
     }
 }
-public class SubqueryMapFromWithIncludeMembersFirstOrDefault : IntegrationTest<SubqueryMapFromWithIncludeMembersFirstOrDefault.DatabaseInitializer>
+public class SubqueryMapFromWithIncludeMembersFirstOrDefault(DatabaseFixture databaseFixture) : IntegrationTest<SubqueryMapFromWithIncludeMembersFirstOrDefault.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -553,7 +555,7 @@ public class SubqueryMapFromWithIncludeMembersFirstOrDefault : IntegrationTest<S
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources);
             FirstOrDefaultCounter.Assert(projectTo, 6);
@@ -566,7 +568,7 @@ public class SubqueryMapFromWithIncludeMembersFirstOrDefault : IntegrationTest<S
         }
     }
 }
-public class SubqueryMapFromWithIncludeMembersSelectFirstOrDefault : IntegrationTest<SubqueryMapFromWithIncludeMembersSelectFirstOrDefault.DatabaseInitializer>
+public class SubqueryMapFromWithIncludeMembersSelectFirstOrDefault(DatabaseFixture databaseFixture) : IntegrationTest<SubqueryMapFromWithIncludeMembersSelectFirstOrDefault.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -648,7 +650,7 @@ public class SubqueryMapFromWithIncludeMembersSelectFirstOrDefault : Integration
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources);
             FirstOrDefaultCounter.Assert(projectTo, 6);
@@ -661,7 +663,7 @@ public class SubqueryMapFromWithIncludeMembersSelectFirstOrDefault : Integration
         }
     }
 }
-public class SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefault : IntegrationTest<SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefault.DatabaseInitializer>
+public class SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefault(DatabaseFixture databaseFixture) : IntegrationTest<SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefault.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -754,7 +756,7 @@ public class SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefault : Integ
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources);
             FirstOrDefaultCounter.Assert(projectTo, 6);
@@ -767,7 +769,7 @@ public class SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefault : Integ
         }
     }
 }
-public class IncludeMembersWithMapFromExpression : IntegrationTest<IncludeMembersWithMapFromExpression.DatabaseInitializer>
+public class IncludeMembersWithMapFromExpression(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersWithMapFromExpression.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -819,7 +821,7 @@ public class IncludeMembersWithMapFromExpression : IntegrationTest<IncludeMember
     [Fact]
     public void Should_flatten_with_MapFrom()
     {
-        using(var context = new Context())
+        using(var context = Fixture.CreateContext())
         {
             var result = ProjectTo<Destination>(context.Sources).Single();
             result.Name.ShouldBe("name");
@@ -829,7 +831,7 @@ public class IncludeMembersWithMapFromExpression : IntegrationTest<IncludeMember
     }
 }
 
-public class IncludeMembersWithNullSubstitute : IntegrationTest<IncludeMembersWithNullSubstitute.DatabaseInitializer>
+public class IncludeMembersWithNullSubstitute(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersWithNullSubstitute.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -882,7 +884,7 @@ public class IncludeMembersWithNullSubstitute : IntegrationTest<IncludeMembersWi
     [Fact]
     public void Should_flatten()
     {
-        using(var context = new Context())
+        using(var context = Fixture.CreateContext())
         {
             var result = ProjectTo<Destination>(context.Sources).Single();
             result.Name.ShouldBe("name");
@@ -891,7 +893,7 @@ public class IncludeMembersWithNullSubstitute : IntegrationTest<IncludeMembersWi
         }
     }
 }
-public class IncludeMembersMembersFirstOrDefaultWithNullSubstitute : IntegrationTest<IncludeMembersMembersFirstOrDefaultWithNullSubstitute.DatabaseInitializer>
+public class IncludeMembersMembersFirstOrDefaultWithNullSubstitute(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersMembersFirstOrDefaultWithNullSubstitute.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -942,7 +944,7 @@ public class IncludeMembersMembersFirstOrDefaultWithNullSubstitute : Integration
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources);
             FirstOrDefaultCounter.Assert(projectTo, 2);
@@ -953,7 +955,7 @@ public class IncludeMembersMembersFirstOrDefaultWithNullSubstitute : Integration
         }
     }
 }
-public class CascadedIncludeMembers : IntegrationTest<CascadedIncludeMembers.DatabaseInitializer>
+public class CascadedIncludeMembers(DatabaseFixture databaseFixture) : IntegrationTest<CascadedIncludeMembers.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -997,7 +999,7 @@ public class CascadedIncludeMembers : IntegrationTest<CascadedIncludeMembers.Dat
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources);
             var result = projectTo.Single();
@@ -1006,7 +1008,7 @@ public class CascadedIncludeMembers : IntegrationTest<CascadedIncludeMembers.Dat
         }
     }
 }
-public class IncludeMembersWithIheritance : IntegrationTest<IncludeMembersWithIheritance.DatabaseInitializer>
+public class IncludeMembersWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -1096,7 +1098,7 @@ public class IncludeMembersWithIheritance : IntegrationTest<IncludeMembersWithIh
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             var list = projectTo.ToList();
@@ -1120,7 +1122,7 @@ public class IncludeMembersWithIheritance : IntegrationTest<IncludeMembersWithIh
         }
     }
 }
-public class IncludeMembersExplicitExpansionWithIheritance : IntegrationTest<IncludeMembersExplicitExpansionWithIheritance.DatabaseInitializer>
+public class IncludeMembersExplicitExpansionWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersExplicitExpansionWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -1210,7 +1212,7 @@ public class IncludeMembersExplicitExpansionWithIheritance : IntegrationTest<Inc
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name), null, d => d.Title, d => d.GetType() == typeof(DestinationA) ? ((DestinationA)d).A : null);
             var list = projectTo.ToList();
@@ -1234,7 +1236,7 @@ public class IncludeMembersExplicitExpansionWithIheritance : IntegrationTest<Inc
         }
     }
 }
-public class IncludeMembersFirstOrDefaultWithIheritance : IntegrationTest<IncludeMembersFirstOrDefaultWithIheritance.DatabaseInitializer>
+public class IncludeMembersFirstOrDefaultWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersFirstOrDefaultWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -1343,7 +1345,7 @@ public class IncludeMembersFirstOrDefaultWithIheritance : IntegrationTest<Includ
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             FirstOrDefaultCounter.Assert(projectTo, 13);
@@ -1374,7 +1376,7 @@ public class IncludeMembersFirstOrDefaultWithIheritance : IntegrationTest<Includ
         }
     }
 }
-public class IncludeMembersFirstOrDefaultMixedPolymorhism : IntegrationTest<IncludeMembersFirstOrDefaultMixedPolymorhism.DatabaseInitializer>
+public class IncludeMembersFirstOrDefaultMixedPolymorhism(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersFirstOrDefaultMixedPolymorhism.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -1488,7 +1490,7 @@ public class IncludeMembersFirstOrDefaultMixedPolymorhism : IntegrationTest<Incl
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             var list = projectTo.ToList();
@@ -1518,7 +1520,7 @@ public class IncludeMembersFirstOrDefaultMixedPolymorhism : IntegrationTest<Incl
         }
     }
 }
-public class IncludeMembersFirstOrDefaultNoPolymorhism : IntegrationTest<IncludeMembersFirstOrDefaultNoPolymorhism.DatabaseInitializer>
+public class IncludeMembersFirstOrDefaultNoPolymorhism(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersFirstOrDefaultNoPolymorhism.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -1628,7 +1630,7 @@ public class IncludeMembersFirstOrDefaultNoPolymorhism : IntegrationTest<Include
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             var list = projectTo.ToList();
@@ -1656,7 +1658,7 @@ public class IncludeMembersFirstOrDefaultNoPolymorhism : IntegrationTest<Include
         }
     }
 }
-public class IncludeMembersFirstOrDefaultWithMapFromExpressionWithIheritance : IntegrationTest<IncludeMembersFirstOrDefaultWithMapFromExpressionWithIheritance.DatabaseInitializer>
+public class IncludeMembersFirstOrDefaultWithMapFromExpressionWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersFirstOrDefaultWithMapFromExpressionWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -1766,7 +1768,7 @@ public class IncludeMembersFirstOrDefaultWithMapFromExpressionWithIheritance : I
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             FirstOrDefaultCounter.Assert(projectTo, 13);
@@ -1797,7 +1799,7 @@ public class IncludeMembersFirstOrDefaultWithMapFromExpressionWithIheritance : I
         }
     }
 }
-public class IncludeMembersFirstOrDefaultWithSubqueryMapFromWithIheritance : IntegrationTest<IncludeMembersFirstOrDefaultWithSubqueryMapFromWithIheritance.DatabaseInitializer>
+public class IncludeMembersFirstOrDefaultWithSubqueryMapFromWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersFirstOrDefaultWithSubqueryMapFromWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -1937,7 +1939,7 @@ public class IncludeMembersFirstOrDefaultWithSubqueryMapFromWithIheritance : Int
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             FirstOrDefaultCounter.Assert(projectTo, 40);
@@ -1968,7 +1970,7 @@ public class IncludeMembersFirstOrDefaultWithSubqueryMapFromWithIheritance : Int
         }
     }
 }
-public class IncludeMembersSelectFirstOrDefaultWithSubqueryMapFromWithIheritance : IntegrationTest<IncludeMembersSelectFirstOrDefaultWithSubqueryMapFromWithIheritance.DatabaseInitializer>
+public class IncludeMembersSelectFirstOrDefaultWithSubqueryMapFromWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersSelectFirstOrDefaultWithSubqueryMapFromWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -2128,7 +2130,7 @@ public class IncludeMembersSelectFirstOrDefaultWithSubqueryMapFromWithIheritance
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             FirstOrDefaultCounter.Assert(projectTo, 40);
@@ -2159,7 +2161,7 @@ public class IncludeMembersSelectFirstOrDefaultWithSubqueryMapFromWithIheritance
         }
     }
 }
-public class SubqueryMapFromWithIncludeMembersFirstOrDefaultWithIheritance : IntegrationTest<SubqueryMapFromWithIncludeMembersFirstOrDefaultWithIheritance.DatabaseInitializer>
+public class SubqueryMapFromWithIncludeMembersFirstOrDefaultWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<SubqueryMapFromWithIncludeMembersFirstOrDefaultWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -2302,7 +2304,7 @@ public class SubqueryMapFromWithIncludeMembersFirstOrDefaultWithIheritance : Int
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             FirstOrDefaultCounter.Assert(projectTo, 33);
@@ -2333,7 +2335,7 @@ public class SubqueryMapFromWithIncludeMembersFirstOrDefaultWithIheritance : Int
         }
     }
 }
-public class SubqueryMapFromWithIncludeMembersSelectFirstOrDefaultWithIheritance : IntegrationTest<SubqueryMapFromWithIncludeMembersSelectFirstOrDefaultWithIheritance.DatabaseInitializer>
+public class SubqueryMapFromWithIncludeMembersSelectFirstOrDefaultWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<SubqueryMapFromWithIncludeMembersSelectFirstOrDefaultWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -2476,7 +2478,7 @@ public class SubqueryMapFromWithIncludeMembersSelectFirstOrDefaultWithIheritance
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             FirstOrDefaultCounter.Assert(projectTo, 33);
@@ -2507,7 +2509,7 @@ public class SubqueryMapFromWithIncludeMembersSelectFirstOrDefaultWithIheritance
         }
     }
 }
-public class SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefaultWithIheritance : IntegrationTest<SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefaultWithIheritance.DatabaseInitializer>
+public class SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefaultWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefaultWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -2670,7 +2672,7 @@ public class SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefaultWithIher
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             FirstOrDefaultCounter.Assert(projectTo, 33);
@@ -2701,7 +2703,7 @@ public class SubqueryMapFromWithIncludeMembersSelectMemberFirstOrDefaultWithIher
         }
     }
 }
-public class IncludeMembersWithMapFromExpressionWithIheritance : IntegrationTest<IncludeMembersWithMapFromExpressionWithIheritance.DatabaseInitializer>
+public class IncludeMembersWithMapFromExpressionWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersWithMapFromExpressionWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -2790,7 +2792,7 @@ public class IncludeMembersWithMapFromExpressionWithIheritance : IntegrationTest
     [Fact]
     public void Should_flatten_with_MapFrom()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var list = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name)).ToList();
 
@@ -2813,7 +2815,7 @@ public class IncludeMembersWithMapFromExpressionWithIheritance : IntegrationTest
         }
     }
 }
-public class IncludeMembersWithNullSubstituteWithIheritance : IntegrationTest<IncludeMembersWithNullSubstituteWithIheritance.DatabaseInitializer>
+public class IncludeMembersWithNullSubstituteWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersWithNullSubstituteWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -2903,7 +2905,7 @@ public class IncludeMembersWithNullSubstituteWithIheritance : IntegrationTest<In
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var list = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name)).ToList();
 
@@ -2926,7 +2928,7 @@ public class IncludeMembersWithNullSubstituteWithIheritance : IntegrationTest<In
         }
     }
 }
-public class IncludeMembersMembersFirstOrDefaultWithNullSubstituteWithIheritance : IntegrationTest<IncludeMembersMembersFirstOrDefaultWithNullSubstituteWithIheritance.DatabaseInitializer>
+public class IncludeMembersMembersFirstOrDefaultWithNullSubstituteWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMembersMembersFirstOrDefaultWithNullSubstituteWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -3014,7 +3016,7 @@ public class IncludeMembersMembersFirstOrDefaultWithNullSubstituteWithIheritance
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             FirstOrDefaultCounter.Assert(projectTo, 7);
@@ -3039,7 +3041,7 @@ public class IncludeMembersMembersFirstOrDefaultWithNullSubstituteWithIheritance
         }
     }
 }
-public class CascadedIncludeMembersWithIheritance : IntegrationTest<CascadedIncludeMembersWithIheritance.DatabaseInitializer>
+public class CascadedIncludeMembersWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<CascadedIncludeMembersWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -3129,7 +3131,7 @@ public class CascadedIncludeMembersWithIheritance : IntegrationTest<CascadedIncl
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             var list = projectTo.ToList();
@@ -3150,7 +3152,7 @@ public class CascadedIncludeMembersWithIheritance : IntegrationTest<CascadedIncl
         }
     }
 }
-public class IncludeOnlySelectedMembersWithIheritance : IntegrationTest<IncludeOnlySelectedMembersWithIheritance.DatabaseInitializer>
+public class IncludeOnlySelectedMembersWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeOnlySelectedMembersWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -3246,7 +3248,7 @@ public class IncludeOnlySelectedMembersWithIheritance : IntegrationTest<IncludeO
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             var query = projectTo.ToQueryString();
@@ -3271,7 +3273,7 @@ public class IncludeOnlySelectedMembersWithIheritance : IntegrationTest<IncludeO
     }
 }
 
-public class IncludeMultipleExpressionsWithIheritance : IntegrationTest<IncludeMultipleExpressionsWithIheritance.DatabaseInitializer>
+public class IncludeMultipleExpressionsWithIheritance(DatabaseFixture databaseFixture) : IntegrationTest<IncludeMultipleExpressionsWithIheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Source
     {
@@ -3365,7 +3367,7 @@ public class IncludeMultipleExpressionsWithIheritance : IntegrationTest<IncludeM
     [Fact]
     public void Should_flatten()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var projectTo = ProjectTo<Destination>(context.Sources.OrderBy(p => p.Name));
             var list = projectTo.ToList();

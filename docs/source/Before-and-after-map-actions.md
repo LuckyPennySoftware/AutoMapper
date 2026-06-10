@@ -7,7 +7,7 @@ var configuration = new MapperConfiguration(cfg => {
   cfg.CreateMap<Source, Dest>()
     .BeforeMap((src, dest) => src.Value = src.Value + 10)
     .AfterMap((src, dest) => dest.Name = "John");
-});
+}, loggerFactory);
 ```
 
 Or you can create before/after map callbacks during mapping:
@@ -80,7 +80,7 @@ public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddAutoMapper(typeof(Startup).Assembly);
+        services.AddAutoMapper(_ => { }, typeof(Startup).Assembly);
     }
     //..
 }

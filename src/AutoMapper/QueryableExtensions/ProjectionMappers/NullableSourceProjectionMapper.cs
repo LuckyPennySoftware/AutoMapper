@@ -1,5 +1,6 @@
 ﻿namespace AutoMapper.QueryableExtensions.Impl;
-internal class NullableSourceProjectionMapper : IProjectionMapper
+
+public sealed class NullableSourceProjectionMapper : IProjectionMapper
 {
     public Expression Project(IGlobalConfiguration configuration, in ProjectionRequest request, Expression resolvedSource, LetPropertyMaps letPropertyMaps) =>
         Coalesce(resolvedSource, New(request.DestinationType));

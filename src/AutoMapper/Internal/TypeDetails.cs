@@ -4,19 +4,16 @@ namespace AutoMapper.Internal;
 /// </summary>
 [DebuggerDisplay("{Type}")]
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed class TypeDetails
+public sealed class TypeDetails(Type type, ProfileMap config)
 {
+    public Type Type { get; } = type;
+    public ProfileMap Config { get; } = config;
     private Dictionary<string, MemberInfo> _nameToMember;
     private ConstructorParameters[] _constructors;
     private MemberInfo[] _readAccessors;
     private MemberInfo[] _writeAccessors;
-    public TypeDetails(Type type, ProfileMap config)
-    {
-        Type = type;
-        Config = config;
-    }
-    private ConstructorParameters[] GetConstructors() => 
-        GetConstructors(Type, Config).Where(c=>c.ParametersCount > 0).OrderByDescending(c => c.ParametersCount).ToArray();
+    private ConstructorParameters[] GetConstructors() =>
+        GetConstructors(Type, Config).Where(c => c.ParametersCount > 0).OrderByDescending(c => c.ParametersCount).ToArray();
     public static IEnumerable<ConstructorParameters> GetConstructors(Type type, ProfileMap profileMap) =>
         type.GetDeclaredConstructors().Where(profileMap.ShouldUseConstructor).Select(c => new ConstructorParameters(c));
     public MemberInfo GetMember(string name)
@@ -51,7 +48,7 @@ public sealed class TypeDetails
         IEnumerable<MemberInfo> AddMethods(IEnumerable<MemberInfo> accessors)
         {
             var publicNoArgMethods = GetPublicNoArgMethods();
-            var noArgExtensionMethods = GetNoArgExtensionMethods(Config.SourceExtensionMethods.Where(m => 
+            var noArgExtensionMethods = GetNoArgExtensionMethods(Config.SourceExtensionMethods.Where(m =>
                 !_nameToMember.ContainsKey(m.Name) && Config.ShouldMapMethod(m)));
             return accessors.Concat(publicNoArgMethods).Concat(noArgExtensionMethods);
         }
@@ -88,16 +85,11 @@ public sealed class TypeDetails
                 select new GenericMethod(method, genericInterface));
         }
     }
-    sealed class GenericMethod : MemberInfo
+    sealed class GenericMethod(MethodInfo genericMethod, Type genericInterface) : MemberInfo
     {
-        readonly MethodInfo _genericMethod;
-        readonly Type _genericInterface;
+        readonly MethodInfo _genericMethod = genericMethod;
+        readonly Type _genericInterface = genericInterface;
         MethodInfo _closedMethod = ObjectToString;
-        public GenericMethod(MethodInfo genericMethod, Type genericInterface)
-        {
-            _genericMethod = genericMethod;
-            _genericInterface = genericInterface;
-        }
         public MethodInfo Close()
         {
             if (_closedMethod == ObjectToString)
@@ -135,12 +127,12 @@ public sealed class TypeDetails
                 continue;
             }
             var withoutPrefix = memberName[prefix.Length..];
-            result ??= new();
+            result ??= [];
             result.Add(withoutPrefix);
             PostFixes(ref result, postfixes, withoutPrefix);
         }
         PostFixes(ref result, postfixes, memberName);
-        return result == null ? Array.Empty<string>() : result.ToArray();
+        return result == null ? [] : [.. result];
         static void PostFixes(ref List<string> result, List<string> postfixes, string name)
         {
             foreach (var postfix in postfixes)
@@ -149,13 +141,11 @@ public sealed class TypeDetails
                 {
                     continue;
                 }
-                result ??= new();
+                result ??= [];
                 result.Add(name[..^postfix.Length]);
             }
         }
     }
-    public Type Type { get; }
-    public ProfileMap Config { get; }
     public MemberInfo[] ReadAccessors => _readAccessors ??= BuildReadAccessors();
     public MemberInfo[] WriteAccessors => _writeAccessors ??= BuildWriteAccessors();
     public ConstructorParameters[] Constructors => _constructors ??= GetConstructors();
@@ -169,7 +159,7 @@ public sealed class TypeDetails
         {
             members = members.Concat(GetFields(FieldReadable));
         }
-        return members.ToArray();
+        return [.. members];
     }
     private MemberInfo[] BuildWriteAccessors()
     {
@@ -181,7 +171,7 @@ public sealed class TypeDetails
         {
             members = members.Concat(GetFields(FieldWritable));
         }
-        return members.ToArray();
+        return [.. members];
     }
     private static bool PropertyReadable(PropertyInfo propertyInfo) => propertyInfo.CanRead;
     private static bool FieldReadable(FieldInfo fieldInfo) => true;
@@ -195,7 +185,7 @@ public sealed class TypeDetails
 }
 public readonly record struct ConstructorParameters(ConstructorInfo Constructor, ParameterInfo[] Parameters)
 {
-    public ConstructorParameters(ConstructorInfo constructor) : this(constructor, constructor.GetParameters()){}
+    public ConstructorParameters(ConstructorInfo constructor) : this(constructor, constructor.GetParameters()) { }
     public int ParametersCount => Parameters.Length;
     public bool AllParametersOptional() => Parameters.All(p => p.IsOptional);
 }

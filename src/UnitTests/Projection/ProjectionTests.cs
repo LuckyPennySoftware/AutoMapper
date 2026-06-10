@@ -14,6 +14,51 @@ public class NonNullableToNullable : AutoMapperSpecBase
     [Fact]
     public void Should_project() => ProjectTo<Destination>(new[] { new Source() }.AsQueryable()).First().Id.ShouldBe(0);
 }
+public class ProjectionAndMappingCombined : NonValidatingSpecBase
+{
+    class Source
+    {
+        public int Id { get; set; }
+    }
+    class Destination
+    {
+        public int Id { get; set; }
+    }
+    [Fact]
+    public void Should_project()
+    {
+        var mappingConfiguration = new MapperConfiguration(cfg => cfg.CreateProjection<Source, Destination>());
+        
+        new[] { new Source() }.AsQueryable().ProjectTo<Destination>(mappingConfiguration).First().Id.ShouldBe(0);
+    }
+
+    [Fact]
+    public void Should_not_map()
+    {
+        var mappingConfiguration = new MapperConfiguration(cfg => cfg.CreateProjection<Source, Destination>());
+        var mapper = mappingConfiguration.CreateMapper();
+        
+        typeof(AutoMapperConfigurationException).ShouldBeThrownBy(() =>
+            mapper.Map<Destination[]>(new[] { new Source() }.AsQueryable()));
+    }
+    
+    [Fact]
+    public void Should_map_and_project()
+    {
+        var mappingConfiguration = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateProjection<Source, Destination>();
+            cfg.CreateMap<Source, Destination>();
+        });
+        
+        var mapper = mappingConfiguration.CreateMapper();
+        
+        typeof(AutoMapperConfigurationException).ShouldNotBeThrownBy(() =>
+            mapper.Map<Destination[]>(new[] { new Source() }.AsQueryable()));
+        new[] { new Source() }.AsQueryable().ProjectTo<Destination>(mappingConfiguration).First().Id.ShouldBe(0);
+        mapper.Map<Destination[]>(new[] { new Source() }.AsQueryable()).First().Id.ShouldBe(0);
+    }
+}
 public class InMemoryMapObjectPropertyFromSubQuery : AutoMapperSpecBase
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>

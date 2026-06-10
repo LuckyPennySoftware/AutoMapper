@@ -159,6 +159,9 @@ public class When_mapping_a_primitive_array_with_custom_object_mapper : AutoMapp
             MemberMap memberMap,
             Expression sourceExpression, Expression destExpression)
             => Expression.Multiply(Expression.Convert(sourceExpression, typeof(int)), Expression.Constant(1000));
+#if NET471_OR_GREATER
+        public TypePair? GetAssociatedTypes(TypePair initialTypes) => null;
+#endif        
     }
 
     protected override MapperConfiguration CreateConfiguration() => new(c => c.Internal().Mappers.Insert(0, new IntToIntMapper()));

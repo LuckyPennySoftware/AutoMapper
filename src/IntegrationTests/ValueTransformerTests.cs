@@ -2,7 +2,7 @@
 {
     namespace ValueTransformerTests
     {
-        public class BasicTransforming : IntegrationTest<BasicTransforming.DatabaseInitializer>
+        public class BasicTransforming(DatabaseFixture databaseFixture) : IntegrationTest<BasicTransforming.DatabaseInitializer>(databaseFixture)
         {
             public class Source
             {
@@ -40,7 +40,7 @@
             [Fact]
             public async Task Should_transform_value()
             {
-                using (var context = new Context())
+                using (var context = Fixture.CreateContext())
                 {
                     var dest = await ProjectTo<Dest>(context.Sources).SingleAsync();
 
@@ -49,7 +49,7 @@
             }
         }
 
-        public class StackingTransformers : IntegrationTest<StackingTransformers.DatabaseInitializer>
+        public class StackingTransformers(DatabaseFixture databaseFixture) : IntegrationTest<StackingTransformers.DatabaseInitializer>(databaseFixture)
         {
             public class Source
             {
@@ -88,7 +88,7 @@
             [Fact]
             public async Task Should_stack_transformers_in_order()
             {
-                using (var context = new Context())
+                using (var context = Fixture.CreateContext())
                 {
                     var dest = await ProjectTo<Dest>(context.Sources).SingleAsync();
 
@@ -97,7 +97,7 @@
             }
         }
 
-        public class DifferentProfiles : IntegrationTest<DifferentProfiles.DatabaseInitializer>
+        public class DifferentProfiles(DatabaseFixture databaseFixture) : IntegrationTest<DifferentProfiles.DatabaseInitializer>(databaseFixture)
         {
             public class Source
             {
@@ -136,7 +136,7 @@
             [Fact]
             public async Task Should_not_apply_other_transform()
             {
-                using (var context = new Context())
+                using (var context = Fixture.CreateContext())
                 {
                     var dest = await ProjectTo<Dest>(context.Sources).SingleAsync();
 
@@ -145,7 +145,7 @@
             }
         }
 
-        public class StackingRootConfigAndProfileTransform : IntegrationTest<StackingRootConfigAndProfileTransform.DatabaseInitializer>
+        public class StackingRootConfigAndProfileTransform(DatabaseFixture databaseFixture) : IntegrationTest<StackingRootConfigAndProfileTransform.DatabaseInitializer>(databaseFixture)
         {
             public class Source
             {
@@ -186,7 +186,7 @@
             [Fact]
             public async Task ShouldApplyProfileFirstThenRoot()
             {
-                using (var context = new Context())
+                using (var context = Fixture.CreateContext())
                 {
                     var dest = await ProjectTo<Dest>(context.Sources).SingleAsync();
 
@@ -195,7 +195,7 @@
             }
         }
 
-        public class TransformingValueTypes : IntegrationTest<TransformingValueTypes.DatabaseInitializer>
+        public class TransformingValueTypes(DatabaseFixture databaseFixture) : IntegrationTest<TransformingValueTypes.DatabaseInitializer>(databaseFixture)
         {
             public class Source
             {
@@ -236,7 +236,7 @@
             [Fact]
             public async Task ShouldApplyProfileFirstThenRoot()
             {
-                using (var context = new Context())
+                using (var context = Fixture.CreateContext())
                 {
                     var dest = await ProjectTo<Dest>(context.Sources).SingleAsync();
 
@@ -245,7 +245,7 @@
             }
         }
 
-        public class StackingRootAndProfileAndMemberConfig : IntegrationTest<StackingRootAndProfileAndMemberConfig.DatabaseInitializer>
+        public class StackingRootAndProfileAndMemberConfig(DatabaseFixture databaseFixture) : IntegrationTest<StackingRootAndProfileAndMemberConfig.DatabaseInitializer>(databaseFixture)
         {
             public class Source
             {
@@ -288,7 +288,7 @@
             [Fact]
             public async Task ShouldApplyTypeMapThenProfileThenRoot()
             {
-                using (var context = new Context())
+                using (var context = Fixture.CreateContext())
                 {
                     var dest = await ProjectTo<Dest>(context.Sources).SingleAsync();
 
@@ -297,7 +297,7 @@
             }
         }
 
-        public class StackingTypeMapAndRootAndProfileAndMemberConfig : IntegrationTest<StackingTypeMapAndRootAndProfileAndMemberConfig.DatabaseInitializer>
+        public class StackingTypeMapAndRootAndProfileAndMemberConfig(DatabaseFixture databaseFixture) : IntegrationTest<StackingTypeMapAndRootAndProfileAndMemberConfig.DatabaseInitializer>(databaseFixture)
         {
             public class Source
             {
@@ -340,7 +340,7 @@
             [Fact]
             public async Task ShouldApplyTypeMapThenProfileThenRoot()
             {
-                using (var context = new Context())
+                using (var context = Fixture.CreateContext())
                 {
                     var dest = await ProjectTo<Dest>(context.Sources).SingleAsync();
 

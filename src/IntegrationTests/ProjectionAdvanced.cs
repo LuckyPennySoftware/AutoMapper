@@ -1,11 +1,11 @@
 ﻿namespace AutoMapper.IntegrationTests;
-public class ProjectionAdvanced : IntegrationTest<ProjectionAdvanced.Initializer>
+public class ProjectionAdvanced(DatabaseFixture databaseFixture) : IntegrationTest<ProjectionAdvanced.Initializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(c => c.CreateProjection<Entity, Dto>().Advanced().ForAllMembers(o=>o.Ignore()));
     [Fact]
     public void Should_work()
     {
-        using var context = new Context();
+        using var context = Fixture.CreateContext();
         var dto = ProjectTo<Dto>(context.Entities).Single();
         dto.Id.ShouldBe(0);
         dto.Name.ShouldBeNull();

@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 using Xunit;
 
@@ -11,7 +13,8 @@ namespace AutoMapper.Extensions.Microsoft.DependencyInjection.Tests
         public void Should_not_register_static_instance_when_configured()
         {
             IServiceCollection services = new ServiceCollection();
-            services.AddAutoMapper(typeof(Source3));
+            services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+            services.AddAutoMapper(_ => { }, typeof(Source3));
 
             var serviceProvider = services.BuildServiceProvider();
 

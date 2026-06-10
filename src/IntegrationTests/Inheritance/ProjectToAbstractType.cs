@@ -2,7 +2,7 @@
 
 namespace AutoMapper.IntegrationTests.Inheritance;
 
-public class ProjectToAbstractType : IntegrationTest<ProjectToAbstractType.DatabaseInitializer>
+public class ProjectToAbstractType(DatabaseFixture databaseFixture) : IntegrationTest<ProjectToAbstractType.DatabaseInitializer>(databaseFixture)
 {
     ITypeA[] _destinations;
 
@@ -51,7 +51,7 @@ public class ProjectToAbstractType : IntegrationTest<ProjectToAbstractType.Datab
     [Fact]
     public void Should_project_to_abstract_type()
     {
-        using(var context = new Context())
+        using(var context = Fixture.CreateContext())
         {
             _destinations = ProjectTo<ITypeA>(context.EntityA).ToArray();
         }
@@ -60,7 +60,7 @@ public class ProjectToAbstractType : IntegrationTest<ProjectToAbstractType.Datab
     }
 }
 
-public class ProjectToInterface : IntegrationTest<ProjectToInterface.DatabaseInitializer>
+public class ProjectToInterface(DatabaseFixture databaseFixture) : IntegrationTest<ProjectToInterface.DatabaseInitializer>(databaseFixture)
 {
     //Data Objects
     public class DataLayer
@@ -303,7 +303,7 @@ public class ProjectToInterface : IntegrationTest<ProjectToInterface.DatabaseIni
     [Fact]
     public void Should_project_to_abstract_type()
     {
-        using(var context = new Context())
+        using(var context = Fixture.CreateContext())
         {
             var domainCalendars = ProjectTo<ICalendar>(context.Calendars).ToList();
             domainCalendars.Count.ShouldBe(2);

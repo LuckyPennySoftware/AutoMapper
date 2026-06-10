@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests;
 
-public class ProjectionOrderTest : IntegrationTest<ProjectionOrderTest.DatabaseInitializer>
+public class ProjectionOrderTest(DatabaseFixture databaseFixture) : IntegrationTest<ProjectionOrderTest.DatabaseInitializer>(databaseFixture)
 {
     public class Destination
     {
@@ -56,7 +56,7 @@ public class ProjectionOrderTest : IntegrationTest<ProjectionOrderTest.DatabaseI
     [Fact]
     public void Should_Not_Throw_NotSupportedException_On_Union()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<Destination>(context.Source1).Union(ProjectTo<Destination>(context.Source2)).ToString();
         }

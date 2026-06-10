@@ -3,55 +3,86 @@
   <PropertyGroup>
     <Summary>A convention-based object-object mapper.</Summary>
     <Description>A convention-based object-object mapper.</Description>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
+    <LangVersion>14.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>AutoMapper</AssemblyName>
     <AssemblyOriginatorKeyFile>..\..\AutoMapper.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>AutoMapper</PackageId>
     <PackageIcon>icon.png</PackageIcon>
-    <PackageProjectUrl>https://automapper.org</PackageProjectUrl>
+    <PackageProjectUrl>https://automapper.io</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 
     <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
     <MinVerTagPrefix>v</MinVerTagPrefix>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
-
     <BaselineAllAPICompatError>true</BaselineAllAPICompatError>
     <AdditionalApiCompatOptions>--exclude-non-browsable --exclude-compiler-generated</AdditionalApiCompatOptions>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(IsWindows)' == 'true' ">
+    <TargetFrameworks>$(TargetFrameworks);net471</TargetFrameworks>
+  </PropertyGroup>
+  
   <ItemGroup>
-    <ResolvedMatchingContract Include="..\LastMajorVersionBinary\AutoMapper.dll" />
+    <ResolvedMatchingContract Include="..\LastMajorVersionBinary\AutoMapper.dll"/>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\icon.png" Pack="true" PackagePath="" Visible="False" />
-    <None Include="..\..\README.md" Pack="true" PackagePath="" Visible="False" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="" Visible="False"/>
+    <None Include="..\..\README.md" Pack="true" PackagePath="" Visible="False"/>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="" Visible="False"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="7.0.0-beta.22074.1" PrivateAssets="All" />  
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[10.0.0, )"/>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="[10.0.0, )"/>
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="[8.14.0, )"/>
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="[6.0.0, )" Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net471'" />
+    <PackageReference Include="System.Reflection.Emit" Version="[4.7.0, )" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+    <PackageReference Include="PolySharp" Version="1.15.0" Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net471'" PrivateAssets="All" />
+    
+    <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="All"/>
+    <!-- <PackageReference Include="Microsoft.DotNet.ApiCompat" Version="7.0.0-beta.22074.1" PrivateAssets="All" />   -->
   </ItemGroup>
 
-  <Target Name="PreBuild" AfterTargets="GetAssemblyVersion">
+  <!-- Removing for now because of bash issues -->
+  <!-- <Target Name="PreBuild" AfterTargets="GetAssemblyVersion">
     <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="powershell -ExecutionPolicy Unrestricted -File &quot;$(ProjectDir)ApiCompat\PreBuild.ps1&quot; -version $(Version)" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="&quot;$(ProjectDir)ApiCompat/PreBuild.sh&quot; $(Version)" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="bash &quot;$(ProjectDir)ApiCompat/PreBuild.sh&quot; $(Version)" />
+  </Target> -->
+
+  <Target Name="EmbedBuildDate" BeforeTargets="CoreCompile">
+    <Exec Command="git log -1 --format=%25cI" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="Low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitDate" />
+    </Exec>
+    <PropertyGroup>
+      <BuildDateUtc Condition="'$(GitCommitDate)' != ''">$(GitCommitDate)</BuildDateUtc>
+    </PropertyGroup>
+    <WriteLinesToFile Condition="'$(BuildDateUtc)' != ''" File="$(IntermediateOutputPath)BuildDateGenerated.cs" Lines="[assembly: System.Reflection.AssemblyMetadata(&quot;BuildDateUtc&quot;, &quot;$(BuildDateUtc)&quot;)]" Overwrite="true" />
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)BuildDateGenerated.cs" Condition="'$(BuildDateUtc)' != ''" />
+    </ItemGroup>
   </Target>
+
   <ItemGroup>
-    <Using Include="System.Linq.Expressions.Expression" Static="true" />
-    <Using Include="AutoMapper.Execution.ExpressionBuilder" Static="true" />
-    <Using Include="AutoMapper.Execution" />
-    <Using Include="AutoMapper.Configuration" />
+    <Using Include="System.Linq.Expressions.Expression" Static="true"/>
+    <Using Include="AutoMapper.Execution.ExpressionBuilder" Static="true"/>
+    <Using Include="AutoMapper.Execution"/>
+    <Using Include="AutoMapper.Configuration"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AutoMapper.UnitTests, PublicKey=002400000480000094000000060200000024000052534131000400000100010079dfef85ed6ba841717e154f13182c0a6029a40794a6ecd2886c7dc38825f6a4c05b0622723a01cd080f9879126708eef58f134accdc99627947425960ac2397162067507e3c627992aa6b92656ad3380999b30b5d5645ba46cc3fcc6a1de5de7afebcf896c65fb4f9547a6c0c6433045fceccb1fa15e960d519d0cd694b29a4"/>
+    <InternalsVisibleTo Include="AutoMapper.IntegrationTests, PublicKey=002400000480000094000000060200000024000052534131000400000100010079dfef85ed6ba841717e154f13182c0a6029a40794a6ecd2886c7dc38825f6a4c05b0622723a01cd080f9879126708eef58f134accdc99627947425960ac2397162067507e3c627992aa6b92656ad3380999b30b5d5645ba46cc3fcc6a1de5de7afebcf896c65fb4f9547a6c0c6433045fceccb1fa15e960d519d0cd694b29a4"/>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 using AutoMapper.Features;
 using AutoMapper.Internal.Mappers;
 using AutoMapper.QueryableExtensions.Impl;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoMapper.Internal;
 
@@ -133,6 +134,7 @@ public interface IGlobalConfiguration : IConfigurationProvider
     /// <remarks>Some providers (such as EntityFrameworkQueryVisitor) do not work with this feature enabled!</remarks>
     /// </summary>
     bool EnableNullPropagationForQueryMapping { get; }
+    bool PolymorphicProjectionsEnabled { get; }
     /// <summary>
     /// Factory method to create formatters, resolvers and type converters
     /// </summary>
@@ -153,6 +155,8 @@ public interface IGlobalConfiguration : IConfigurationProvider
     DefaultExpression GetDefault(Type type);
     ParameterReplaceVisitor ParameterReplaceVisitor();
     ConvertParameterReplaceVisitor ConvertParameterReplaceVisitor();
+
+    string LicenseKey { get; }
 }
 [EditorBrowsable(EditorBrowsableState.Never)]
 public interface IProfileExpressionInternal : IProfileExpression

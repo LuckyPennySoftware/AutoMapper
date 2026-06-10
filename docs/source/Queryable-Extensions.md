@@ -43,7 +43,7 @@ You can use the Queryable Extensions like so:
 ```c#
 var configuration = new MapperConfiguration(cfg =>
     cfg.CreateProjection<OrderLine, OrderLineDTO>()
-    .ForMember(dto => dto.Item, conf => conf.MapFrom(ol => ol.Item.Name)));
+    .ForMember(dto => dto.Item, conf => conf.MapFrom(ol => ol.Item.Name)), loggerFactory);
 
 public List<OrderLineDTO> GetLinesForOrder(int orderId)
 {
@@ -107,7 +107,7 @@ In the case where members names don't line up, or you want to create calculated 
 ```c#
 var configuration = new MapperConfiguration(cfg => cfg.CreateProjection<Customer, CustomerDto>()
     .ForMember(d => d.FullName, opt => opt.MapFrom(c => c.FirstName + " " + c.LastName))
-    .ForMember(d => d.TotalContacts, opt => opt.MapFrom(c => c.Contacts.Count()));
+    .ForMember(d => d.TotalContacts, opt => opt.MapFrom(c => c.Contacts.Count())), loggerFactory);
 ```
 
 AutoMapper passes the supplied expression with the built projection. As long as your query provider can interpret the supplied expression, everything will be passed down all the way to the database.
@@ -168,7 +168,7 @@ dbContext.Orders.ProjectTo<OrderDto>(configuration,
     null,
     dest => dest.LineItems.Select(item => item.Product));
 ```
-For more information, see [the tests](https://github.com/AutoMapper/AutoMapper/search?p=1&q=ExplicitExpansion&utf8=%E2%9C%93).
+For more information, see [the tests](https://github.com/LuckyPennySoftware/AutoMapper/search?p=1&q=ExplicitExpansion&utf8=%E2%9C%93).
 
 ### Aggregations
 
@@ -217,6 +217,20 @@ Ideally, you would avoid models that reference themselves (do some research). Bu
 ```c#
 configuration.Internal().RecursiveQueriesMaxDepth = someRandomNumber;
 ```
+
+### Polymorphic Projection
+
+Many ORMs support inheritance and polymorphic models, including custom projection. For example, Entity Framework Core supports [inheritance](https://learn.microsoft.com/en-us/ef/core/modeling/inheritance) using a variety of mapping strategies.
+
+Some LINQ query providers also support polymorphic projections. AutoMapper attempts to use polymorphic projections when building the Select query. If there are problems attempting this and you encounter exceptions from the query provider, it's likely because the query provider cannot support polymorphic projections for your scenario.
+
+If this is the case, you can turn off polymorphic projection:
+
+```c#
+configuration.PolymorphicProjectionsEnabled = false;
+```
+
+AutoMapper will no longer attempt to check the source types to pick a specific destination type for LINQ projections.
 
 ### Supported mapping options
 

@@ -43,7 +43,7 @@ internal class NullsafeQueryRewriter : ExpressionVisitor
     protected override Expression VisitMember(MemberExpression node)
     {
         if (node == null)
-            throw new ArgumentNullException(nameof(node));
+            throw new System.ArgumentNullException(nameof(node));
 
         var target = Visit(node.Expression);
 
@@ -60,7 +60,7 @@ internal class NullsafeQueryRewriter : ExpressionVisitor
     protected override Expression VisitMethodCall(MethodCallExpression node)
     {
         if (node == null)
-            throw new ArgumentNullException(nameof(node));
+            throw new System.ArgumentNullException(nameof(node));
 
         var target = Visit(node.Object);
 

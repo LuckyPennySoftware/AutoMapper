@@ -2,11 +2,12 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 namespace AutoMapper.Execution;
+
 using static Internal.ReflectionHelper;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ExpressionBuilder
 {
-    public static readonly MethodInfo ObjectToString = typeof(object).GetMethod(nameof(object.ToString));
+    public static readonly MethodInfo ObjectToString = typeof(object).GetMethod(nameof(ToString));
     public static readonly Expression True = Constant(true, typeof(bool));
     public static readonly Expression Null = Expression.Default(typeof(object));
     public static readonly Expression Empty = Empty();
@@ -42,7 +43,7 @@ public static class ExpressionBuilder
         var variables = configuration?.Variables;
         if (variables == null)
         {
-            variables = new();
+            variables = [];
         }
         else
         {
@@ -51,7 +52,7 @@ public static class ExpressionBuilder
         var expressions = configuration?.Expressions;
         if (expressions == null)
         {
-            expressions = new();
+            expressions = [];
         }
         else
         {
@@ -168,10 +169,11 @@ public static class ExpressionBuilder
     public static Expression ContextMap(TypePair typePair, Expression sourceParameter, Expression destinationParameter, MemberMap memberMap)
     {
         var mapMethod = ContextMapMethod.MakeGenericMethod(typePair.SourceType, typePair.DestinationType);
-        return Expression.Call(ContextParameter, mapMethod, sourceParameter, destinationParameter, Constant(memberMap, typeof(MemberMap)));
+        var source = ToType(sourceParameter, typePair.SourceType);
+        return Expression.Call(ContextParameter, mapMethod, source, destinationParameter, Constant(memberMap, typeof(MemberMap)));
     }
     public static Expression CheckContext(TypeMap typeMap) => typeMap.PreserveReferences || typeMap.MaxDepth > 0 ? CheckContextCall : null;
-    public static Expression OverMaxDepth(TypeMap typeMap) => typeMap?.MaxDepth > 0 ? 
+    public static Expression OverMaxDepth(TypeMap typeMap) => typeMap?.MaxDepth > 0 ?
         Expression.Call(ContextParameter, OverTypeDepthMethod, Constant(typeMap)) : null;
     public static Expression NullSubstitute(this MemberMap memberMap, Expression sourceExpression) =>
         Coalesce(sourceExpression, ToType(Constant(memberMap.NullSubstitute), sourceExpression.Type));
@@ -180,12 +182,8 @@ public static class ExpressionBuilder
         var perMember = memberMap.ValueTransformers;
         var perMap = memberMap.TypeMap.ValueTransformers;
         var perProfile = memberMap.Profile.ValueTransformers;
-        var result = source;
-        if (perMember.Count > 0 || perMap.Count > 0 || perProfile.Count > 0)
-        {
-            result = memberMap.ApplyTransformers(source, configuration, perMember.Concat(perMap).Concat(perProfile));
-        }
-        return result;
+        return perMember.Count > 0 || perMap.Count > 0 || perProfile.Count > 0 ?
+            memberMap.ApplyTransformers(source, configuration, perMember.Concat(perMap).Concat(perProfile)) : source;
     }
     static Expression ApplyTransformers(this MemberMap memberMap, Expression result, IGlobalConfiguration configuration, IEnumerable<ValueTransformerConfiguration> transformers)
     {
@@ -234,7 +232,7 @@ public static class ExpressionBuilder
     }
     public static Stack<Member> GetChain(this Expression expression)
     {
-        var stack = new Stack<Member>();
+        Stack<Member> stack = [];
         while (expression != null)
         {
             var member = expression switch
@@ -256,14 +254,8 @@ public static class ExpressionBuilder
         }
         return stack;
     }
-    public static IEnumerable<MemberExpression> GetMemberExpressions(this Expression expression)
-    {
-        if (expression is not MemberExpression memberExpression)
-        {
-            return Array.Empty<MemberExpression>();
-        }
-        return expression.GetChain().Select(m => m.Expression as MemberExpression).TakeWhile(m => m != null);
-    }
+    public static IEnumerable<MemberExpression> GetMemberExpressions(this Expression expression) => expression is MemberExpression ?
+        expression.GetChain().Select(m => m.Expression as MemberExpression).TakeWhile(m => m != null) : [];
     public static bool IsMemberPath(this LambdaExpression lambda, out Stack<Member> members)
     {
         Expression currentExpression = null;
@@ -278,7 +270,7 @@ public static class ExpressionBuilder
         }
         return currentExpression == lambda.Body;
     }
-    public static LambdaExpression MemberAccessLambda(Type type, string memberPath, TypeMap typeMap) => 
+    public static LambdaExpression MemberAccessLambda(Type type, string memberPath, TypeMap typeMap) =>
         GetMemberPath(type, memberPath, typeMap).Lambda();
     public static Expression ForEach(List<ParameterExpression> variables, List<Expression> statements, ParameterExpression loopVar, Expression collection, Expression loopContent)
     {
@@ -383,7 +375,7 @@ public static class ExpressionBuilder
             return nullCheckedExpression;
         }
         expressions.Add(nullCheckedExpression);
-        return  Block(variables, expressions);
+        return Block(variables, expressions);
         Expression NullCheck(Expression variable)
         {
             var member = chain.Pop();
@@ -391,7 +383,7 @@ public static class ExpressionBuilder
             if (chain.Count == 0)
             {
                 var updated = UpdateTarget(expression, variable);
-                return  skipNullCheck ? updated : variable.IfNullElse(defaultReturn, updated);
+                return skipNullCheck ? updated : variable.IfNullElse(defaultReturn, updated);
             }
             if (variables == null)
             {
@@ -409,7 +401,7 @@ public static class ExpressionBuilder
             MemberExpression memberExpression => memberExpression.Update(newTarget),
             MethodCallExpression { Object: null, Arguments: var args } methodCall when args[0] != newTarget =>
                 ExtensionMethod(methodCall.Method, newTarget, args),
-            MethodCallExpression { Object: Expression target } methodCall when target != newTarget => 
+            MethodCallExpression { Object: Expression target } methodCall when target != newTarget =>
                 Expression.Call(newTarget, methodCall.Method, methodCall.Arguments),
             _ => sourceExpression,
         };
@@ -446,6 +438,6 @@ public class ParameterReplaceVisitor : ReplaceVisitorBase
 }
 public class ConvertParameterReplaceVisitor : ParameterReplaceVisitor
 {
-    public override Expression Replace(Expression target, Expression oldNode, Expression newNode) => 
+    public override Expression Replace(Expression target, Expression oldNode, Expression newNode) =>
         base.Replace(target, oldNode, ToType(newNode, oldNode.Type));
 }

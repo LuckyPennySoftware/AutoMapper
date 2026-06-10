@@ -32,7 +32,7 @@ public static class Extensions
     /// <param name="membersToExpand">Explicit members to expand</param>
     /// <returns>Expression to project into</returns>
     public static IQueryable<TDestination> ProjectTo<TDestination>(this IQueryable source, IConfigurationProvider configuration,
-        params Expression<Func<TDestination, object>>[] membersToExpand) => 
+        params Expression<Func<TDestination, object>>[] membersToExpand) =>
         source.ProjectTo(configuration, null, membersToExpand);
     /// <summary>
     /// Projects the source type to the destination type given the mapping configuration
@@ -53,7 +53,7 @@ public static class Extensions
     /// <param name="destinationType">Destination type</param>
     /// <param name="configuration">Mapper configuration</param>
     /// <returns>Expression to project into</returns>
-    public static IQueryable ProjectTo(this IQueryable source, Type destinationType, IConfigurationProvider configuration) => 
+    public static IQueryable ProjectTo(this IQueryable source, Type destinationType, IConfigurationProvider configuration) =>
         source.ProjectTo(destinationType, configuration, null);
     /// <summary>
     /// Projects the source type to the destination type given the mapping configuration
@@ -74,12 +74,12 @@ public static class Extensions
 }
 public sealed class MemberVisitor : ExpressionVisitor
 {
-    private readonly List<MemberInfo> _members = new();
+    private readonly List<MemberInfo> _members = [];
     public static MemberInfo[] GetMemberPath(Expression expression)
     {
-        var memberVisitor = new MemberVisitor();
+        MemberVisitor memberVisitor = new();
         memberVisitor.Visit(expression);
-        return memberVisitor._members.ToArray();
+        return [.. memberVisitor._members];
     }
     protected override Expression VisitMember(MemberExpression node)
     {

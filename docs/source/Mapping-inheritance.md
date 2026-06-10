@@ -58,7 +58,7 @@ var configuration = new MapperConfiguration(cfg => {
         .Include<MailOrder, MailOrderDto>();
     cfg.CreateMap<OnlineOrder, OnlineOrderDto>();
     cfg.CreateMap<MailOrder, MailOrderDto>();
-});
+}, loggerFactory);
 
 // Perform Mapping
 var order = new OnlineOrder();
@@ -80,7 +80,7 @@ var configuration = new MapperConfiguration(cfg => {
     .IncludeBase<Order, OrderDto>();
   cfg.CreateMap<MailOrder, MailOrderDto>()
     .IncludeBase<Order, OrderDto>();
-});
+}, loggerFactory);
 ```
 
 ## As
@@ -128,7 +128,7 @@ var configuration = new MapperConfiguration(cfg => {
         .ForMember(o=>o.Referrer, m=>m.Ignore());
     cfg.CreateMap<OnlineOrder, OrderDto>();
     cfg.CreateMap<MailOrder, OrderDto>();
-});
+}, loggerFactory);
 
 // Perform Mapping
 var order = new OnlineOrder { Referrer = "google" };

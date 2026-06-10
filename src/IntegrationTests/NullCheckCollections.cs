@@ -1,5 +1,5 @@
 ﻿namespace AutoMapper.IntegrationTests;
-public class NullCheckCollectionsFirstOrDefault : IntegrationTest<NullCheckCollectionsFirstOrDefault.DatabaseInitializer>
+public class NullCheckCollectionsFirstOrDefault(DatabaseFixture databaseFixture) : IntegrationTest<NullCheckCollectionsFirstOrDefault.DatabaseInitializer>(databaseFixture)
 {
     public class SourceType
     {
@@ -29,13 +29,13 @@ public class NullCheckCollectionsFirstOrDefault : IntegrationTest<NullCheckColle
     [Fact]
     public void Should_project_ok()
     {
-        using (var context = new TestContext())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<DestinationType>(context.SourceTypes).Single().Index.ShouldBe(101);
         }
     }
 }
-public class NullChildItemTest : IntegrationTest<NullChildItemTest.DatabaseInitializer>
+public class NullChildItemTest(DatabaseFixture databaseFixture) : IntegrationTest<NullChildItemTest.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg => cfg.CreateProjection<Parent, ParentDto>());
     public class TestContext : LocalDbContext
@@ -53,7 +53,7 @@ public class NullChildItemTest : IntegrationTest<NullChildItemTest.DatabaseIniti
     [Fact]
     public void Should_project_null_value()
     {
-        using (var context = new TestContext())
+        using (var context = Fixture.CreateContext())
         {
             var query = ProjectTo<ParentDto>(context.Parents);
             var projected = query.Single();
@@ -89,7 +89,7 @@ public class NullChildItemTest : IntegrationTest<NullChildItemTest.DatabaseIniti
         public int Value { get; set; }
     }
 }
-public class NullCheckCollections : IntegrationTest<NullCheckCollections.DatabaseInitializer>
+public class NullCheckCollections(DatabaseFixture databaseFixture) : IntegrationTest<NullCheckCollections.DatabaseInitializer>(databaseFixture)
 {
     public class Student
     {
@@ -143,7 +143,7 @@ public class NullCheckCollections : IntegrationTest<NullCheckCollections.Databas
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<StudentViewModel>(context.Students).Single().Name.ShouldBe("Bob");
         }

@@ -4,7 +4,7 @@
 var config = new MapperConfiguration(cfg => {
     cfg.AddProfile<AppProfile>();
     cfg.CreateMap<Source, Dest>();
-});
+}, loggerFactory);
 
 var mapper = config.CreateMapper();
 // or
@@ -23,7 +23,7 @@ cfg.CreateMap<Source, Dest>();
 cfg.AddProfile<MyProfile>();
 MyBootstrapper.InitAutoMapper(cfg);
 
-var mapperConfig = new MapperConfiguration(cfg);
+var mapperConfig = new MapperConfiguration(cfg, loggerFactory);
 IMapper mapper = new Mapper(mapperConfig);
 
 ```

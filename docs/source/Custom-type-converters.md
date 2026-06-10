@@ -52,7 +52,7 @@ public void Example()
       cfg.CreateMap<string, DateTime>().ConvertUsing(new DateTimeTypeConverter());
       cfg.CreateMap<string, Type>().ConvertUsing<TypeTypeConverter>();
       cfg.CreateMap<Source, Destination>();
-    });
+    }, loggerFactory);
     configuration.AssertConfigurationIsValid();
 
     var source = new Source

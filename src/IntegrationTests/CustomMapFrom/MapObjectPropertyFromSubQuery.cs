@@ -1,10 +1,10 @@
 ﻿namespace AutoMapper.IntegrationTests.CustomMapFrom;
-public class MultipleLevelsSubquery : IntegrationTest<MultipleLevelsSubquery.DatabaseInitializer>
+public class MultipleLevelsSubquery(DatabaseFixture databaseFixture) : IntegrationTest<MultipleLevelsSubquery.DatabaseInitializer>(databaseFixture)
 {
     [Fact]
     public void Should_work()
     {
-        using var context = new Context();
+        using var context = Fixture.CreateContext();
         var resultQuery = ProjectTo<FooModel>(context.Foos);
         resultQuery.Single().MyBar.MyBaz.FirstWidget.Id.ShouldBe(1);
     }
@@ -87,7 +87,7 @@ public class MultipleLevelsSubquery : IntegrationTest<MultipleLevelsSubquery.Dat
         public int BazId { get; set; }
     }
 }
-public class MemberWithSubQueryProjections : IntegrationTest<MemberWithSubQueryProjections.DatabaseInitializer>
+public class MemberWithSubQueryProjections(DatabaseFixture databaseFixture) : IntegrationTest<MemberWithSubQueryProjections.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -145,7 +145,7 @@ public class MemberWithSubQueryProjections : IntegrationTest<MemberWithSubQueryP
     [Fact]
     public void Should_work()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var resultQuery = ProjectTo<CustomerViewModel>(context.Customers);
             var result = resultQuery.Single();
@@ -156,7 +156,7 @@ public class MemberWithSubQueryProjections : IntegrationTest<MemberWithSubQueryP
         }
     }
 }
-public class MemberWithSubQueryProjectionsNoMap : IntegrationTest<MemberWithSubQueryProjectionsNoMap.DatabaseInitializer>
+public class MemberWithSubQueryProjectionsNoMap(DatabaseFixture databaseFixture) : IntegrationTest<MemberWithSubQueryProjectionsNoMap.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -208,7 +208,7 @@ public class MemberWithSubQueryProjectionsNoMap : IntegrationTest<MemberWithSubQ
     [Fact]
     public void Should_work()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var resultQuery = ProjectTo<CustomerViewModel>(context.Customers);
             var result = resultQuery.Single();
@@ -218,7 +218,7 @@ public class MemberWithSubQueryProjectionsNoMap : IntegrationTest<MemberWithSubQ
         }
     }
 }
-public class MapObjectPropertyFromSubQueryTypeNameMax : IntegrationTest<MapObjectPropertyFromSubQueryTypeNameMax.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryTypeNameMax(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryTypeNameMax.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -231,7 +231,7 @@ public class MapObjectPropertyFromSubQueryTypeNameMax : IntegrationTest<MapObjec
     [Fact]
     public void Should_cache_the_subquery()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductModel>(context.Products);
             var counter = new FirstOrDefaultCounter();
@@ -328,7 +328,7 @@ public class MapObjectPropertyFromSubQueryTypeNameMax : IntegrationTest<MapObjec
     }
 }
 
-public class MapObjectPropertyFromSubQueryExplicitExpansion : IntegrationTest<MapObjectPropertyFromSubQueryExplicitExpansion.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryExplicitExpansion(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryExplicitExpansion.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -345,7 +345,7 @@ public class MapObjectPropertyFromSubQueryExplicitExpansion : IntegrationTest<Ma
     [Fact]
     public void Should_map_ok()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductModel>(context.Products);
             var counter = new FirstOrDefaultCounter();
@@ -417,7 +417,7 @@ public class MapObjectPropertyFromSubQueryExplicitExpansion : IntegrationTest<Ma
     }
 }
 
-public class MapObjectPropertyFromSubQuery : IntegrationTest<MapObjectPropertyFromSubQuery.DatabaseInitializer>
+public class MapObjectPropertyFromSubQuery(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQuery.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -430,7 +430,7 @@ public class MapObjectPropertyFromSubQuery : IntegrationTest<MapObjectPropertyFr
     [Fact]
     public void Should_cache_the_subquery()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductModel>(context.Products);
             var counter = new FirstOrDefaultCounter();
@@ -505,7 +505,7 @@ public class MapObjectPropertyFromSubQuery : IntegrationTest<MapObjectPropertyFr
     }
 }
 
-public class MapObjectPropertyFromSubQueryWithInnerObject : IntegrationTest<MapObjectPropertyFromSubQueryWithInnerObject.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryWithInnerObject(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryWithInnerObject.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -519,7 +519,7 @@ public class MapObjectPropertyFromSubQueryWithInnerObject : IntegrationTest<MapO
     [Fact]
     public void Should_cache_the_subquery()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductArticleModel>(context.ProductArticles);
             var counter = new FirstOrDefaultCounter();
@@ -600,7 +600,7 @@ public class MapObjectPropertyFromSubQueryWithInnerObject : IntegrationTest<MapO
     }
 }
 
-public class MapObjectPropertyFromSubQueryWithCollection : IntegrationTest<MapObjectPropertyFromSubQueryWithCollection.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryWithCollection(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryWithCollection.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -614,7 +614,7 @@ public class MapObjectPropertyFromSubQueryWithCollection : IntegrationTest<MapOb
     [Fact]
     public void Should_cache_the_subquery()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductArticleModel>(context.ProductArticles);
             var counter = new FirstOrDefaultCounter();
@@ -700,7 +700,8 @@ public class MapObjectPropertyFromSubQueryWithCollection : IntegrationTest<MapOb
     }
 }
 
-public class MapObjectPropertyFromSubQueryWithCollectionSameName : NonValidatingSpecBase, IAsyncLifetime
+public class MapObjectPropertyFromSubQueryWithCollectionSameName(DatabaseFixture databaseFixture) 
+    : IntegrationTest<MapObjectPropertyFromSubQueryWithCollectionSameName.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -716,7 +717,7 @@ public class MapObjectPropertyFromSubQueryWithCollectionSameName : NonValidating
     [Fact]
     public void Should_cache_the_subquery()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductArticleModel>(context.ProductArticles);
             var counter = new FirstOrDefaultCounter();
@@ -815,17 +816,9 @@ public class MapObjectPropertyFromSubQueryWithCollectionSameName : NonValidating
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductArticle> ProductArticles { get; set; }
     }
-    public async Task InitializeAsync()
-    {
-        var initializer = new DatabaseInitializer();
-
-        await initializer.Migrate();
-    }
-
-    public Task DisposeAsync() => Task.CompletedTask;
 }
 
-public class SubQueryWithMapFromNullable : IntegrationTest<SubQueryWithMapFromNullable.DatabaseInitializer>
+public class SubQueryWithMapFromNullable(DatabaseFixture databaseFixture) : IntegrationTest<SubQueryWithMapFromNullable.DatabaseInitializer>(databaseFixture)
 {
     // Source Types
     public class Cable
@@ -918,7 +911,7 @@ public class SubQueryWithMapFromNullable : IntegrationTest<SubQueryWithMapFromNu
     [Fact]
     public void Should_project_ok()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<CableListModel>(context.Cables);
             var result = projection.Single();
@@ -928,7 +921,7 @@ public class SubQueryWithMapFromNullable : IntegrationTest<SubQueryWithMapFromNu
     }
 }
 
-public class MapObjectPropertyFromSubQueryCustomSource : IntegrationTest<MapObjectPropertyFromSubQueryCustomSource.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryCustomSource(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryCustomSource.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -999,7 +992,7 @@ public class MapObjectPropertyFromSubQueryCustomSource : IntegrationTest<MapObje
     [Fact]
     public void Should_project_ok()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductReviewDto>(context.ProductReviews);
             var results = projection.ToArray();
@@ -1010,7 +1003,7 @@ public class MapObjectPropertyFromSubQueryCustomSource : IntegrationTest<MapObje
     }
 }
 
-public class MemberWithSubQueryIdentity : IntegrationTest<MemberWithSubQueryIdentity.DatabaseInitializer>
+public class MemberWithSubQueryIdentity(DatabaseFixture databaseFixture) : IntegrationTest<MemberWithSubQueryIdentity.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new MapperConfiguration(cfg =>
     {
@@ -1023,7 +1016,7 @@ public class MemberWithSubQueryIdentity : IntegrationTest<MemberWithSubQueryIden
     [Fact]
     public void Should_work()
     {
-        var query = ProjectTo<Dto>(new ClientContext().AEntities);
+        var query = ProjectTo<Dto>(Fixture.CreateContext().AEntities);
         var result = query.Single();
         result.DtoSubWrapper.DtoSub.ShouldNotBeNull();
         result.DtoSubWrapper.DtoSub.SubString.ShouldBe("Test");
@@ -1105,12 +1098,12 @@ public class MemberWithSubQueryIdentity : IntegrationTest<MemberWithSubQueryIden
     }
 }
 
-public class MultipleLevelsSubqueryWithInheritance : IntegrationTest<MultipleLevelsSubqueryWithInheritance.DatabaseInitializer>
+public class MultipleLevelsSubqueryWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<MultipleLevelsSubqueryWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     [Fact]
     public void Should_work()
     {
-        using var context = new Context();
+        using var context = Fixture.CreateContext();
         var resultQuery = ProjectTo<FooModel>(context.Foos);
         resultQuery.Single().MyBar.MyBaz.FirstWidget.Id.ShouldBe(1);
     }
@@ -1193,7 +1186,7 @@ public class MultipleLevelsSubqueryWithInheritance : IntegrationTest<MultipleLev
         public int BazId { get; set; }
     }
 }
-public class MemberWithSubQueryProjectionsWithInheritance : IntegrationTest<MemberWithSubQueryProjectionsWithInheritance.DatabaseInitializer>
+public class MemberWithSubQueryProjectionsWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<MemberWithSubQueryProjectionsWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -1303,7 +1296,7 @@ public class MemberWithSubQueryProjectionsWithInheritance : IntegrationTest<Memb
     [Fact]
     public void Should_work()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var resultQuery = ProjectTo<CustomerViewModel>(context.Customers.OrderBy(p => p.FirstName));
             var list = resultQuery.ToList();
@@ -1327,7 +1320,7 @@ public class MemberWithSubQueryProjectionsWithInheritance : IntegrationTest<Memb
         }
     }
 }
-public class MemberWithSubQueryProjectionsNoMapWithInheritance : IntegrationTest<MemberWithSubQueryProjectionsNoMapWithInheritance.DatabaseInitializer>
+public class MemberWithSubQueryProjectionsNoMapWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<MemberWithSubQueryProjectionsNoMapWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     public class Customer
     {
@@ -1420,7 +1413,7 @@ public class MemberWithSubQueryProjectionsNoMapWithInheritance : IntegrationTest
     [Fact]
     public void Should_work()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var resultQuery = ProjectTo<CustomerViewModel>(context.Customers.OrderBy(p => p.FirstName));
             var list = resultQuery.ToList();
@@ -1441,7 +1434,7 @@ public class MemberWithSubQueryProjectionsNoMapWithInheritance : IntegrationTest
         }
     }
 }
-public class MapObjectPropertyFromSubQueryTypeNameMaxWithInheritance : IntegrationTest<MapObjectPropertyFromSubQueryTypeNameMaxWithInheritance.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryTypeNameMaxWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryTypeNameMaxWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -1459,7 +1452,7 @@ public class MapObjectPropertyFromSubQueryTypeNameMaxWithInheritance : Integrati
     [Fact]
     public void Should_cache_the_subquery()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductModel>(context.Products.OrderBy(p => p.Name));
             var counter = new FirstOrDefaultCounter();
@@ -1592,7 +1585,7 @@ public class MapObjectPropertyFromSubQueryTypeNameMaxWithInheritance : Integrati
         }
     }
 }
-public class MapObjectPropertyFromSubQueryExplicitExpansionWithInheritance : IntegrationTest<MapObjectPropertyFromSubQueryExplicitExpansionWithInheritance.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryExplicitExpansionWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryExplicitExpansionWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -1615,7 +1608,7 @@ public class MapObjectPropertyFromSubQueryExplicitExpansionWithInheritance : Int
     [Fact]
     public void Should_map_ok()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductModel>(context.Products.OrderBy(p => p.Name));
             var counter = new FirstOrDefaultCounter();
@@ -1725,7 +1718,7 @@ public class MapObjectPropertyFromSubQueryExplicitExpansionWithInheritance : Int
         }
     }
 }
-public class MapObjectPropertyFromSubQueryWithInheritance : IntegrationTest<MapObjectPropertyFromSubQueryWithInheritance.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -1742,7 +1735,7 @@ public class MapObjectPropertyFromSubQueryWithInheritance : IntegrationTest<MapO
     [Fact]
     public void Should_cache_the_subquery()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductModel>(context.Products.OrderBy(p => p.Name));
             var counter = new FirstOrDefaultCounter();
@@ -1854,7 +1847,7 @@ public class MapObjectPropertyFromSubQueryWithInheritance : IntegrationTest<MapO
         }
     }
 }
-public class MapObjectPropertyFromSubQueryWithInnerObjectWithInheritance : IntegrationTest<MapObjectPropertyFromSubQueryWithInnerObjectWithInheritance.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryWithInnerObjectWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryWithInnerObjectWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -1873,7 +1866,7 @@ public class MapObjectPropertyFromSubQueryWithInnerObjectWithInheritance : Integ
     [Fact]
     public void Should_cache_the_subquery()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductArticleModel>(context.ProductArticles.OrderBy(p => p.Name));
             var counter = new FirstOrDefaultCounter();
@@ -2006,7 +1999,7 @@ public class MapObjectPropertyFromSubQueryWithInnerObjectWithInheritance : Integ
         }
     }
 }
-public class MapObjectPropertyFromSubQueryWithCollectionWithInheritance : IntegrationTest<MapObjectPropertyFromSubQueryWithCollectionWithInheritance.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryWithCollectionWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryWithCollectionWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -2024,7 +2017,7 @@ public class MapObjectPropertyFromSubQueryWithCollectionWithInheritance : Integr
     [Fact]
     public void Should_cache_the_subquery()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductArticleModel>(context.ProductArticles.OrderBy(p => p.Name));
             var counter = new FirstOrDefaultCounter();
@@ -2143,7 +2136,8 @@ public class MapObjectPropertyFromSubQueryWithCollectionWithInheritance : Integr
         }
     }
 }
-public class MapObjectPropertyFromSubQueryWithCollectionSameNameWithInheritance : NonValidatingSpecBase, IAsyncLifetime
+public class MapObjectPropertyFromSubQueryWithCollectionSameNameWithInheritance(DatabaseFixture databaseFixture) 
+    : IntegrationTest<MapObjectPropertyFromSubQueryWithCollectionSameNameWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -2167,7 +2161,7 @@ public class MapObjectPropertyFromSubQueryWithCollectionSameNameWithInheritance 
     [Fact]
     public void Should_cache_the_subquery()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductArticleModel>(context.ProductArticles.OrderBy(p => p.Name));
             var counter = new FirstOrDefaultCounter();
@@ -2308,16 +2302,8 @@ public class MapObjectPropertyFromSubQueryWithCollectionSameNameWithInheritance 
             modelBuilder.Entity<ProductArticleB>();
         }
     }
-    public async Task InitializeAsync()
-    {
-        var initializer = new DatabaseInitializer();
-
-        await initializer.Migrate();
-    }
-
-    public Task DisposeAsync() => Task.CompletedTask;
 }
-public class SubQueryWithMapFromNullableWithInheritance : IntegrationTest<SubQueryWithMapFromNullableWithInheritance.DatabaseInitializer>
+public class SubQueryWithMapFromNullableWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<SubQueryWithMapFromNullableWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     // Source Types
     public class Cable
@@ -2454,7 +2440,7 @@ public class SubQueryWithMapFromNullableWithInheritance : IntegrationTest<SubQue
     [Fact]
     public void Should_project_ok()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<CableListModel>(context.Cables.OrderBy(c => c.Name));
             var list = projection.ToList();
@@ -2475,7 +2461,7 @@ public class SubQueryWithMapFromNullableWithInheritance : IntegrationTest<SubQue
         }
     }
 }
-public class MapObjectPropertyFromSubQueryCustomSourceWithInheritance : IntegrationTest<MapObjectPropertyFromSubQueryCustomSourceWithInheritance.DatabaseInitializer>
+public class MapObjectPropertyFromSubQueryCustomSourceWithInheritance(DatabaseFixture databaseFixture) : IntegrationTest<MapObjectPropertyFromSubQueryCustomSourceWithInheritance.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -2572,7 +2558,7 @@ public class MapObjectPropertyFromSubQueryCustomSourceWithInheritance : Integrat
     [Fact]
     public void Should_project_ok()
     {
-        using (var context = new ClientContext())
+        using (var context = Fixture.CreateContext())
         {
             var projection = ProjectTo<ProductReviewDto>(context.ProductReviews);
             var results = projection.ToArray();

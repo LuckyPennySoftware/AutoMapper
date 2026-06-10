@@ -12,7 +12,7 @@ dynamic foo = new MyDynamicObject();
 foo.Bar = 5;
 foo.Baz = 6;
 
-var configuration = new MapperConfiguration(cfg => {});
+var configuration = new MapperConfiguration(cfg => {}, loggerFactory);
 
 var result = mapper.Map<Foo>(foo);
 result.Bar.ShouldEqual(5);

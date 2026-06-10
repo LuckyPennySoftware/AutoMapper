@@ -38,7 +38,7 @@ public class CustomValidations
                 cfg.CreateMap<Source, Dest>();
             });
 
-            config.AssertConfigurationIsValid();
+            new Action(config.AssertConfigurationIsValid).ShouldThrow<AutoMapperConfigurationException>().Message.ShouldBe(nameof(When_using_custom_validation));
 
             _calledForRoot.ShouldBeTrue();
             _calledForValues.ShouldBeTrue();
@@ -55,6 +55,7 @@ public class CustomValidations
                 context.Types.DestinationType.ShouldBe(typeof(Dest));
                 context.ObjectMapper.ShouldBeNull();
                 context.MemberMap.ShouldBeNull();
+                context.Exceptions.Add(new AutoMapperConfigurationException(nameof(When_using_custom_validation)));
             }
             else
             {

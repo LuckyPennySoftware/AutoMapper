@@ -1,0 +1,34 @@
+<Solution>
+  <Configurations>
+    <BuildConfiguration Name="Debug" />
+    <BuildConfiguration Name="Release" />
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/release.yml" />
+    <File Path="AutoMapper.snk" />
+    <File Path="Build.ps1" />
+    <File Path="CONTRIBUTING.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="icon.png" />
+    <File Path="ISSUE_TEMPLATE.md" />
+    <File Path="nuget.config" />
+    <File Path="Push.ps1" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/AutoMapper.DI.Tests/AutoMapper.DI.Tests.csproj" />
+  <Project Path="src/AutoMapper/AutoMapper.csproj" />
+  <Project Path="src/Benchmark/Benchmark.csproj">
+    <Build Solution="*|ARM" Project="false" />
+    <Build Solution="*|x64" Project="false" />
+    <Build Solution="*|x86" Project="false" />
+  </Project>
+  <Project Path="src/IntegrationTests/AutoMapper.IntegrationTests.csproj" />
+  <Project Path="src/TestApp/TestApp.csproj" />
+  <Project Path="src/UnitTests/AutoMapper.UnitTests.csproj" />
+</Solution>

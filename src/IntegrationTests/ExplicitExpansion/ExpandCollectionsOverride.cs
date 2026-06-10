@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.ExplicitExpansion;
 
-public class ExpandCollectionsOverride : IntegrationTest<ExpandCollectionsOverride.DatabaseInitializer>
+public class ExpandCollectionsOverride(DatabaseFixture databaseFixture) : IntegrationTest<ExpandCollectionsOverride.DatabaseInitializer>(databaseFixture)
 {
     TrainingCourseDto _course;
 
@@ -17,7 +17,7 @@ public class ExpandCollectionsOverride : IntegrationTest<ExpandCollectionsOverri
 
     [Fact]
     public void Should_notexpand_courseName() {
-        using (var context = new ClientContext()) {
+        using (var context = Fixture.CreateContext()) {
             _course = ProjectTo<TrainingCourseDto>(context.TrainingCourses).FirstOrDefault();
         }
         _course.CourseName.ShouldBeNull();
@@ -25,7 +25,7 @@ public class ExpandCollectionsOverride : IntegrationTest<ExpandCollectionsOverri
 
     [Fact]
     public void Should_expand_courseName() {
-        using (var context = new ClientContext()) {
+        using (var context = Fixture.CreateContext()) {
             _course = ProjectTo<TrainingCourseDetailDto>(context.TrainingCourses).FirstOrDefault();
         }
         _course.CourseName.ShouldBe("Course 1");

@@ -47,7 +47,7 @@ In the below example, we'll use the first option, telling AutoMapper the custom 
 ```c#
 var configuration = new MapperConfiguration(cfg =>
    cfg.CreateMap<Source, Destination>()
-	 .ForMember(dest => dest.Total, opt => opt.MapFrom<CustomResolver>()));
+	 .ForMember(dest => dest.Total, opt => opt.MapFrom<CustomResolver>()), loggerFactory);
 configuration.AssertConfigurationIsValid();
 
 var source = new Source
@@ -83,7 +83,7 @@ If we don't want AutoMapper to use reflection to create the instance, we can sup
 var configuration = new MapperConfiguration(cfg => cfg.CreateMap<Source, Destination>()
 	.ForMember(dest => dest.Total,
 		opt => opt.MapFrom(new CustomResolver())
-	));
+	), loggerFactory);
 ```
 
 AutoMapper will use that specific object, helpful in scenarios where the resolver might have constructor arguments or need to be constructed by an IoC container.
@@ -104,7 +104,7 @@ cfg.CreateMap<Source, Destination>()
 cfg.CreateMap<OtherSource, OtherDest>()
     .ForMember(dest => dest.OtherTotal,
         opt => opt.MapFrom<CustomResolver, decimal>(src => src.OtherSubTotal));
-});
+}, loggerFactory);
 
 public class CustomResolver : IMemberValueResolver<object, object, decimal, decimal> {
     public decimal Resolve(object source, object destination, decimal sourceMember, decimal destinationMember, ResolutionContext context) {
@@ -131,7 +131,7 @@ Starting with version 13.0, you can use `context.State` instead, in a similar wa
 
 ### ForPath
 
-Similar to ForMember, from 6.1.0 there is ForPath. Check out [the tests](https://github.com/AutoMapper/AutoMapper/search?utf8=%E2%9C%93&q=ForPath&type=) for examples.
+Similar to ForMember, from 6.1.0 there is ForPath. Check out [the tests](https://github.com/LuckyPennySoftware/AutoMapper/search?utf8=%E2%9C%93&q=ForPath&type=) for examples.
 
 ### Resolvers and conditions
 

@@ -67,6 +67,18 @@ public class When_mapping_to_dynamic
         Assert.Equal(12, _destination.Baz);
         ((int[])_destination.Data).SequenceEqual(data).ShouldBeTrue();
     }
+    [Fact]
+    public void Should_map_to_ExpandoObject()
+    {
+        var config = new MapperConfiguration(cfg => { });
+        var data = new[] { 1, 2, 3 };
+        _destination = config.CreateMapper().Map<ExpandoObject>(new Destination { Foo = "Foo", Bar = "Bar", Data = data, Baz = 12 });
+        ((IDictionary<string, object>)_destination).Count.ShouldBe(4);
+        Assert.Equal("Foo", _destination.Foo);
+        Assert.Equal("Bar", _destination.Bar);
+        Assert.Equal(12, _destination.Baz);
+        ((int[])_destination.Data).SequenceEqual(data).ShouldBeTrue();
+    }
 }
 
 public class When_mapping_from_dynamic

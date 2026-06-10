@@ -3,12 +3,17 @@ name: CI
 on:
   push:
     branches:
-    - master
+    - main
   pull_request:
-    branches:
-      - master
+  workflow_dispatch:
+env:
+    DOTNET_NOLOGO: true
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    MINVERBUILDMETADATA: build.${{ github.run_id }}.${{ github.run_attempt}}
 permissions:
+  id-token: write
   contents: read
+  checks: write
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -16,26 +21,78 @@ jobs:
   build:
     strategy:
       fail-fast: false
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4.2.0
       with:
         fetch-depth: 0
-    - name: Install SQL Local DB
-      run: ./Setup.ps1
-      shell: pwsh
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
     - name: Build and Test
       run: ./Build.ps1
       shell: pwsh
-    - name: Push to MyGet
-      env:
-        NUGET_URL: https://www.myget.org/F/automapperdev/api/v3/index.json
-        NUGET_API_KEY: ${{ secrets.MYGET_CI_API_KEY }}
-      run: ./Push.ps1
-      shell: pwsh
-    - name: Artifacts
-      uses: actions/upload-artifact@v2
+    - name: Report Test Results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
       with:
-        name: artifacts
-        path: artifacts/**/*
+        name: Test Results (Linux)
+        path: artifacts/**/*.trx
+        reporter: dotnet-trx
+  build-windows:
+    needs: build
+    strategy:
+      fail-fast: false
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.0
+        with:
+          fetch-depth: 0
+      - name: Azure Login via OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+      - name: Install NuGetKeyVaultSignTool
+        run: dotnet tool install --global NuGetKeyVaultSignTool
+      - name: Build and Test
+        run: ./Build.ps1
+        shell: pwsh
+      - name: Report Test Results
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Test Results (Windows)
+          path: artifacts/**/*.trx
+          reporter: dotnet-trx
+      - name: Sign packages
+        run: |-
+          foreach ($f in Get-ChildItem "./artifacts" -Filter "*.nupkg") {
+            NuGetKeyVaultSignTool sign $f.FullName --file-digest sha256 --timestamp-rfc3161 http://timestamp.digicert.com --azure-key-vault-managed-identity --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} --azure-key-vault-certificate ${{ secrets.CODESIGN_CERT_NAME }}
+          }
+      - name: Push to MyGet
+        if: github.ref == 'refs/heads/main'
+        env:
+          NUGET_URL: https://f.feedz.io/lucky-penny-software/automapper/nuget/index.json
+          NUGET_API_KEY: ${{ secrets.FEEDZIO_ACCESS_TOKEN }}
+        run: ./Push.ps1
+        shell: pwsh
+      - name: Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: artifacts/**/*

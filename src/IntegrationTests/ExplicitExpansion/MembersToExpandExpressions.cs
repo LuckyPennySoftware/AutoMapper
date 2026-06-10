@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.ExplicitExpansion;
 
-public class MembersToExpandExpressions  : AutoMapperSpecBase, IAsyncLifetime
+public class MembersToExpandExpressions(DatabaseFixture databaseFixture)  : IntegrationTest<MembersToExpandExpressions.DatabaseInitializer>(databaseFixture)
 {
     public class SourceDeepInner
     {
@@ -47,7 +47,7 @@ public class MembersToExpandExpressions  : AutoMapperSpecBase, IAsyncLifetime
     [Fact]
     public void Should_project_ok()
     {
-        using (var context = new TestContext())
+        using (var context = Fixture.CreateContext())
         {
             ProjectTo<Dto>(context.Sources, null, _ => _.Name).First().Name.ShouldBe(_source.Name);
             ProjectTo<Dto>(context.Sources, null, _ => _.Desc).First().Desc.ShouldBe(_source.Desc);
@@ -56,12 +56,4 @@ public class MembersToExpandExpressions  : AutoMapperSpecBase, IAsyncLifetime
             ProjectTo<Dto>(context.Sources, null, _ => _.DeepFlattened).First().DeepFlattened.ShouldBe(_source.Inner.Deep.Desc);
         }
     }
-    public async Task InitializeAsync()
-    {
-        var initializer = new DatabaseInitializer();
-
-        await initializer.Migrate();
-    }
-
-    public Task DisposeAsync() => Task.CompletedTask;
 }

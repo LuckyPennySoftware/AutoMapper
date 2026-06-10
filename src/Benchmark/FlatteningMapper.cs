@@ -1,4 +1,6 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace Benchmark.Flattening;
 
 static class Config
@@ -50,7 +52,7 @@ static class Config
             cfg.AddProfile(new ComplexTypesProfile());
             cfg.AddProfile(new ConstructorProfile());
             cfg.AddProfile(new FlatteningProfile());
-        });
+        }, new NullLoggerFactory());
         //config.AssertConfigurationIsValid();
         return config.CreateMapper();
     }

@@ -1,6 +1,6 @@
 ﻿namespace AutoMapper.IntegrationTests.Inheritance;
 
-public class DerivedComplexTypes : IntegrationTest<DerivedComplexTypes.DatabaseInitializer>
+public class DerivedComplexTypes(DatabaseFixture databaseFixture) : IntegrationTest<DerivedComplexTypes.DatabaseInitializer>(databaseFixture)
 {
     [ComplexType]
     public class LocalizedString
@@ -67,7 +67,7 @@ public class DerivedComplexTypes : IntegrationTest<DerivedComplexTypes.DatabaseI
     [Fact]
     public void Can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var customerVm = ProjectTo<CustomerViewModel>(context.Customers).First();
             customerVm.Address.ShouldBe("home");

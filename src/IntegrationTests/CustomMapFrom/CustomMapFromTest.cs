@@ -1,13 +1,13 @@
 ﻿namespace AutoMapper.IntegrationTests.CustomMapFrom;
 
-public class CustomMapFromTest : IntegrationTest<CustomMapFromTest.DatabaseInitializer>
+public class CustomMapFromTest(DatabaseFixture databaseFixture) : IntegrationTest<CustomMapFromTest.DatabaseInitializer>(databaseFixture)
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg => cfg.CreateProjection<Customer, CustomerViewModel>()
             .ForMember(x => x.FullAddress, o => o.MapFrom(c => c.Address.Street + ", " + c.Address.City + " " + c.Address.State)));
     [Fact]
     public void can_map_with_projection()
     {
-        using (var context = new Context())
+        using (var context = Fixture.CreateContext())
         {
             var customerVms = context.Customers.Select(c => new CustomerViewModel
             {

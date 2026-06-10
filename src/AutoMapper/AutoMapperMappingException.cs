@@ -67,43 +67,29 @@ public class AutoMapperMappingException : Exception
         {
             return string.Join(Environment.NewLine,
                 base.StackTrace
-                    .Split(new[] {Environment.NewLine}, StringSplitOptions.None)
+                    .Split([Environment.NewLine], StringSplitOptions.None)
                     .Where(str => !str.TrimStart().StartsWith("at AutoMapper.")));
         }
     }
 #endif
 }
-public class DuplicateTypeMapConfigurationException : Exception
+public class DuplicateTypeMapConfigurationException(DuplicateTypeMapConfigurationException.TypeMapConfigErrors[] errors) : Exception
 {
-    public TypeMapConfigErrors[] Errors { get; }
-
-    public DuplicateTypeMapConfigurationException(TypeMapConfigErrors[] errors)
+    public TypeMapConfigErrors[] Errors { get; } = errors;
+    public override string Message { get; } = GetErrors(errors);
+    static string GetErrors(TypeMapConfigErrors[] errors)
     {
-        Errors = errors;
-        var builder = new StringBuilder();
+        StringBuilder builder = new();
         builder.AppendLine("Duplicate CreateMap calls:");
-        foreach (var error in Errors)
+        foreach (var error in errors)
         {
             builder.AppendLine($"{error.Types.SourceType.FullName} to {error.Types.DestinationType.FullName} defined in profiles:");
             builder.AppendLine(string.Join(Environment.NewLine, error.ProfileNames));
         }
         builder.AppendLine("This can cause configuration collisions and inconsistent mappings. Use a single CreateMap call per type pair.");
-        Message = builder.ToString();
+        return builder.ToString();
     }
-
-    public class TypeMapConfigErrors
-    {
-        public string[] ProfileNames { get; }
-        public TypePair Types { get; }
-
-        public TypeMapConfigErrors(TypePair types, string[] profileNames)
-        {
-            Types = types;
-            ProfileNames = profileNames;
-        }
-    }
-
-    public override string Message { get; }
+    public readonly record struct TypeMapConfigErrors(TypePair Types, string[] ProfileNames);
 }
 public class AutoMapperConfigurationException : Exception
 {
@@ -111,19 +97,7 @@ public class AutoMapperConfigurationException : Exception
     public TypePair? Types { get; }
     public MemberMap MemberMap { get; set; }
 
-    public class TypeMapConfigErrors
-    {
-        public TypeMap TypeMap { get; }
-        public string[] UnmappedPropertyNames { get; }
-        public bool CanConstruct { get; }
-
-        public TypeMapConfigErrors(TypeMap typeMap, string[] unmappedPropertyNames, bool canConstruct)
-        {
-            TypeMap = typeMap;
-            UnmappedPropertyNames = unmappedPropertyNames;
-            CanConstruct = canConstruct;
-        }
-    }
+    public readonly record struct TypeMapConfigErrors(TypeMap TypeMap, string[] UnmappedPropertyNames, bool CanConstruct);
 
     public AutoMapperConfigurationException(string message)
         : base(message)
@@ -170,8 +144,7 @@ public class AutoMapperConfigurationException : Exception
             }
             if (Errors != null)
             {
-                var message =
-                    new StringBuilder(
+                StringBuilder message = new(
                         "\nUnmapped members were found. Review the types and members below.\nAdd a custom mapping expression, ignore, add a custom resolver, or modify the source/destination type\nFor no matching constructor, add a no-arg ctor, add optional arguments, or map all of the constructor parameters\n");
 
                 foreach (var error in Errors)
@@ -179,7 +152,7 @@ public class AutoMapperConfigurationException : Exception
                     var len = error.TypeMap.SourceType.FullName.Length +
                               error.TypeMap.DestinationType.FullName.Length + 5;
 
-                    message.AppendLine(new string('=', len));
+                    message.AppendLine(new('=', len));
                     message.AppendLine(error.TypeMap.SourceType.Name + " -> " + error.TypeMap.DestinationType.Name +
                                        " (" +
                                        error.TypeMap.ConfiguredMemberList + " member list)");
@@ -214,7 +187,7 @@ public class AutoMapperConfigurationException : Exception
             if (Errors != null)
                 return string.Join(Environment.NewLine,
                     base.StackTrace
-                        .Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+                        .Split([Environment.NewLine], StringSplitOptions.None)
                         .Where(str => !str.TrimStart().StartsWith("at AutoMapper."))
                         .ToArray());
 

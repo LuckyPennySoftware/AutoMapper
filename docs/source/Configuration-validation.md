@@ -17,7 +17,7 @@ public class Destination
 In the Destination type, we probably fat-fingered the destination property.  Other typical issues are source member renames.  To test our configuration, we simply create a unit test that sets up the configuration and executes the AssertConfigurationIsValid method:
 ```c#
 var configuration = new MapperConfiguration(cfg =>
-  cfg.CreateMap<Source, Destination>());
+  cfg.CreateMap<Source, Destination>(), loggerFactory);
 
 configuration.AssertConfigurationIsValid();
 ```
@@ -36,7 +36,7 @@ With the third option, we have a member on the destination type that we will fil
 var configuration = new MapperConfiguration(cfg =>
   cfg.CreateMap<Source, Destination>()
 	.ForMember(dest => dest.SomeValuefff, opt => opt.Ignore())
-);
+, loggerFactory);
 ```
 
 ## Selecting members to validate
@@ -47,7 +47,7 @@ By default, AutoMapper uses the destination type to validate members. It assumes
 var configuration = new MapperConfiguration(cfg =>
   cfg.CreateMap<Source, Destination>(MemberList.Source);
   cfg.CreateMap<Source2, Destination2>(MemberList.None);
-);
+, loggerFactory);
 ```
 
 To skip validation altogether for this map, use `MemberList.None`. That's the default for `ReverseMap`.
@@ -55,4 +55,4 @@ To skip validation altogether for this map, use `MemberList.None`. That's the de
 
 ## Custom validations
 
-You can add custom validations through an extension point. See [here](https://github.com/AutoMapper/AutoMapper/blob/bdc0120497d192a2741183415543f6119f50a982/src/UnitTests/CustomValidations.cs#L42).
+You can add custom validations through an extension point. See [here](https://github.com/LuckyPennySoftware/AutoMapper/blob/main/src/UnitTests/CustomValidations.cs).

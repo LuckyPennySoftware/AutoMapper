@@ -20,6 +20,7 @@ public class UnsupportedCollection : AutoMapperSpecBase
     public void ThrowsAtMapTime() => new Action(()=>Map<Destination>(new Source())).ShouldThrow<AutoMapperMappingException>()
         .InnerException.ShouldBeOfType<NotSupportedException>().Message.ShouldBe($"Unknown collection. Consider a custom type converter from {typeof(MyList<DateTime>)} to {typeof(MyList<int>)}.");
 }
+#if NET8_0_OR_GREATER
 public class When_mapping_interface_to_interface_readonly_set : AutoMapperSpecBase
 {
     public class Source
@@ -56,6 +57,7 @@ public class When_mapping_hashset_to_interface_readonly_set : AutoMapperSpecBase
         Map<Destination>(new Source { Values = values }).Values.ShouldBe(values);
     }
 }
+#endif
 public class NonPublicEnumeratorCurrent : AutoMapperSpecBase
 {
     class Source

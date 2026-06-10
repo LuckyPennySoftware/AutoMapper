@@ -12,7 +12,7 @@ You can create value transformers at several different levels:
 ```c#
 var configuration = new MapperConfiguration(cfg => {
     cfg.ValueTransformers.Add<string>(val => val + "!!!");
-});
+}, loggerFactory);
 
 var source = new Source { Value = "Hello" };
 var dest = mapper.Map<Dest>(source);

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 using Xunit;
 
@@ -45,7 +47,11 @@ namespace AutoMapper.Extensions.Microsoft.DependencyInjection.Tests.Integrations
 			//arrange
 			var services = new ServiceCollection();
 			services.TryAddSingleton<ISingletonService, TestSingletonService>();
-			services.AddAutoMapper(cfg => cfg.CreateMap<Foo, Bar>().ReverseMap(), GetType().Assembly);
+            services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+            services.AddAutoMapper(opt =>
+            {
+                opt.CreateMap<Foo, Bar>().ReverseMap();
+            }, GetType().Assembly);
 			var sp = services.BuildServiceProvider();
 			Bar actual;
 
