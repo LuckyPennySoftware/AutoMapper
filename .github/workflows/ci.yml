@@ -59,6 +59,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Azure Login via OIDC
+        # Only needed to sign and publish packages on main. Skipped on PRs,
+        # where the Azure secrets aren't available (and are empty on forks).
+        if: github.ref == 'refs/heads/main'
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -87,6 +90,8 @@ jobs:
           path: artifacts/**/*.trx
           reporter: dotnet-trx
       - name: Sign packages
+        # Signing uses the Azure Key Vault login above; only runs on main.
+        if: github.ref == 'refs/heads/main'
         run: |-
           foreach ($f in Get-ChildItem "./artifacts" -Filter "*.nupkg") {
             NuGetKeyVaultSignTool sign $f.FullName --file-digest sha256 --timestamp-rfc3161 http://timestamp.digicert.com --azure-key-vault-managed-identity --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} --azure-key-vault-certificate ${{ secrets.CODESIGN_CERT_NAME }}
