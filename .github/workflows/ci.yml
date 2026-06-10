@@ -39,6 +39,10 @@ jobs:
       shell: pwsh
     - name: Report Test Results
       uses: dorny/test-reporter@v1
+      # Publishing the report needs checks:write, which GitHub forces to read-only
+      # for pull_request runs from forks. Don't let that fail the build; the test
+      # step itself already reflects pass/fail.
+      continue-on-error: true
       if: success() || failure()
       with:
         name: Test Results (Linux)
@@ -74,6 +78,9 @@ jobs:
         shell: pwsh
       - name: Report Test Results
         uses: dorny/test-reporter@v1
+        # See note on the Linux job: report publishing is best-effort and must
+        # never fail the build (forked-PR tokens are read-only).
+        continue-on-error: true
         if: success() || failure()
         with:
           name: Test Results (Windows)
