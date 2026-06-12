@@ -1,0 +1,36 @@
+name: Test Report
+
+# Publishes test results for runs of the CI workflow, including pull requests
+# from forks. The CI workflow itself runs with a read-only token (GitHub forces
+# this for fork PRs) and only uploads the .trx files as artifacts. This workflow
+# is triggered by workflow_run, so it runs in the *base repository* context with
+# a writable token and can call the Checks API to publish inline reports.
+# See issue #4642.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        with:
+          # Download every test-results-* artifact from the triggering CI run and
+          # publish one check per platform, e.g. "Test Results (Linux)".
+          artifact: /test-results-(.*)/
+          name: Test Results ($1)
+          path: '**/*.trx'
+          reporter: dotnet-trx
+          # A build that fails before producing any .trx shouldn't make this
+          # report red; the CI run already reflects that failure.
+          fail-on-empty: 'false'
