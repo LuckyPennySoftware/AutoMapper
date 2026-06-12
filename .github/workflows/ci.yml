@@ -10,12 +10,14 @@ env:
     DOTNET_NOLOGO: true
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
     MINVERBUILDMETADATA: build.${{ github.run_id }}.${{ github.run_attempt}}
-# This workflow runs untrusted code from fork PRs, so it keeps a read-only token
-# and never needs secrets. Test results are published by a separate workflow
-# (test-report.yml, triggered via workflow_run) that runs in the base-repo
-# context with checks:write. See issue #4642.
+# On pull requests — especially from forks, where GitHub forces the token to
+# read-only — this workflow needs no secrets and no write access: it only builds,
+# tests, and uploads .trx artifacts. Test results are published by a separate
+# workflow (test-report.yml, triggered via workflow_run) that runs in the
+# base-repo context with checks:write. The only steps that touch secrets/OIDC are
+# the main-only signing and publishing steps in build-windows, which is the sole
+# job granted id-token: write (scoped at the job level below). See issue #4642.
 permissions:
-  id-token: write
   contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -50,6 +52,12 @@ jobs:
         if-no-files-found: ignore
   build-windows:
     needs: build
+    # id-token:write is required only for the main-only Azure OIDC login used to
+    # code-sign packages. Granting it here (not at the workflow level) keeps it
+    # off the Linux build job and the default for any future jobs.
+    permissions:
+      id-token: write
+      contents: read
     strategy:
       fail-fast: false
     runs-on: windows-latest
