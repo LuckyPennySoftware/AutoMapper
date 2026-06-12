@@ -39,6 +39,10 @@ jobs:
       shell: pwsh
     - name: Report Test Results
       uses: dorny/test-reporter@v1
+      # Publishing the report needs checks:write, which GitHub forces to read-only
+      # for pull_request runs from forks. Don't let that fail the build; the test
+      # step itself already reflects pass/fail.
+      continue-on-error: true
       if: success() || failure()
       with:
         name: Test Results (Linux)
@@ -55,6 +59,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Azure Login via OIDC
+        # Only needed to sign and publish packages on main. Skipped on PRs,
+        # where the Azure secrets aren't available (and are empty on forks).
+        if: github.ref == 'refs/heads/main'
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -74,12 +81,17 @@ jobs:
         shell: pwsh
       - name: Report Test Results
         uses: dorny/test-reporter@v1
+        # See note on the Linux job: report publishing is best-effort and must
+        # never fail the build (forked-PR tokens are read-only).
+        continue-on-error: true
         if: success() || failure()
         with:
           name: Test Results (Windows)
           path: artifacts/**/*.trx
           reporter: dotnet-trx
       - name: Sign packages
+        # Signing uses the Azure Key Vault login above; only runs on main.
+        if: github.ref == 'refs/heads/main'
         run: |-
           foreach ($f in Get-ChildItem "./artifacts" -Filter "*.nupkg") {
             NuGetKeyVaultSignTool sign $f.FullName --file-digest sha256 --timestamp-rfc3161 http://timestamp.digicert.com --azure-key-vault-managed-identity --azure-key-vault-url ${{ secrets.AZURE_KEYVAULT_URI }} --azure-key-vault-certificate ${{ secrets.CODESIGN_CERT_NAME }}
