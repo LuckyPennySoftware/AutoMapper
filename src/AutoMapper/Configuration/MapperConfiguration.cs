@@ -116,10 +116,34 @@ public sealed class MapperConfiguration : IGlobalConfiguration
         _typesInheritance = null;
         _runtimeMaps = new(GetTypeMap, openTypeMapsCount);
 
-        var validator = new LicenseValidator(loggerFactory);
-        validator.Validate(_licenseAccessor.Current);
+        // License validation is logging-only — it gates no mapping behavior and has no
+        // reader other than this call. Running it on the construction path is unsafe: under
+        // a lazily-built DI singleton the constructor holds the container's build lock, and a
+        // cold-start thread-pool starvation then deadlocks the whole app (issue #4640).
+        // Offload to a dedicated background thread and return immediately.
+        _ = Task.Factory.StartNew(
+            ValidateLicense,
+            CancellationToken.None,
+            TaskCreationOptions.LongRunning, // dedicated thread, never the (possibly starved) pool
+            TaskScheduler.Default);          // honor LongRunning regardless of the ambient scheduler
 
         return;
+
+        void ValidateLicense()
+        {
+            try
+            {
+                var validator = new LicenseValidator(_loggerFactory);
+                validator.Validate(_licenseAccessor.Current);
+            }
+            catch (Exception ex)
+            {
+                _loggerFactory
+                    .CreateLogger("LuckyPennySoftware.AutoMapper.License")
+                    .LogError(ex, "Error validating the Lucky Penny software license key");
+            }
+        }
+
         void Seal()
         {
             foreach (var profile in Profiles)

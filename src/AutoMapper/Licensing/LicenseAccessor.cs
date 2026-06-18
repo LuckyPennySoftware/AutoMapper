@@ -84,7 +84,10 @@ internal class LicenseAccessor
                 ValidateLifetime = false
             };
 
-            var validateResult = Task.Run(() => handler.ValidateTokenAsync(licenseKey, parms)).GetAwaiter().GetResult();
+            // Runs on the dedicated background thread started by MapperConfiguration (issue #4640),
+            // so there is no SynchronizationContext to deadlock on; local JWT validation completes
+            // synchronously, so this does not depend on the thread pool.
+            var validateResult = handler.ValidateTokenAsync(licenseKey, parms).GetAwaiter().GetResult();
             if (!validateResult.IsValid)
             {
                 _logger.LogCritical(validateResult.Exception, "Error validating the Lucky Penny software license key");
