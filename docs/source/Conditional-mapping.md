@@ -25,7 +25,7 @@ If you have a resolver, see [here](Custom-value-resolvers.html#resolvers-and-con
 
 ## Nullable source members
 
-The source member value passed to `Condition` is the value resolved from the source object, *before* it is converted to the destination member type. This matters when the source member is a `Nullable<T>` and the destination member is a non-nullable `T`: the condition sees `null`, not `default(T)`.
+When the condition's source member parameter can hold it, `Condition` receives the value resolved from the source object *before* it is converted to the destination member type; otherwise it receives the converted value. This matters when the source member is a `Nullable<T>` and the destination member is a non-nullable `T`, because the parameter type decides whether the condition sees `null` or `default(T)`.
 
 This makes the common PATCH scenario -- "only assign members the caller actually supplied" -- expressible with `ForAllMembers`:
 
@@ -48,7 +48,7 @@ mapper.Map(new Source { Count = null }, destination);
 // destination.Count is still 7 -- the null source member was skipped
 ```
 
-Note that `ForAllMembers` types the source member parameter as `object`, which is what allows a `Nullable<T>` to arrive intact. A `ForMember` condition types both member parameters as the *destination* member type, so a `Nullable<T>` source cannot be represented there and the condition receives the converted value instead (`0` for `int`, `false` for `bool`). To check a nullable source member for a single member, use a `PreCondition` against the source object:
+`ForAllMembers` types the source member parameter as `object`, which is what allows a `Nullable<T>` to arrive intact. A `ForMember` condition types both member parameters as the *destination* member type, so a `Nullable<T>` source cannot be represented there and the condition falls back to the converted value (`0` for `int`, `false` for `bool`). To check a nullable source member for a single member, use a `PreCondition` against the source object:
 
 ```c#
 cfg.CreateMap<Source, Destination>()
@@ -98,7 +98,7 @@ public interface ICondition<in TSource, in TDestination, in TMember>
 }
 ```
 
-As with the lambda overloads, `sourceMember` is the value resolved from the source object before conversion to the destination member type -- see [Nullable source members](#nullable-source-members).
+`sourceMember` follows the same rule as the lambda overloads: the pre-conversion source value when `TMember` can hold it, the converted value otherwise -- see [Nullable source members](#nullable-source-members).
 
 `IPreCondition<TSource, TDestination>` is evaluated before source member resolution and does not have access to member values:
 
