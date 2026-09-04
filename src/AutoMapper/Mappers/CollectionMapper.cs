@@ -141,7 +141,9 @@ public sealed class CollectionMapper : IObjectMapper
             Expression CheckContext()
             {
                 var elementTypeMap = configuration.ResolveTypeMap(sourceElementType, destinationElementType);
-                return elementTypeMap == null ? null : ExpressionBuilder.CheckContext(elementTypeMap);
+                var checkElement = elementTypeMap == null ? null : ExpressionBuilder.CheckContext(elementTypeMap);
+                // OverMaxDepth uses the containing type map, so honor its context requirements too
+                return checkElement ?? (memberMap?.TypeMap is { } containingTypeMap ? ExpressionBuilder.CheckContext(containingTypeMap) : null);
             }
         }
     }
