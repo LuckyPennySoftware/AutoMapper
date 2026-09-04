@@ -454,9 +454,13 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
             : Assign(destinationMemberAccess, mappedMemberVariable);
         if (memberMap.Condition != null)
         {
+            var conditionMemberType = memberMap.Condition.Parameters[2].Type;
+            var conditionSourceMember = conditionMemberType.IsAssignableFrom(resolvedValueVariable.Type)
+                ? (Expression)resolvedValueVariable
+                : mappedMemberVariable;
             _expressions.Add(IfThen(
                 _configuration.ConvertReplaceParameters(memberMap.Condition,
-                    [customSource, _destination, mappedMemberVariable, destinationMemberGetter, ContextParameter]),
+                    [customSource, _destination, conditionSourceMember, destinationMemberGetter, ContextParameter]),
                 mapperExpr));
         }
         else if (!destinationMemberReadOnly)

@@ -287,3 +287,119 @@ public class When_configuring_a_reverse_map_to_ignore_all_source_properties_with
         _source.Respect.ShouldBe("R-E-S-P-E-C-T"); // justification: if the mapping works one way, it should work in reverse
     }
 }
+public class When_using_a_condition_with_a_nullable_source_member_and_a_value_type_destination : AutoMapperSpecBase
+{
+    class Source
+    {
+        public int? Value { get; set; }
+        public bool? Toggle { get; set; }
+    }
+
+    class Destination
+    {
+        public int Value { get; set; } = 7;
+        public bool Toggle { get; set; } = true;
+    }
+
+    protected override MapperConfiguration CreateConfiguration() => new(cfg =>
+        cfg.CreateMap<Source, Destination>().ForAllMembers(o => o.Condition((source, destination, sourceMember) => sourceMember != null)));
+
+    [Fact]
+    public void Should_not_map_a_null_source_member()
+    {
+        var destination = Mapper.Map(new Source(), new Destination());
+        destination.Value.ShouldBe(7);
+        destination.Toggle.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Should_map_a_source_member_with_a_value()
+    {
+        var destination = Mapper.Map(new Source { Value = 3, Toggle = false }, new Destination());
+        destination.Value.ShouldBe(3);
+        destination.Toggle.ShouldBeFalse();
+    }
+}
+
+public class When_using_a_class_based_condition_with_a_nullable_source_member : AutoMapperSpecBase
+{
+    class Source
+    {
+        public int? Value { get; set; }
+    }
+
+    class Destination
+    {
+        public int Value { get; set; } = 7;
+    }
+
+    class SourceMemberNotNull : ICondition<Source, Destination, object>
+    {
+        public bool Evaluate(Source source, Destination destination, object sourceMember, object destMember, ResolutionContext context) =>
+            sourceMember != null;
+    }
+
+    protected override MapperConfiguration CreateConfiguration() => new(cfg =>
+        cfg.CreateMap<Source, Destination>().ForAllMembers(o => o.Condition<SourceMemberNotNull>()));
+
+    [Fact]
+    public void Should_not_map_a_null_source_member() => Mapper.Map(new Source(), new Destination()).Value.ShouldBe(7);
+
+    [Fact]
+    public void Should_map_a_source_member_with_a_value() => Mapper.Map(new Source { Value = 3 }, new Destination()).Value.ShouldBe(3);
+}
+
+public class When_using_a_condition_typed_as_the_destination_member : AutoMapperSpecBase
+{
+    class Source
+    {
+        public int? Value { get; set; }
+    }
+
+    class Destination
+    {
+        public int Value { get; set; } = 7;
+    }
+
+    protected override MapperConfiguration CreateConfiguration() => new(cfg =>
+        cfg.CreateMap<Source, Destination>().ForMember(d => d.Value, o => o.Condition((source, destination, sourceMember) => sourceMember > 0)));
+
+    [Fact]
+    public void Should_receive_the_mapped_value_because_the_source_value_does_not_fit_the_condition_member_type() =>
+        Mapper.Map(new Source(), new Destination()).Value.ShouldBe(7);
+
+    [Fact]
+    public void Should_map_a_source_member_with_a_value() => Mapper.Map(new Source { Value = 3 }, new Destination()).Value.ShouldBe(3);
+}
+
+public class When_using_a_condition_for_all_members_with_different_source_and_destination_member_types : AutoMapperSpecBase
+{
+    class Source
+    {
+        public Inner Value { get; set; }
+    }
+
+    class Destination
+    {
+        public InnerDto Value { get; set; }
+    }
+
+    class Inner
+    {
+        public int Number { get; set; }
+    }
+
+    class InnerDto
+    {
+        public int Number { get; set; }
+    }
+
+    protected override MapperConfiguration CreateConfiguration() => new(cfg =>
+    {
+        cfg.CreateMap<Inner, InnerDto>();
+        cfg.CreateMap<Source, Destination>().ForAllMembers(o => o.Condition((source, destination, sourceMember) => sourceMember is Inner));
+    });
+
+    [Fact]
+    public void Should_receive_the_source_member() => Mapper.Map<Destination>(new Source { Value = new Inner { Number = 3 } }).Value.Number.ShouldBe(3);
+}

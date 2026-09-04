@@ -23,6 +23,46 @@ var configuration = new MapperConfiguration(cfg => {
 ```
 If you have a resolver, see [here](Custom-value-resolvers.html#resolvers-and-conditions) for a concrete example.
 
+## Nullable source members
+
+The source member value passed to `Condition` is the value resolved from the source object, *before* it is converted to the destination member type. This matters when the source member is a `Nullable<T>` and the destination member is a non-nullable `T`: the condition sees `null`, not `default(T)`.
+
+This makes the common PATCH scenario -- "only assign members the caller actually supplied" -- expressible with `ForAllMembers`:
+
+```c#
+class Source {
+  public int? Count { get; set; }
+}
+
+class Destination {
+  public int Count { get; set; }
+}
+
+var configuration = new MapperConfiguration(cfg => {
+  cfg.CreateMap<Source, Destination>()
+    .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+}, loggerFactory);
+
+var destination = new Destination { Count = 7 };
+mapper.Map(new Source { Count = null }, destination);
+// destination.Count is still 7 -- the null source member was skipped
+```
+
+Note that `ForAllMembers` types the source member parameter as `object`, which is what allows a `Nullable<T>` to arrive intact. A `ForMember` condition types both member parameters as the *destination* member type, so a `Nullable<T>` source cannot be represented there and the condition receives the converted value instead (`0` for `int`, `false` for `bool`). To check a nullable source member for a single member, use a `PreCondition` against the source object:
+
+```c#
+cfg.CreateMap<Source, Destination>()
+  .ForMember(dest => dest.Count, opt => opt.PreCondition(src => src.Count != null));
+```
+
+Without a condition, a null `Nullable<T>` source member is always assigned as `default(T)`. AutoMapper does not decide to map zero -- a name match always produces an assignment, and a non-nullable destination member has no way to represent the absence of a value. Roughly:
+
+```c#
+dest.Count = src.Count ?? default(int);
+```
+
+If you need a value other than `default(T)`, see [Null substitution](Null-substitution.html).
+
 ## Preconditions
 
 Similarly, there is a PreCondition method. The difference is that it runs sooner in the mapping process, before the source value is resolved (think MapFrom). So the precondition is called, then we decide which will be the source of the mapping (resolving), then the condition is called and finally the destination value is assigned.
@@ -57,6 +97,8 @@ public interface ICondition<in TSource, in TDestination, in TMember>
     bool Evaluate(TSource source, TDestination destination, TMember sourceMember, TMember destMember, ResolutionContext context);
 }
 ```
+
+As with the lambda overloads, `sourceMember` is the value resolved from the source object before conversion to the destination member type -- see [Nullable source members](#nullable-source-members).
 
 `IPreCondition<TSource, TDestination>` is evaluated before source member resolution and does not have access to member values:
 
