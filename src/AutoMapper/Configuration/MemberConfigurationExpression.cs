@@ -1,4 +1,4 @@
-namespace AutoMapper.Configuration;
+﻿namespace AutoMapper.Configuration;
 
 using static System.Linq.Expressions.Expression;
 using static AutoMapper.Execution.ExpressionBuilder;
@@ -259,8 +259,27 @@ public sealed class MemberConfigurationExpression(MemberInfo destinationMember, 
         base.ConvertUsingCore(new(valueConverter, typeof(IValueConverter<TSourceMember, TDestinationMember>), sourceMemberName));
     public void Condition(Type conditionType)
     {
-        var expr = CreateConditionExpression(conditionType);
-        ConditionCore(expr);
+        // Build the wrapper with the condition interface's OWN type arguments rather than going through
+        // CreateConditionExpression, which types the member parameters as TMember -- object on this
+        // non-generic path, erasing the condition's real member type. The plan builder reads
+        // Condition.Parameters[2].Type to decide whether the pre-conversion source value fits the
+        // condition; an erased object parameter would let a Nullable<T> reach an ICondition<,,T> and
+        // fail unboxing it. Declaring the real types keeps that decision honest, and drops the casts
+        // CreateConditionExpression needed to bridge TMember to the interface.
+        var interfaceType = conditionType.GetGenericInterface(typeof(ICondition<,,>)) ??
+            throw new InvalidOperationException($"Type '{conditionType.Name}' does not implement ICondition<TSource, TDestination, TMember>");
+        var interfaceArgs = interfaceType.GenericTypeArguments;
+        var srcParam = Parameter(interfaceArgs[0]);
+        var destParam = Parameter(interfaceArgs[1]);
+        var srcMemberParam = Parameter(interfaceArgs[2]);
+        var destMemberParam = Parameter(interfaceArgs[2]);
+        var ctxParam = Parameter(typeof(ResolutionContext));
+        var callExpression = Call(
+            Convert(ServiceLocator(conditionType), interfaceType),
+            interfaceType.GetMethod("Evaluate"),
+            srcParam, destParam, srcMemberParam, destMemberParam, ctxParam);
+        var expr = Lambda(callExpression, srcParam, destParam, srcMemberParam, destMemberParam, ctxParam);
+        PropertyMapActions.Add(pm => pm.Condition = expr);
     }
     public void PreCondition(Type preConditionType)
     {

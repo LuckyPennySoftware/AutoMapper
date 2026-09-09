@@ -403,3 +403,65 @@ public class When_using_a_condition_for_all_members_with_different_source_and_de
     [Fact]
     public void Should_receive_the_source_member() => Mapper.Map<Destination>(new Source { Value = new Inner { Number = 3 } }).Value.Number.ShouldBe(3);
 }
+
+public class When_using_a_runtime_class_condition_typed_as_the_destination_member : AutoMapperSpecBase
+{
+    class Source
+    {
+        public int? Value { get; set; }
+    }
+
+    class Destination
+    {
+        public int Value { get; set; } = 7;
+    }
+
+    // Declares int, not object: the condition can't hold a null Nullable<int>, so it must receive the
+    // mapped value. The non-generic API erases TMember to object, so the wrapper has to carry the
+    // interface's own member type or this unboxes a boxed null and throws.
+    class PositiveValue : ICondition<Source, Destination, int>
+    {
+        public bool Evaluate(Source source, Destination destination, int sourceMember, int destMember, ResolutionContext context) =>
+            sourceMember > 0;
+    }
+
+    protected override MapperConfiguration CreateConfiguration() => new(cfg =>
+        cfg.CreateMap(typeof(Source), typeof(Destination))
+            .ForMember(nameof(Destination.Value), o => o.Condition(typeof(PositiveValue))));
+
+    [Fact]
+    public void Should_receive_the_mapped_value_for_a_null_source_member() =>
+        Mapper.Map<Destination>(new Source()).Value.ShouldBe(7);
+
+    [Fact]
+    public void Should_map_a_source_member_with_a_value() => Mapper.Map<Destination>(new Source { Value = 3 }).Value.ShouldBe(3);
+}
+
+public class When_using_a_runtime_class_condition_typed_as_object : AutoMapperSpecBase
+{
+    class Source
+    {
+        public int? Value { get; set; }
+    }
+
+    class Destination
+    {
+        public int Value { get; set; } = 7;
+    }
+
+    class SourceMemberNotNull : ICondition<Source, Destination, object>
+    {
+        public bool Evaluate(Source source, Destination destination, object sourceMember, object destMember, ResolutionContext context) =>
+            sourceMember != null;
+    }
+
+    protected override MapperConfiguration CreateConfiguration() => new(cfg =>
+        cfg.CreateMap(typeof(Source), typeof(Destination))
+            .ForMember(nameof(Destination.Value), o => o.Condition(typeof(SourceMemberNotNull))));
+
+    [Fact]
+    public void Should_see_the_null_source_member() => Mapper.Map<Destination>(new Source()).Value.ShouldBe(7);
+
+    [Fact]
+    public void Should_map_a_source_member_with_a_value() => Mapper.Map<Destination>(new Source { Value = 3 }).Value.ShouldBe(3);
+}

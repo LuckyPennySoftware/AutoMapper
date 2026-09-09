@@ -55,6 +55,15 @@ cfg.CreateMap<Source, Destination>()
   .ForMember(dest => dest.Count, opt => opt.PreCondition(src => src.Count != null));
 ```
 
+For this particular shape -- keep whatever the destination already holds when the source member is null -- `UseDestinationValue` does the same job without a condition at all, and works for a `ForMember` too (where a condition can't see the null):
+
+```c#
+cfg.CreateMap<Source, Destination>()
+  .ForAllMembers(opt => opt.UseDestinationValue());
+```
+
+Reach for it when the members are scalars. It is not a general PATCH switch: on a member that is itself a mapped object, `UseDestinationValue` maps *into* the existing destination instance rather than replacing it, so the nested map still overwrites that object's own members with the source's (unset ones landing as defaults). Members you want left alone entirely still need a condition.
+
 Without a condition, a null `Nullable<T>` source member is always assigned as `default(T)`. AutoMapper does not decide to map zero -- a name match always produces an assignment, and a non-nullable destination member has no way to represent the absence of a value. Roughly:
 
 ```c#
