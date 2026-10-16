@@ -1,3 +1,5 @@
+# Licensing
+
 AutoMapper is [dual licensed](https://github.com/LuckyPennySoftware/AutoMapper/blob/main/LICENSE.md). To configure the commercial license, either the license key can be set using `Microsoft.Extensions.DependencyInjection` integration:
 
 ```c#
@@ -18,7 +20,7 @@ var mapperConfiguration = new MapperConfiguration(cfg => {
 
 You can obtain a valid license from the [AutoMapper website](https://automapper.io).
 
-### Auto-Discovery via Environment Variables
+## Auto-Discovery via Environment Variables
 
 If no license key is set in code, AutoMapper looks for one in environment variables. This is convenient for containerized and cloud environments, and for enterprises that share a single key across many services without code changes:
 
@@ -33,7 +35,7 @@ The license key is resolved in the following order of precedence, using the firs
 
 No code change is required when using an environment variable—just register AutoMapper as usual without setting `LicenseKey`.
 
-### License Enforcement
+## License Enforcement
 
 Licensing is enforced via log messages at various levels:
 
@@ -45,11 +47,11 @@ There is no other license enforcement besides log messages. No central license s
 
 The log messages are logged using standard `Microsoft.Extensions.Logging` loggers under the category name `LuckyPennySoftware.AutoMapper.License`.
 
-### Multiple License Messages
+## Multiple License Messages
 
 If you see duplicate license log messages at startup, this is typically caused by AutoMapper being registered or configured more than once in your application.
 
-#### Using `AddAutoMapper` (Microsoft.Extensions.DependencyInjection)
+### Using `AddAutoMapper` (Microsoft.Extensions.DependencyInjection)
 
 Calling `AddAutoMapper` multiple times in the same `IServiceCollection` is safe. After the first call registers `IMapper`, subsequent calls are ignored and no additional license validation occurs:
 
@@ -60,7 +62,7 @@ services.AddAutoMapper(cfg => { /* ignored -- IMapper already registered */ });
 
 If you are calling `AddAutoMapper` in multiple places (e.g. in modular startup code), each call still only results in a single `MapperConfiguration` singleton and a single license log message.
 
-#### Using `MapperConfiguration` Directly
+### Using `MapperConfiguration` Directly
 
 When creating `MapperConfiguration` instances manually, each instance performs its own license validation, producing a separate log message:
 
@@ -78,7 +80,7 @@ var config = new MapperConfiguration(cfg => { cfg.LicenseKey = "key"; }, loggerF
 var mapper = new Mapper(config);
 ```
 
-#### Suppressing Duplicate License Messages
+### Suppressing Duplicate License Messages
 
 If you intentionally have multiple configurations (for example in integration tests or modular scenarios), you can silence duplicate license log messages by filtering the log category:
 
@@ -86,7 +88,7 @@ If you intentionally have multiple configurations (for example in integration te
 builder.Logging.AddFilter("LuckyPennySoftware.AutoMapper.License", LogLevel.None);
 ```
 
-### Client Redistribution Scenarios
+## Client Redistribution Scenarios
 
 In the case where AutoMapper is used on a client, including:
 
