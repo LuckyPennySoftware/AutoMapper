@@ -10,6 +10,76 @@ public class LicenseKeyEnvironmentVariableTests
 {
     private const string AutoMapperEnvVar = LicenseAccessor.AutoMapperLicenseKeyEnvVariable;
     private const string SharedEnvVar = LicenseAccessor.SharedLicenseKeyEnvVariable;
+    private const string CleanKey = "header.pay-load.sign_ature";
+
+    public static TheoryData<string> KeysWithWhitespace => new()
+    {
+        CleanKey + "\n",
+        CleanKey + "\r\n",
+        CleanKey + " ",
+        CleanKey + "\t",
+        " \t" + CleanKey,
+        "header.\r\npay-\nload.sign_\tature",
+        "\u00a0header.\u2003pay-load.sign_ature\u2028"
+    };
+
+    [Theory]
+    [MemberData(nameof(KeysWithWhitespace))]
+    public void ExplicitKey_StripsWhitespace_AndTakesPrecedence(string key)
+    {
+        WithEnvironment(autoMapper: "env-automapper-key", shared: "env-shared-key", () =>
+            LicenseAccessor.ResolveLicenseKey(key).ShouldBe(CleanKey));
+    }
+
+    [Theory]
+    [MemberData(nameof(KeysWithWhitespace))]
+    public void AutoMapperEnvironmentVariable_StripsWhitespace_AndTakesPrecedence(string key)
+    {
+        WithEnvironment(autoMapper: key, shared: "env-shared-key", () =>
+            LicenseAccessor.ResolveLicenseKey(null).ShouldBe(CleanKey));
+    }
+
+    [Theory]
+    [MemberData(nameof(KeysWithWhitespace))]
+    public void SharedEnvironmentVariable_StripsWhitespace(string key)
+    {
+        WithEnvironment(autoMapper: null, shared: key, () =>
+            LicenseAccessor.ResolveLicenseKey(null).ShouldBe(CleanKey));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t\r\n")]
+    [InlineData("\u00a0\u2003\u2028")]
+    public void BlankExplicitKey_FallsBackToAutoMapperEnvironmentVariable(string key)
+    {
+        WithEnvironment(autoMapper: " env-automapper-key\n", shared: "env-shared-key", () =>
+            LicenseAccessor.ResolveLicenseKey(key).ShouldBe("env-automapper-key"));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t\r\n")]
+    [InlineData("\u00a0\u2003\u2028")]
+    public void BlankHigherPrecedenceKeys_FallBackToSharedEnvironmentVariable(string key)
+    {
+        WithEnvironment(autoMapper: key, shared: " env-shared-key\n", () =>
+            LicenseAccessor.ResolveLicenseKey(key).ShouldBe("env-shared-key"));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t\r\n")]
+    [InlineData("\u00a0\u2003\u2028")]
+    public void ReturnsNull_WhenAllKeysAreBlank(string key)
+    {
+        WithEnvironment(autoMapper: key, shared: key, () =>
+            LicenseAccessor.ResolveLicenseKey(key).ShouldBeNull());
+    }
 
     [Fact]
     public void ExplicitKey_TakesPrecedence_OverBothEnvironmentVariables()
