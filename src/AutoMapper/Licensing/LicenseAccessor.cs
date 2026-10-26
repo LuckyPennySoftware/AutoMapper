@@ -58,20 +58,41 @@ internal class LicenseAccessor
         ?? Environment.GetEnvironmentVariable(AutoMapperLicenseKeyEnvVariable)
         ?? Environment.GetEnvironmentVariable(SharedLicenseKeyEnvVariable);
 
-    private Claim[] ValidateKey(string licenseKey)
+    // RS256 signature over the 2048-bit Lucky Penny key: 256 bytes, base64url-encoded without padding.
+    private const int SignatureLength = 342;
+
+    private static readonly RSAParameters LicenseKeyParameters = new()
     {
+        Exponent = Convert.FromBase64String("AQAB"),
+        Modulus = Convert.FromBase64String(
+            "2LTtdJV2b0mYoRqChRCfcqnbpKvsiCcDYwJ+qPtvQXWXozOhGo02/V0SWMFBdbZHUzpEytIiEcojo7Vbq5mQmt4lg92auyPKsWq6qSmCVZCUuL/kpYqLCit4yUC0YqZfw4H9zLf1yAIOgyXQf1x6g+kscDo1pWAniSl9a9l/LXRVEnGz+OfeUrN/5gzpracGUY6phx6T09UCRuzi4YqqO4VJzL877W0jCW2Q7jMzHxOK04VSjNc22CADuCd34mrFs23R0vVm1DVLYtPGD76/rGOcxO6vmRc7ydBAvt1IoUsrY0vQ2rahp51YPxqqhKPd8nNOomHWblCCA7YUeV3C1Q==")
+    };
+
+    internal Claim[] ValidateKey(string licenseKey)
+    {
+        if (!IsWellFormed(licenseKey))
+        {
+            // Never log the key itself.
+            _logger.LogError(
+                "The Lucky Penny software license key appears to be incomplete or corrupted " +
+                "(it may have been truncated when copied). " +
+                "Copy the full key again from https://luckypennysoftware.com/account.");
+            return [];
+        }
+
         try
         {
+            // JsonWebTokenHandler swallows a PlatformNotSupportedException from the RSA provider and
+            // reports it as an IDX10511 signature failure, with the original exception only as (PII-hidden)
+            // message text. Probe RSA directly so client platforms such as Blazor WASM are detected (#4662).
+            using (var rsa = RSA.Create())
+            {
+                rsa.ImportParameters(LicenseKeyParameters);
+            }
+
             var handler = new JsonWebTokenHandler();
 
-            var rsa = new RSAParameters
-            {
-                Exponent = Convert.FromBase64String("AQAB"),
-                Modulus = Convert.FromBase64String(
-                    "2LTtdJV2b0mYoRqChRCfcqnbpKvsiCcDYwJ+qPtvQXWXozOhGo02/V0SWMFBdbZHUzpEytIiEcojo7Vbq5mQmt4lg92auyPKsWq6qSmCVZCUuL/kpYqLCit4yUC0YqZfw4H9zLf1yAIOgyXQf1x6g+kscDo1pWAniSl9a9l/LXRVEnGz+OfeUrN/5gzpracGUY6phx6T09UCRuzi4YqqO4VJzL877W0jCW2Q7jMzHxOK04VSjNc22CADuCd34mrFs23R0vVm1DVLYtPGD76/rGOcxO6vmRc7ydBAvt1IoUsrY0vQ2rahp51YPxqqhKPd8nNOomHWblCCA7YUeV3C1Q==")
-            };
-
-            var key = new RsaSecurityKey(rsa)
+            var key = new RsaSecurityKey(LicenseKeyParameters)
             {
                 KeyId = "LuckyPennySoftwareLicenseKey/bbb13acb59904d89b4cb1c85f088ccf9"
             };
@@ -90,19 +111,64 @@ internal class LicenseAccessor
             var validateResult = handler.ValidateTokenAsync(licenseKey, parms).GetAwaiter().GetResult();
             if (!validateResult.IsValid)
             {
-                _logger.LogCritical(validateResult.Exception, "Error validating the Lucky Penny software license key");
+                LogValidationFailure(validateResult.Exception);
             }
 
             return validateResult.ClaimsIdentity?.Claims.ToArray() ?? [];
         }
         catch (PlatformNotSupportedException)
         {
-            _logger.LogInformation(
-                "RSA cryptography is not supported on this platform. " +
-                "For client redistribution scenarios such as Blazor WASM, see: " +
-                "https://docs.automapper.io/en/latest/License-configuration.html#client-redistribution-scenarios");
+            LogPlatformNotSupported();
             return [];
         }
     }
 
+    /// <summary>
+    /// Cheap structural check of a compact JWS: three dot-separated base64url segments, with a
+    /// signature segment of the expected length. Catches keys truncated or mangled by copy/paste.
+    /// </summary>
+    internal static bool IsWellFormed(string licenseKey)
+    {
+        var segments = licenseKey.Split('.');
+        return segments.Length == 3
+            && segments.All(segment => segment.Length > 0 && segment.All(IsBase64UrlChar))
+            && segments[2].Length == SignatureLength;
+
+        static bool IsBase64UrlChar(char c) =>
+            c is >= 'A' and <= 'Z' or >= 'a' and <= 'z' or >= '0' and <= '9' or '-' or '_';
+    }
+
+    internal void LogValidationFailure(Exception exception)
+    {
+        if (ContainsPlatformNotSupported(exception))
+        {
+            LogPlatformNotSupported();
+        }
+        else if (exception is SecurityTokenInvalidSignatureException)
+        {
+            _logger.LogCritical(exception,
+                "Error validating the Lucky Penny software license key: the signature is invalid. " +
+                "If the key was copied from a PDF, email, or file, it may have been corrupted; " +
+                "copy the full key again from https://luckypennysoftware.com/account.");
+        }
+        else
+        {
+            _logger.LogCritical(exception, "Error validating the Lucky Penny software license key");
+        }
+    }
+
+    internal static bool ContainsPlatformNotSupported(Exception exception) =>
+        exception switch
+        {
+            null => false,
+            PlatformNotSupportedException => true,
+            AggregateException aggregate => aggregate.InnerExceptions.Any(ContainsPlatformNotSupported),
+            _ => ContainsPlatformNotSupported(exception.InnerException)
+        };
+
+    private void LogPlatformNotSupported() =>
+        _logger.LogInformation(
+            "RSA cryptography is not supported on this platform. " +
+            "For client redistribution scenarios such as Blazor WASM, see: " +
+            "https://docs.automapper.io/en/latest/License-configuration.html#client-redistribution-scenarios");
 }
