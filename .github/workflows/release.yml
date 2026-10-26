@@ -19,6 +19,24 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+    - name: Verify tag is on its release branch
+      # A tag created from the GitHub Releases UI can land on the default branch instead of the selected one (#4620)
+      run: |
+        set -euo pipefail
+        major="${GITHUB_REF_NAME#v}"
+        major="${major%%.*}"
+        if git ls-remote --exit-code --heads origin "release/${major}.x" > /dev/null; then
+          branch="release/${major}.x"
+        else
+          branch="main"
+        fi
+        git fetch --no-tags origin "+refs/heads/${branch}:refs/remotes/origin/${branch}"
+        if ! git merge-base --is-ancestor "$GITHUB_SHA" "origin/${branch}"; then
+          echo "::error::Tag ${GITHUB_REF_NAME} (${GITHUB_SHA}) is not on ${branch}. Delete the tag and recreate it on ${branch}."
+          exit 1
+        fi
+        echo "Tag ${GITHUB_REF_NAME} is on ${branch}"
+      shell: bash
     - name: Setup dotnet
       uses: actions/setup-dotnet@v4
       with:
