@@ -25,10 +25,16 @@ jobs:
         set -euo pipefail
         major="${GITHUB_REF_NAME#v}"
         major="${major%%.*}"
-        if git ls-remote --exit-code --heads origin "release/${major}.x" > /dev/null; then
+        status=0
+        git ls-remote --exit-code --heads origin "release/${major}.x" > /dev/null || status=$?
+        # Exit code 2 means no matching branch; anything else is a failed lookup
+        if [ "$status" -eq 0 ]; then
           branch="release/${major}.x"
-        else
+        elif [ "$status" -eq 2 ]; then
           branch="main"
+        else
+          echo "::error::Could not look up release/${major}.x (git ls-remote exit code ${status})"
+          exit 1
         fi
         git fetch --no-tags origin "+refs/heads/${branch}:refs/remotes/origin/${branch}"
         if ! git merge-base --is-ancestor "$GITHUB_SHA" "origin/${branch}"; then
