@@ -40,8 +40,12 @@ No code change is required when using an environment variable—just register Au
 Licensing is enforced via log messages at various levels:
 
 - INFO: Valid license message
-- WARNING: Missing license message
+- WARNING: Missing license message, or a license term that has ended but is still within its grace period
 - ERROR: Invalid/expired license message
+
+### Renewal grace period
+
+License keys include a 30-day grace period after the end of their term. When your subscription renews, you receive a new license key, and the previous key keeps logging only a WARNING (not an ERROR) for 30 days after its term ends. This gives you time to deploy the renewed key. Your current license key is always available on your [account page](https://luckypennysoftware.com/account).
 
 There is no other license enforcement besides log messages. No central license server, no outbound HTTP calls, no degrading or disabling of features.
 
