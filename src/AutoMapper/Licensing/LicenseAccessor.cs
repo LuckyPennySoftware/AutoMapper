@@ -58,11 +58,22 @@ internal class LicenseAccessor
     /// Resolves the license key from, in order of precedence: the explicitly configured value,
     /// the product-specific <c>AUTOMAPPER_LICENSE_KEY</c> environment variable, then the shared
     /// <c>LUCKYPENNY_LICENSE_KEY</c> environment variable (usable across Lucky Penny products).
+    /// Whitespace is removed from each value, and empty values are treated as unset.
     /// </summary>
     internal static string ResolveLicenseKey(string explicitKey) =>
-        explicitKey
-        ?? Environment.GetEnvironmentVariable(AutoMapperLicenseKeyEnvVariable)
-        ?? Environment.GetEnvironmentVariable(SharedLicenseKeyEnvVariable);
+        NormalizeLicenseKey(explicitKey)
+        ?? NormalizeLicenseKey(Environment.GetEnvironmentVariable(AutoMapperLicenseKeyEnvVariable))
+        ?? NormalizeLicenseKey(Environment.GetEnvironmentVariable(SharedLicenseKeyEnvVariable));
+
+    private static string NormalizeLicenseKey(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return null;
+        }
+
+        return new string(key.Where(c => !char.IsWhiteSpace(c)).ToArray());
+    }
 
     // RS256 signature over the 2048-bit Lucky Penny key: 256 bytes, base64url-encoded without padding.
     private const int SignatureLength = 342;
