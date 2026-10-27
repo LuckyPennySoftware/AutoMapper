@@ -154,6 +154,10 @@ internal class LicenseAccessor
                 "The Lucky Penny software license key is not valid: its signature does not match. " +
                 "If the key was copied from a PDF, email, or file, it may have been corrupted; " +
                 "copy the full key again from https://luckypennysoftware.com/account.",
+            _ when ContainsAssemblyMismatch(exception) =>
+                "The Lucky Penny software license key could not be validated because the Microsoft.IdentityModel " +
+                "packages in this application are different versions. Reference the same version of all " +
+                "Microsoft.IdentityModel.* packages (for example, by referencing Microsoft.IdentityModel.JsonWebTokens directly).",
             SecurityTokenMalformedException or ArgumentException =>
                 "The Lucky Penny software license key appears to be incomplete or corrupted. " +
                 "Copy the full key again from https://luckypennysoftware.com/account.",
@@ -175,6 +179,16 @@ internal class LicenseAccessor
             PlatformNotSupportedException => true,
             AggregateException aggregate => aggregate.InnerExceptions.Any(ContainsPlatformNotSupported),
             _ => ContainsPlatformNotSupported(exception.InnerException)
+        };
+
+    // Mixed Microsoft.IdentityModel.* package versions surface as IDX14102 wrapping a MissingMethodException.
+    internal static bool ContainsAssemblyMismatch(Exception exception) =>
+        exception switch
+        {
+            null => false,
+            MissingMemberException or TypeLoadException or FileLoadException => true,
+            AggregateException aggregate => aggregate.InnerExceptions.Any(ContainsAssemblyMismatch),
+            _ => ContainsAssemblyMismatch(exception.InnerException)
         };
 
     private void LogPlatformNotSupported() =>
