@@ -53,9 +53,6 @@ public class LicenseAccessorTests
         ShouldLogIncompleteKey(logs, key);
     }
 
-#if !NETFRAMEWORK
-    // On .NET Framework the test host doesn't apply the generated binding redirects, so signature
-    // validation fails to load System.Threading.Tasks.Extensions before it reaches the signature check.
     [Fact]
     public void InvalidSignature_LogsCopyPasteHint_WithoutExceptionDetails()
     {
@@ -64,7 +61,6 @@ public class LicenseAccessorTests
         ShouldLogPlainCritical(logs, "copy the full key again");
         ShouldLogDetailsAtDebug<SecurityTokenInvalidSignatureException>(logs);
     }
-#endif
 
     [Fact]
     public void UnparseableToken_LogsIncompleteMessage_WithoutExceptionDetails()
