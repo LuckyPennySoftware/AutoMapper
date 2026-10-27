@@ -178,7 +178,7 @@ public class LicenseAccessorTests
     {
         var log = logs.ShouldHaveSingleItem();
         log.Level.ShouldBe(LogLevel.Information);
-        log.Message.ShouldContain("client-redistribution-scenarios", Case.Sensitive);
+        log.Message.ShouldContain(LicenseAccessor.ClientPlatformsLink, Case.Sensitive);
     }
 
     private static string Base64Url(string json) =>

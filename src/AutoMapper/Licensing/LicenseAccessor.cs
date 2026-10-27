@@ -12,6 +12,12 @@ internal class LicenseAccessor
     internal const string AutoMapperLicenseKeyEnvVariable = "AUTOMAPPER_LICENSE_KEY";
     internal const string SharedLicenseKeyEnvVariable = "LUCKYPENNY_LICENSE_KEY";
 
+    // Shipped binaries live for years, so messages link through redirects on our own domain that can be
+    // repointed when the docs move. Configure these under https://luckypennysoftware.com/go/.
+    internal const string LicenseKeyLink = "https://luckypennysoftware.com/go/automapper-license-key";
+    internal const string ClientPlatformsLink = "https://luckypennysoftware.com/go/automapper-client-platforms";
+    internal const string IdentityModelVersionsLink = "https://luckypennysoftware.com/go/automapper-identitymodel-versions";
+
     private readonly IGlobalConfiguration _configuration;
     private readonly ILogger _logger;
 
@@ -76,7 +82,7 @@ internal class LicenseAccessor
             _logger.LogError(
                 "The Lucky Penny software license key appears to be incomplete or corrupted " +
                 "(it may have been truncated when copied). " +
-                "Copy the full key again from https://luckypennysoftware.com/account.");
+                "Copy the full key again from " + LicenseKeyLink + ".");
             return [];
         }
 
@@ -153,20 +159,21 @@ internal class LicenseAccessor
             SecurityTokenInvalidSignatureException =>
                 "The Lucky Penny software license key is not valid: its signature does not match. " +
                 "If the key was copied from a PDF, email, or file, it may have been corrupted; " +
-                "copy the full key again from https://luckypennysoftware.com/account.",
+                "copy the full key again from " + LicenseKeyLink + ".",
             _ when ContainsAssemblyMismatch(exception) =>
                 "The Lucky Penny software license key could not be validated because the Microsoft.IdentityModel " +
                 "packages in this application are different versions. Reference the same version of all " +
-                "Microsoft.IdentityModel.* packages (for example, by referencing Microsoft.IdentityModel.JsonWebTokens directly).",
+                "Microsoft.IdentityModel.* packages (for example, by referencing Microsoft.IdentityModel.JsonWebTokens directly). " +
+                "See " + IdentityModelVersionsLink + ".",
             SecurityTokenMalformedException or ArgumentException =>
                 "The Lucky Penny software license key appears to be incomplete or corrupted. " +
-                "Copy the full key again from https://luckypennysoftware.com/account.",
+                "Copy the full key again from " + LicenseKeyLink + ".",
             SecurityTokenInvalidIssuerException or SecurityTokenInvalidAudienceException =>
                 "The Lucky Penny software license key is not valid: it is not a Lucky Penny Software license key. " +
-                "Copy your license key from https://luckypennysoftware.com/account.",
+                "Copy your license key from " + LicenseKeyLink + ".",
             _ =>
                 "Error validating the Lucky Penny software license key. " +
-                "Copy the full key again from https://luckypennysoftware.com/account. " +
+                "Copy the full key again from " + LicenseKeyLink + ". " +
                 "If the problem persists, enable debug logging for this category and contact support."
         });
         _logger.LogDebug(exception, "License key validation failure details");
@@ -195,5 +202,5 @@ internal class LicenseAccessor
         _logger.LogInformation(
             "RSA cryptography is not supported on this platform. " +
             "For client redistribution scenarios such as Blazor WASM, see: " +
-            "https://docs.automapper.io/en/latest/License-configuration.html#client-redistribution-scenarios");
+            ClientPlatformsLink);
 }
