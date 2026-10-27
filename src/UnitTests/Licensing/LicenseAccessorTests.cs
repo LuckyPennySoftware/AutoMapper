@@ -80,7 +80,11 @@ public class LicenseAccessorTests
         var exception = new SecurityTokenInvalidSignatureException("IDX10511",
             new InvalidOperationException("wrapper", new PlatformNotSupportedException()));
 
-        var logs = LogValidationFailure(exception);
+        var logs = WithAccessor(accessor =>
+        {
+            accessor.LogValidationFailure(exception);
+            accessor.IsValidationUnsupported.ShouldBeTrue();
+        });
 
         ShouldLogClientRedistribution(logs);
     }
@@ -140,7 +144,8 @@ public class LicenseAccessorTests
     {
         var critical = logs.Where(log => log.Level == LogLevel.Critical).ShouldHaveSingleItem();
         critical.Exception.ShouldBeNull();
-        critical.Message.ShouldContain(expected, Case.Sensitive);
+        var details = logs.Where(log => log.Level == LogLevel.Debug).Select(log => log.Exception?.ToString()).FirstOrDefault();
+        critical.Message.ShouldContain(expected, Case.Sensitive, customMessage: "Validation failure details: " + details);
         critical.Message.ShouldNotContain("IDX");
         logs.ShouldAllBe(log => log.Level == LogLevel.Critical || log.Level == LogLevel.Debug);
     }

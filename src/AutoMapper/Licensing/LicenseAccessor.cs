@@ -14,7 +14,7 @@ internal class LicenseAccessor
 
     // Shipped binaries live for years, so messages link through redirects on our own domain that can be
     // repointed when the docs move. Configure these under https://luckypennysoftware.com/go/.
-    internal const string LicenseKeyLink = "https://luckypennysoftware.com/go/automapper-license-key";
+    internal const string AccountPageLink = "https://luckypennysoftware.com/go/automapper-license-key";
     internal const string ClientPlatformsLink = "https://luckypennysoftware.com/go/automapper-client-platforms";
     internal const string IdentityModelVersionsLink = "https://luckypennysoftware.com/go/automapper-identitymodel-versions";
 
@@ -29,6 +29,9 @@ internal class LicenseAccessor
 
     private License _license;
     private readonly object _lock = new();
+    private bool _validationUnsupported;
+
+    internal bool IsValidationUnsupported => _validationUnsupported;
 
     public License Current => _license ??= Initialize();
 
@@ -48,6 +51,11 @@ internal class LicenseAccessor
             }
 
             var licenseClaims = ValidateKey(key);
+            if (_validationUnsupported)
+            {
+                return new License { IsValidationUnsupported = true };
+            }
+
             return licenseClaims.Any()
                 ? new License(new ClaimsPrincipal(new ClaimsIdentity(licenseClaims)))
                 : new License();
@@ -93,7 +101,7 @@ internal class LicenseAccessor
             _logger.LogError(
                 "The Lucky Penny software license key appears to be incomplete or corrupted " +
                 "(it may have been truncated when copied). " +
-                "Copy the full key again from " + LicenseKeyLink + ".");
+                "Copy the full key again from " + AccountPageLink + ".");
             return [];
         }
 
@@ -170,7 +178,7 @@ internal class LicenseAccessor
             SecurityTokenInvalidSignatureException =>
                 "The Lucky Penny software license key is not valid: its signature does not match. " +
                 "If the key was copied from a PDF, email, or file, it may have been corrupted; " +
-                "copy the full key again from " + LicenseKeyLink + ".",
+                "copy the full key again from " + AccountPageLink + ".",
             _ when ContainsAssemblyMismatch(exception) =>
                 "The Lucky Penny software license key could not be validated because the Microsoft.IdentityModel " +
                 "packages in this application are different versions. Reference the same version of all " +
@@ -178,13 +186,13 @@ internal class LicenseAccessor
                 "See " + IdentityModelVersionsLink + ".",
             SecurityTokenMalformedException or ArgumentException =>
                 "The Lucky Penny software license key appears to be incomplete or corrupted. " +
-                "Copy the full key again from " + LicenseKeyLink + ".",
+                "Copy the full key again from " + AccountPageLink + ".",
             SecurityTokenInvalidIssuerException or SecurityTokenInvalidAudienceException =>
                 "The Lucky Penny software license key is not valid: it is not a Lucky Penny Software license key. " +
-                "Copy your license key from " + LicenseKeyLink + ".",
+                "Copy your license key from " + AccountPageLink + ".",
             _ =>
                 "Error validating the Lucky Penny software license key. " +
-                "Copy the full key again from " + LicenseKeyLink + ". " +
+                "Copy the full key again from " + AccountPageLink + ". " +
                 "If the problem persists, enable debug logging for this category and contact support."
         });
         _logger.LogDebug(exception, "License key validation failure details");
@@ -209,9 +217,12 @@ internal class LicenseAccessor
             _ => ContainsAssemblyMismatch(exception.InnerException)
         };
 
-    private void LogPlatformNotSupported() =>
+    private void LogPlatformNotSupported()
+    {
+        _validationUnsupported = true;
         _logger.LogInformation(
-            "RSA cryptography is not supported on this platform. " +
-            "For client redistribution scenarios such as Blazor WASM, see: " +
-            ClientPlatformsLink);
+                "RSA cryptography is not supported on this platform. " +
+                "For client redistribution scenarios such as Blazor WASM, see: " +
+                ClientPlatformsLink);
+    }
 }
