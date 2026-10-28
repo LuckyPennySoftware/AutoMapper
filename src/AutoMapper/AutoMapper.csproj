@@ -25,17 +25,19 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
-    <BaselineAllAPICompatError>true</BaselineAllAPICompatError>
-    <AdditionalApiCompatOptions>--exclude-non-browsable --exclude-compiler-generated</AdditionalApiCompatOptions>
   </PropertyGroup>
 
+  <!--
+    Package validation runs on pack. It is Windows-only because only the Windows build
+    produces the full set of target frameworks (net471) that ships in the published package.
+    PackageValidationBaselineVersion is the current major release; intentional breaks are
+    recorded in CompatibilitySuppressions.xml (see docs/source/API-Changes.md).
+  -->
   <PropertyGroup Condition=" '$(IsWindows)' == 'true' ">
     <TargetFrameworks>$(TargetFrameworks);net471</TargetFrameworks>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>16.0.0</PackageValidationBaselineVersion>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <ResolvedMatchingContract Include="..\LastMajorVersionBinary\AutoMapper.dll"/>
-  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\icon.png" Pack="true" PackagePath="" Visible="False"/>
@@ -53,12 +55,6 @@
     
     <PackageReference Include="MinVer" PrivateAssets="All"/>
   </ItemGroup>
-
-  <!-- Removing for now because of bash issues -->
-  <!-- <Target Name="PreBuild" AfterTargets="GetAssemblyVersion">
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="powershell -ExecutionPolicy Unrestricted -File &quot;$(ProjectDir)ApiCompat\PreBuild.ps1&quot; -version $(Version)" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="bash &quot;$(ProjectDir)ApiCompat/PreBuild.sh&quot; $(Version)" />
-  </Target> -->
 
   <Target Name="EmbedBuildDate" BeforeTargets="CoreCompile">
     <PropertyGroup>

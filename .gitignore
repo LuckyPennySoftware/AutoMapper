@@ -32,5 +32,4 @@ project.lock.json
 
 # Read the Docs
 docs/_build
-/src/LastMajorVersionBinary
 *.diagsession
