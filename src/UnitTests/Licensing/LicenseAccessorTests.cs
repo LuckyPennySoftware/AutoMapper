@@ -10,7 +10,7 @@ public class LicenseAccessorTests
 {
     // Structurally valid compact JWS (correct issuer, audience and kid, 342-character RS256 signature)
     // whose signature is not genuine, so it reaches signature validation and fails there.
-    private static readonly string WellFormedKey = string.Join(".",
+    internal static readonly string WellFormedKey = string.Join(".",
         Base64Url("""{"alg":"RS256","kid":"LuckyPennySoftwareLicenseKey/bbb13acb59904d89b4cb1c85f088ccf9","typ":"JWT"}"""),
         Base64Url("""{"iss":"https://luckypennysoftware.com","aud":"LuckyPennySoftware"}"""),
         new string('A', 342));
@@ -144,7 +144,7 @@ public class LicenseAccessorTests
         ShouldLogDetailsAtDebug<SecurityTokenException>(logs);
     }
 
-    private static void ShouldLogPlainCritical(IReadOnlyList<FakeLogRecord> logs, string expected)
+    internal static void ShouldLogPlainCritical(IReadOnlyList<FakeLogRecord> logs, string expected)
     {
         var critical = logs.Where(log => log.Level == LogLevel.Critical).ShouldHaveSingleItem();
         critical.Exception.ShouldBeNull();
@@ -154,10 +154,10 @@ public class LicenseAccessorTests
         logs.ShouldAllBe(log => log.Level == LogLevel.Critical || log.Level == LogLevel.Debug);
     }
 
-    private static void ShouldLogDetailsAtDebug<TException>(IReadOnlyList<FakeLogRecord> logs) where TException : Exception =>
+    internal static void ShouldLogDetailsAtDebug<TException>(IReadOnlyList<FakeLogRecord> logs) where TException : Exception =>
         logs.Where(log => log.Level == LogLevel.Debug).ShouldHaveSingleItem().Exception.ShouldBeOfType<TException>();
 
-    private static IReadOnlyList<FakeLogRecord> Validate(string key) =>
+    internal static IReadOnlyList<FakeLogRecord> Validate(string key) =>
         WithAccessor(accessor => accessor.ValidateKey(key).ShouldBeEmpty());
 
     private static IReadOnlyList<FakeLogRecord> LogValidationFailure(Exception exception) =>
