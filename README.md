@@ -82,7 +82,12 @@ If you are a paying customer, you can contact support via your account.
 
 ### How do I set the license key?
 
-You can set the license key when registering AutoMapper:
+The simplest way is to set an environment variable (AutoMapper 16.2.0 and later), with no code change needed:
+
+- `AUTOMAPPER_LICENSE_KEY`: the AutoMapper license key.
+- `LUCKYPENNY_LICENSE_KEY`: a key shared across Lucky Penny products. It must be for a license that includes AutoMapper.
+
+Or you can set the license key in code when registering AutoMapper, which takes precedence over the environment variables:
 
 ```csharp
 services.AddAutoMapper(cfg => 
@@ -90,5 +95,7 @@ services.AddAutoMapper(cfg =>
     cfg.LicenseKey = "<license key here>";
 })
 ```
+
+See [License configuration](https://docs.automapper.io/en/latest/License-configuration.html) for all the options.
 
 You can register for your license key at [AutoMapper.io](https://automapper.io)
