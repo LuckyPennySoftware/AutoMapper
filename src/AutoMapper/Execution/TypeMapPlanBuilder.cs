@@ -149,6 +149,10 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
                 foreach (var derivedTypeMap in configuration.GetIncludedTypeMaps(memberTypeMap))
                 {
                     derivedTypeMap.PreserveReferences = true;
+                    if (derivedTypeMap.MaxDepth == 0)
+                    {
+                        derivedTypeMap.MaxDepth = memberTypeMap.MaxDepth;
+                    }
                     Trace(typeMap, derivedTypeMap, memberMap);
                 }
             }
@@ -420,7 +424,7 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
     private Expression TryMemberMap(MemberMap memberMap, Expression memberMapExpression)
     {
         var newException = Call(MappingError, ExceptionParameter, Constant(memberMap));
-        _catches[0] = Catch(ExceptionParameter, Throw(newException, memberMapExpression.Type));
+        _catches[0] = Catch(ExceptionParameter, Throw(newException, memberMapExpression.Type), WrapExceptionFilter);
         return TryCatch(memberMapExpression, _catches);
     }
 

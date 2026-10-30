@@ -252,7 +252,7 @@ public sealed class MapperConfiguration : IGlobalConfiguration
                 var mapperSource = ToType(source, mapRequest.RuntimeTypes.SourceType);
                 var map = mapper.MapExpression(this, Configuration, mapRequest.MemberMap, mapperSource, ToType(checkNullValueTypeDest, runtimeDestinationType));
                 var newException = Call(MappingError, ExceptionParameter, Constant(mapRequest));
-                fullExpression = TryCatch(ToType(map, destinationType), Catch(ExceptionParameter, Throw(newException, destinationType)));
+                fullExpression = TryCatch(ToType(map, destinationType), Catch(ExceptionParameter, Throw(newException, destinationType), WrapExceptionFilter));
             }
             var profileMap = mapRequest.MemberMap?.Profile ?? Configuration;
             fullExpression = this.NullCheckSource(profileMap, source, destination, fullExpression, mapRequest.MemberMap);

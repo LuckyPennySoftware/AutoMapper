@@ -13,6 +13,9 @@ public static class ExpressionBuilder
     public static readonly Expression Empty = Empty();
     public static readonly Expression Zero = Expression.Default(typeof(int));
     public static readonly ParameterExpression ExceptionParameter = Parameter(typeof(Exception), "ex");
+    // Rethrowing from a catch block starts a new dispatch on top of the stack, so when the stack is nearly
+    // exhausted, wrapping at every level overflows it. Let the guard's exception through unwrapped.
+    public static readonly Expression WrapExceptionFilter = Not(TypeIs(ExceptionParameter, typeof(InsufficientExecutionStackException)));
     public static readonly ParameterExpression ContextParameter = Parameter(typeof(ResolutionContext), "context");
     public static readonly MethodInfo IListClear = typeof(IList).GetMethod(nameof(IList.Clear));
     static readonly MethodInfo ContextCreate = typeof(ResolutionContext).GetInstanceMethod(nameof(ResolutionContext.CreateInstance));
