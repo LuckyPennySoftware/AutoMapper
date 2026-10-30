@@ -207,15 +207,17 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
 
     private Expression CreateAssignmentFunc(Expression createDestination)
     {
-        List<Expression> actions = [createDestination];
+        List<Expression> actions = [];
         Expression typeMapExpression = null;
         var hasMaxDepth = _typeMap.MaxDepth > 0;
         if (hasMaxDepth)
         {
+            // Count this level before creating the destination, constructor parameters map child objects there
             typeMapExpression = Constant(_typeMap);
             actions.Add(Call(ContextParameter, IncTypeDepthInfo, typeMapExpression));
         }
 
+        actions.Add(createDestination);
         AddBeforeMap(actions);
         AddPropertyMaps(actions);
         AddPathMaps(actions);
