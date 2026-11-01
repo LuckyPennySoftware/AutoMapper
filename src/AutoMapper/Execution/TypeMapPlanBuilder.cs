@@ -423,9 +423,7 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
 
     private Expression TryMemberMap(MemberMap memberMap, Expression memberMapExpression)
     {
-        var newException = Call(MappingError, ExceptionParameter, Constant(memberMap));
-        _catches[0] = Catch(ExceptionParameter, Throw(newException, memberMapExpression.Type), WrapExceptionFilter);
-        return TryCatch(memberMapExpression, _catches);
+        return TryWrapException(memberMapExpression, exception => Call(MappingError, exception, Constant(memberMap)), _catches);
     }
 
     private Expression CreatePropertyMapFunc(MemberMap memberMap, Expression destination, MemberInfo destinationMember)

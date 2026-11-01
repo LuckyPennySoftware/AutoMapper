@@ -15,7 +15,39 @@ public static class ExpressionBuilder
     public static readonly ParameterExpression ExceptionParameter = Parameter(typeof(Exception), "ex");
     // Rethrowing from a catch block starts a new dispatch on top of the stack, so when the stack is nearly
     // exhausted, wrapping at every level overflows it. Let the guard's exception through unwrapped.
-    public static readonly Expression WrapExceptionFilter = Not(TypeIs(ExceptionParameter, typeof(InsufficientExecutionStackException)));
+    static readonly Expression WrapExceptionFilter = Not(TypeIs(ExceptionParameter, typeof(InsufficientExecutionStackException)));
+    // .NET Framework can't compile exception filters (DynamicMethod doesn't support them)
+    static readonly bool SupportsExceptionFilters = CanCompileExceptionFilters();
+    static bool CanCompileExceptionFilters()
+    {
+        try
+        {
+            Lambda<Action>(TryCatch(Empty(), Catch(typeof(Exception), Empty(), Constant(true)))).Compile();
+            return true;
+        }
+        catch (NotSupportedException)
+        {
+            return false;
+        }
+    }
+    public static Expression TryWrapException(Expression body, Func<Expression, Expression> newException, CatchBlock[] catches = null)
+    {
+        if (SupportsExceptionFilters)
+        {
+            catches ??= [null];
+            catches[0] = Catch(ExceptionParameter, Throw(newException(ExceptionParameter), body.Type), WrapExceptionFilter);
+            return TryCatch(body, catches);
+        }
+        // Without filters, throw after the catch block returns, so each level throws from its own depth
+        // instead of on top of the stack below it
+        var error = Variable(typeof(Exception), "error");
+        var result = body.Type == typeof(void) ? null : Variable(body.Type, "result");
+        var tryCatch = TryCatch(Block(typeof(void), result == null ? body : Assign(result, body)),
+            Catch(ExceptionParameter, Block(typeof(void), Assign(error, ExceptionParameter))));
+        var throwError = IfThen(NotEqual(error, Constant(null, typeof(Exception))),
+            Throw(Condition(TypeIs(error, typeof(InsufficientExecutionStackException)), error, newException(error), typeof(Exception))));
+        return result == null ? Block([error], tryCatch, throwError) : Block([error, result], tryCatch, throwError, result);
+    }
     public static readonly ParameterExpression ContextParameter = Parameter(typeof(ResolutionContext), "context");
     public static readonly MethodInfo IListClear = typeof(IList).GetMethod(nameof(IList.Clear));
     static readonly MethodInfo ContextCreate = typeof(ResolutionContext).GetInstanceMethod(nameof(ResolutionContext.CreateInstance));
