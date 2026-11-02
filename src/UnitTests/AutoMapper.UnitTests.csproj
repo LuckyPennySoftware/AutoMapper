@@ -9,7 +9,7 @@
 
   <PropertyGroup Condition=" '$(IsWindows)' == 'true' ">
     <PublicSign>true</PublicSign>
-    <TargetFrameworks>$(TargetFrameworks);net462</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworks);net471</TargetFrameworks>
   </PropertyGroup>
   
   <ItemGroup>

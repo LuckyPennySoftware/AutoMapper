@@ -29,10 +29,6 @@
     <AdditionalApiCompatOptions>--exclude-non-browsable --exclude-compiler-generated</AdditionalApiCompatOptions>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(IsWindows)' == 'true' ">
-    <TargetFrameworks>$(TargetFrameworks);net462</TargetFrameworks>
-  </PropertyGroup>
-  
   <ItemGroup>
     <ResolvedMatchingContract Include="..\LastMajorVersionBinary\AutoMapper.dll"/>
   </ItemGroup>

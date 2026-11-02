@@ -7,11 +7,6 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(IsWindows)' == 'true' ">
-    <PublicSign>true</PublicSign>
-    <TargetFrameworks>$(TargetFrameworks);net462</TargetFrameworks>
-  </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="..\UnitTests\AutoMapperSpecBase.cs" Link="AutoMapperSpecBase.cs" />
     <ProjectReference Include="..\AutoMapper\AutoMapper.csproj" />
