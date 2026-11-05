@@ -149,6 +149,10 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
                 foreach (var derivedTypeMap in configuration.GetIncludedTypeMaps(memberTypeMap))
                 {
                     derivedTypeMap.PreserveReferences = true;
+                    if (derivedTypeMap.MaxDepth == 0)
+                    {
+                        derivedTypeMap.MaxDepth = memberTypeMap.MaxDepth;
+                    }
                     Trace(typeMap, derivedTypeMap, memberMap);
                 }
             }
@@ -207,15 +211,17 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
 
     private Expression CreateAssignmentFunc(Expression createDestination)
     {
-        List<Expression> actions = [createDestination];
+        List<Expression> actions = [];
         Expression typeMapExpression = null;
         var hasMaxDepth = _typeMap.MaxDepth > 0;
         if (hasMaxDepth)
         {
+            // Count this level before creating the destination, constructor parameters map child objects there
             typeMapExpression = Constant(_typeMap);
             actions.Add(Call(ContextParameter, IncTypeDepthInfo, typeMapExpression));
         }
 
+        actions.Add(createDestination);
         AddBeforeMap(actions);
         AddPropertyMaps(actions);
         AddPathMaps(actions);
@@ -417,9 +423,7 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
 
     private Expression TryMemberMap(MemberMap memberMap, Expression memberMapExpression)
     {
-        var newException = Call(MappingError, ExceptionParameter, Constant(memberMap));
-        _catches[0] = Catch(ExceptionParameter, Throw(newException, memberMapExpression.Type));
-        return TryCatch(memberMapExpression, _catches);
+        return TryWrapException(memberMapExpression, exception => Call(MappingError, exception, Constant(memberMap)), _catches);
     }
 
     private Expression CreatePropertyMapFunc(MemberMap memberMap, Expression destination, MemberInfo destinationMember)

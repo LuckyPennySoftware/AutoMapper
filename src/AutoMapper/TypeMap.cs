@@ -497,6 +497,11 @@ public sealed class TypeMap
                 return;
             }
             ApplyInheritedMapActions(inheritedDetails.BeforeMapActions, inheritedDetails.AfterMapActions);
+            // Derived maps do the mapping for derived objects, so they need the depth limit too
+            if (MaxDepth == 0)
+            {
+                MaxDepth = inheritedDetails.MaxDepth;
+            }
             if (inheritedDetails.SourceMemberConfigs != null)
             {
                 ApplyInheritedSourceMembers(inheritedTypeMap._details);
