@@ -241,3 +241,7 @@ To disable the depth limit entirely and rely solely on object-identity caching, 
 ```c#
 cfg.CreateMap<Node, Node>().PreserveReferences();
 ```
+
+`MaxDepth` also applies to derived type maps. A map that uses `Include` or `IncludeBase` inherits the base map's `MaxDepth` unless it sets its own, so polymorphic graphs are limited the same way.
+
+Some recursion isn't limited by `MaxDepth`, because no type map of the source graph tracks it. Examples are dictionary and dynamic sources, members typed as `object` or an interface, a recursive type converter, and maps with an explicit `PreserveReferences()`. When such a mapping nests deep enough to run out of stack, AutoMapper throws an `InsufficientExecutionStackException` that you can catch, instead of letting a `StackOverflowException` end the process.

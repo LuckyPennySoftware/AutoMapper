@@ -192,6 +192,8 @@ public sealed class Mapper : IMapper, IInternalRuntimeMapper
     private TDestination MapCore<TSource, TDestination>(
         TSource source, TDestination destination, ResolutionContext context, Type sourceType = null, Type destinationType = null, MemberMap memberMap = null)
     {
+        // Runtime map calls can recurse as deep as the source graph, so fail before the stack overflows
+        System.Runtime.CompilerServices.RuntimeHelpers.EnsureSufficientExecutionStack();
         TypePair requestedTypes = new(typeof(TSource), typeof(TDestination));
         TypePair runtimeTypes = new(source?.GetType() ?? sourceType ?? typeof(TSource), destination?.GetType() ?? destinationType ?? typeof(TDestination));
         MapRequest mapRequest = new(requestedTypes, runtimeTypes, memberMap);
