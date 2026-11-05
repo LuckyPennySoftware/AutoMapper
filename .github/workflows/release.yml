@@ -45,9 +45,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            8.0.x
-            9.0.x
             10.0.x
+            11.0.100-rc.3.26522.148
       - name: Build and Test
         run: ./Build.ps1
         shell: pwsh
@@ -77,10 +76,11 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
+          # 8.0.x: Runtime for NuGetKeyVaultSignTool and sbom-tool, which produces an incomplete SBOM when rolled forward
           dotnet-version: |
             8.0.x
-            9.0.x
             10.0.x
+            11.0.100-rc.3.26522.148
       - name: Install NuGetKeyVaultSignTool
         run: dotnet tool install --global NuGetKeyVaultSignTool
       - name: Build and Test
@@ -109,10 +109,17 @@ jobs:
           NUGET_API_KEY: ${{ secrets.FEEDZIO_ACCESS_TOKEN }}
         run: ./Push.ps1
         shell: pwsh
+      - name: NuGet login
+        # Exchanges the workflow's OIDC token for a temporary API key, valid for one hour.
+        # Requires a trusted publishing policy on nuget.org for this repository and release.yml.
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ secrets.NUGET_USER }}
       - name: Push to NuGet
         env:
           NUGET_URL: https://api.nuget.org/v3/index.json
-          NUGET_API_KEY: ${{ secrets.AUTOMAPPER_NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: ./Push.ps1
         shell: pwsh
       - name: Attach assets to GitHub Release
