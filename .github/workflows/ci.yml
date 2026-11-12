@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    - release/**
   pull_request:
   workflow_dispatch:
 env:
@@ -36,9 +37,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
-          8.0.x
-          9.0.x
           10.0.x
+          11.0.x
     - name: Build and Test
       run: ./Build.ps1
       shell: pwsh
@@ -78,10 +78,11 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
+          # 8.0.x: Runtime for NuGetKeyVaultSignTool, matching release.yml
           dotnet-version: |
             8.0.x
-            9.0.x
             10.0.x
+            11.0.x
       - name: Install NuGetKeyVaultSignTool
         run: dotnet tool install --global NuGetKeyVaultSignTool
       - name: Build and Test
