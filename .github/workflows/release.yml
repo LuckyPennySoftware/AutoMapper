@@ -46,7 +46,7 @@ jobs:
         with:
           dotnet-version: |
             10.0.x
-            11.0.100-rc.3.26522.148
+            11.0.x
       - name: Build and Test
         run: ./Build.ps1
         shell: pwsh
@@ -80,7 +80,7 @@ jobs:
           dotnet-version: |
             8.0.x
             10.0.x
-            11.0.100-rc.3.26522.148
+            11.0.x
       - name: Install NuGetKeyVaultSignTool
         run: dotnet tool install --global NuGetKeyVaultSignTool
       - name: Build and Test
