@@ -58,7 +58,7 @@ var fooDto = mapper.Map<FooDto>(foo);
 var barDto = mapper.Map<BarDto>(bar);
 ```
 
-Check out the [getting started guide](https://automapper.readthedocs.io/en/latest/Getting-started.html). When you're done there, the [wiki](https://automapper.readthedocs.io/en/latest/) goes in to the nitty-gritty details. If you have questions, you can post them to [Stack Overflow](https://stackoverflow.com/questions/tagged/automapper).
+Check out the [getting started guide](https://docs.automapper.io/en/latest/Getting-started.html). When you're done there, the [wiki](https://docs.automapper.io/en/latest/) goes in to the nitty-gritty details. If you have questions, you can post them to [Stack Overflow](https://stackoverflow.com/questions/tagged/automapper).
 
 ### Where can I get it?
 
@@ -74,7 +74,7 @@ dotnet add package AutoMapper
 
 ### Do you have an issue?
 
-You might want to know exactly what [your mapping does](https://automapper.readthedocs.io/en/latest/Understanding-your-mapping.html) at runtime.
+You might want to know exactly what [your mapping does](https://docs.automapper.io/en/latest/Understanding-your-mapping.html) at runtime.
 
 If you're still running into problems, file an issue above.
 
