@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/luckypennysoftware/automapper/workflows/CI/badge.svg)](https://github.com/luckypennysoftware/AutoMapper/actions?query=workflow%3ACI)
 [![NuGet](http://img.shields.io/nuget/vpre/AutoMapper.svg?label=NuGet)](https://www.nuget.org/packages/AutoMapper/)
-[![Documentation Status](https://readthedocs.org/projects/automapper/badge/?version=stable)](https://docs.automapper.io/en/stable/?badge=stable)
+[![Documentation Status](https://readthedocs.org/projects/automapperio/badge/?version=stable)](https://docs.automapper.io/en/stable/?badge=stable)
 
 
 ### What is AutoMapper?
