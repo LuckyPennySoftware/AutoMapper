@@ -113,7 +113,7 @@ public sealed class MapperConfigurationExpression : Profile, IGlobalConfiguratio
         _validators.Add(validator ?? throw new System.ArgumentNullException(nameof(validator)));
     /// <summary>
     /// How many levels deep should AutoMapper try to inline the execution plan for child classes.
-    /// See <a href="https://automapper.readthedocs.io/en/latest/Understanding-your-mapping.html">the docs</a> for details.
+    /// See <a href="https://docs.automapper.io/en/latest/Understanding-your-mapping.html">the docs</a> for details.
     /// </summary>
     int IGlobalConfigurationExpression.MaxExecutionPlanDepth { get; set; } = 1;
 

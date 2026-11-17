@@ -34,7 +34,7 @@ public interface IGlobalConfigurationExpression : IMapperConfigurationExpression
     void Validator(Validator validator);
     /// <summary>
     /// How many levels deep should AutoMapper try to inline the execution plan for child classes.
-    /// See <a href="https://automapper.readthedocs.io/en/latest/Understanding-your-mapping.html">the docs</a> for details.
+    /// See <a href="https://docs.automapper.io/en/latest/Understanding-your-mapping.html">the docs</a> for details.
     /// </summary>
     int MaxExecutionPlanDepth { get; set; }
     List<Validator> Validators { get; }
@@ -124,7 +124,7 @@ public interface IGlobalConfiguration : IConfigurationProvider
     /// <summary>
     /// Builds the execution plan used to map the source to destination.
     /// Useful to understand what exactly is happening during mapping.
-    /// See <a href="https://automapper.readthedocs.io/en/latest/Understanding-your-mapping.html">the wiki</a> for details.
+    /// See <a href="https://docs.automapper.io/en/latest/Understanding-your-mapping.html">the wiki</a> for details.
     /// </summary>
     /// <param name="mapRequest">The source/destination map request</param>
     /// <returns>the execution plan</returns>

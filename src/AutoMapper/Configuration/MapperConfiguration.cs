@@ -27,7 +27,7 @@ public interface IConfigurationProvider
     /// <summary>
     /// Builds the execution plan used to map the source to destination.
     /// Useful to understand what exactly is happening during mapping.
-    /// See <a href="https://automapper.readthedocs.io/en/latest/Understanding-your-mapping.html">the wiki</a> for details.
+    /// See <a href="https://docs.automapper.io/en/latest/Understanding-your-mapping.html">the wiki</a> for details.
     /// </summary>
     /// <param name="sourceType">the runtime type of the source object</param>
     /// <param name="destinationType">the runtime type of the destination object</param>
