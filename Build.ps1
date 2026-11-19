@@ -1,4 +1,4 @@
-# Taken from psake https://github.com/psake/psake
+﻿# Taken from psake https://github.com/psake/psake
 
 <#
 .SYNOPSIS
@@ -35,7 +35,7 @@ else {
     $solution = "./AutoMapper.slnx"
 }
 
-exec { & dotnet test $solution --configuration Release --results-directory $artifacts --logger trx }
+exec { & dotnet test $solution --configuration Release --results-directory $artifacts --logger trx -- RunConfiguration.TreatNoTestsAsError=true }
 
 # Only pack AutoMapper project on Windows runners in GitHub Actions
 if ($env:GITHUB_ACTIONS -eq 'true' -and $env:RUNNER_OS -eq 'Windows') {

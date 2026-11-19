@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
     <NoWarn>$(NoWarn);649;618</NoWarn>
     <AssemblyOriginatorKeyFile>..\..\AutoMapper.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
@@ -9,14 +10,14 @@
 
   <PropertyGroup Condition=" '$(IsWindows)' == 'true' ">
     <PublicSign>true</PublicSign>
-    <TargetFrameworks>$(TargetFrameworks);net471</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworks);net472</TargetFrameworks>
   </PropertyGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\AutoMapper\AutoMapper.csproj" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" />
     <PackageReference Include="Shouldly" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="All" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
   </ItemGroup>
