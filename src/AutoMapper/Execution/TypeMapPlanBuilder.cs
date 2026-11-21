@@ -101,66 +101,74 @@ public ref struct TypeMapPlanBuilder(IGlobalConfiguration configuration, TypeMap
     private static void CheckForCycles(IGlobalConfiguration configuration, TypeMap typeMap,
         HashSet<TypeMap> typeMapsPath)
     {
-        typeMapsPath.Add(typeMap);
-        foreach (var memberMap in MemberMaps())
+        var added = typeMapsPath.Add(typeMap);
+        try
         {
-            var memberTypeMap = ResolveMemberTypeMap(memberMap);
-            if (memberTypeMap == null || memberTypeMap.HasTypeConverter)
+            foreach (var memberMap in MemberMaps())
             {
-                continue;
-            }
-
-            if (memberMap.Inline && (memberTypeMap.PreserveReferences ||
-                                     typeMapsPath.Count == configuration.MaxExecutionPlanDepth))
-            {
-                memberMap.Inline = false;
-                TraceInline(typeMap, memberMap);
-            }
-
-            if (memberTypeMap.PreserveReferences || memberTypeMap.MapExpression != null)
-            {
-                continue;
-            }
-
-            if (typeMapsPath.Contains(memberTypeMap))
-            {
-                if (memberTypeMap.SourceType.IsValueType || memberTypeMap.DestinationType.IsValueType)
+                var memberTypeMap = ResolveMemberTypeMap(memberMap);
+                if (memberTypeMap == null || memberTypeMap.HasTypeConverter)
                 {
-                    if (memberTypeMap.MaxDepth == 0)
-                    {
-                        memberTypeMap.MaxDepth = 10;
-                    }
-
                     continue;
                 }
 
-                memberTypeMap.PreserveReferences = true;
-                if (memberTypeMap.MaxDepth == 0)
-                {
-                    memberTypeMap.MaxDepth = 64;
-                }
-                Trace(typeMap, memberTypeMap, memberMap);
-                if (memberMap.Inline)
+                if (memberMap.Inline && (memberTypeMap.PreserveReferences ||
+                                         typeMapsPath.Count == configuration.MaxExecutionPlanDepth))
                 {
                     memberMap.Inline = false;
                     TraceInline(typeMap, memberMap);
                 }
 
-                foreach (var derivedTypeMap in configuration.GetIncludedTypeMaps(memberTypeMap))
+                if (memberTypeMap.PreserveReferences || memberTypeMap.MapExpression != null)
                 {
-                    derivedTypeMap.PreserveReferences = true;
-                    if (derivedTypeMap.MaxDepth == 0)
-                    {
-                        derivedTypeMap.MaxDepth = memberTypeMap.MaxDepth;
-                    }
-                    Trace(typeMap, derivedTypeMap, memberMap);
+                    continue;
                 }
+
+                if (typeMapsPath.Contains(memberTypeMap))
+                {
+                    if (memberTypeMap.SourceType.IsValueType || memberTypeMap.DestinationType.IsValueType)
+                    {
+                        if (memberTypeMap.MaxDepth == 0)
+                        {
+                            memberTypeMap.MaxDepth = 10;
+                        }
+
+                        continue;
+                    }
+
+                    memberTypeMap.PreserveReferences = true;
+                    if (memberTypeMap.MaxDepth == 0)
+                    {
+                        memberTypeMap.MaxDepth = 64;
+                    }
+                    Trace(typeMap, memberTypeMap, memberMap);
+                    if (memberMap.Inline)
+                    {
+                        memberMap.Inline = false;
+                        TraceInline(typeMap, memberMap);
+                    }
+
+                    foreach (var derivedTypeMap in configuration.GetIncludedTypeMaps(memberTypeMap))
+                    {
+                        derivedTypeMap.PreserveReferences = true;
+                        if (derivedTypeMap.MaxDepth == 0)
+                        {
+                            derivedTypeMap.MaxDepth = memberTypeMap.MaxDepth;
+                        }
+                        Trace(typeMap, derivedTypeMap, memberMap);
+                    }
+                }
+
+                CheckForCycles(configuration, memberTypeMap, typeMapsPath);
             }
-
-            CheckForCycles(configuration, memberTypeMap, typeMapsPath);
         }
-
-        typeMapsPath.Remove(typeMap);
+        finally
+        {
+            if (added)
+            {
+                typeMapsPath.Remove(typeMap);
+            }
+        }
         return;
 
         IEnumerable<MemberMap> MemberMaps()
