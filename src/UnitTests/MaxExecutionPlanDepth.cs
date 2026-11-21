@@ -321,3 +321,91 @@ public class InlineWithoutPreserveReferences : AutoMapperSpecBase
     [Fact]
     public void Should_set_inline_accordingly() => FindTypeMapFor<Source, Destination>().PropertyMaps.First().Inline.ShouldBeFalse();
 }
+
+public class CycleCheckTypeMapsPathInlining : AutoMapperSpecBase
+{
+    class OrderSource
+    {
+        public LineSource Line { get; set; }
+    }
+    class OrderDestination
+    {
+        public LineDestination Line { get; set; }
+    }
+    class LineSource
+    {
+        public OrderSource Parent { get; set; }
+        public ServiceSource Services { get; set; }
+    }
+    class LineDestination
+    {
+        public OrderDestination Parent { get; set; }
+        public ServiceDestination Services { get; set; }
+    }
+    class ServiceSource
+    {
+        public int Id { get; set; }
+    }
+    class ServiceDestination
+    {
+        public int Id { get; set; }
+    }
+
+    protected override MapperConfiguration CreateConfiguration() => new(cfg =>
+    {
+        cfg.CreateMap<OrderSource, OrderDestination>();
+        cfg.CreateMap<LineSource, LineDestination>();
+        cfg.CreateMap<ServiceSource, ServiceDestination>();
+    });
+
+    [Fact]
+    public void Should_not_inline_services_when_parent_cycle_declared_first()
+    {
+        var lineMap = FindTypeMapFor<LineSource, LineDestination>();
+        lineMap.PropertyMaps.Single(m => m.DestinationMember.Name == nameof(LineDestination.Services)).Inline.ShouldBeFalse();
+    }
+}
+
+public class CycleCheckTypeMapsPathInliningReversed : AutoMapperSpecBase
+{
+    class OrderSource
+    {
+        public LineSource Line { get; set; }
+    }
+    class OrderDestination
+    {
+        public LineDestination Line { get; set; }
+    }
+    class LineSource
+    {
+        public ServiceSource Services { get; set; }
+        public OrderSource Parent { get; set; }
+    }
+    class LineDestination
+    {
+        public ServiceDestination Services { get; set; }
+        public OrderDestination Parent { get; set; }
+    }
+    class ServiceSource
+    {
+        public int Id { get; set; }
+    }
+    class ServiceDestination
+    {
+        public int Id { get; set; }
+    }
+
+    protected override MapperConfiguration CreateConfiguration() => new(cfg =>
+    {
+        cfg.CreateMap<OrderSource, OrderDestination>();
+        cfg.CreateMap<LineSource, LineDestination>();
+        cfg.CreateMap<ServiceSource, ServiceDestination>();
+    });
+
+    [Fact]
+    public void Should_not_inline_services_when_services_declared_first()
+    {
+        var lineMap = FindTypeMapFor<LineSource, LineDestination>();
+        lineMap.PropertyMaps.Single(m => m.DestinationMember.Name == nameof(LineDestination.Services)).Inline.ShouldBeFalse();
+    }
+}
